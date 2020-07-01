@@ -1,0 +1,223 @@
+#     Approximate location of landmarks on the face
+
+install.packages("~/OneDrive - University of Glasgow/research/face3d_0.1-1/face3d",
+                 repos = NULL, type = "source")
+library(face3d)
+library(rgl)
+library(fields)
+library(geometry)
+library(shapes)
+library(MASS)
+
+# Test on controls
+
+fls <- list.files("~/Desktop/Glasgow-controls", recursive = TRUE, full.names = TRUE)
+fls <- fls[-grep("details", fls)]
+fls <- fls[-grep("lmks", fls)]
+fls <- fls[-182]      # main area of positive curvature is the clothing
+
+landmark.names <- c("pn", "enL", "enR", "se")
+# landmark.names <- "none"
+
+dst <- matrix(NA, nrow = length(fls), ncol = 4, dimnames = list(NULL, landmark.names))
+for (i in 1:length(fls)) {
+   cat(i, "")
+   load(fls[i])
+   class(face) <- "face3d"
+   face$landmarks <- NULL
+   s.spacing  <- if ((i %in% c(101, 113, 130)) | (i >= 182)) 8 else 10
+   s.spacing  <- 10
+   s.distance <- 40
+   trim       <- 30
+   face <- approximatelandmarks.face3d(face, landmark.names, sample.spacing = s.spacing,
+                                       sample.distance = s.distance, trim = trim,
+                                       distance = 10, monitor = 1)
+   plot(face)
+   clr <- rep("blue", nrow(face$landmarks))
+   clr[grep("R", rownames(face$landmarks))] <- "green"
+   clr[grep("L", rownames(face$landmarks))] <- "orange"
+   spheres3d(face$landmarks, radius = 3, col = clr)
+
+   if ("lmks" %in% names(face))
+      dst[i, ] <- apply(face$landmarks - face$lmks[landmark.names, ], 1,
+                              function(x) sqrt(sum(x^2)))
+   # save(face, file = fls[i])
+   
+   snapshot3d(paste("~/Desktop/temp/temp_", i, ".png", sep = ""))
+   # snapshot3d(paste("~/Desktop/temp/temp_crv", i, ".png", sep = ""))
+}
+
+
+# Other landmark
+
+i <- 81
+load(fls[i])
+landmark.names <- c("pn", "enL", "enR", "se")
+face$landmarks <- NULL
+face           <- approximatelandmarks.face3d(face, landmark.names, distance = 10,
+                                              threshold = threshold, monitor = 0)
+plot(face)
+spheres3d(face$landmarks[landmark.names, ], radius = 3, col = "yellow")
+spheres3d(     face$lmks[landmark.names, ], radius = 3, col = "green")
+
+# sn
+
+dst      <- rdist(t(face$lmks["pn", ]), face$coords)
+drn      <- face$landmarks["pn", ] - face$landmarks["se", ]
+nrm      <- face$normals[which.min(dst), ]
+drn      <- crossproduct(drn, nrm)
+prp      <- sweep(sbst$coords, 2, face$landmarks["pn", ]) %*% drn
+# Adjust the distance from the prior information: more than to sn but less than to lips?
+sbst     <- subset(face, dst < 40 & abs(prp) < 5)
+crv      <- sbst$kappa1 * sbst$kappa2
+mode     <- mode.face3d(sbst, -crv, 5)$mode
+spheres3d(mode, col = "yellow")
+
+sbst     <- subset(sbst, sbst$crv < 0)
+plot(sbst, col = -sbst$crv, new = TRUE)
+sbst <- subset(sbst, sbst$crv < median(sbst$crv))
+plot(sbst, col = -sbst$crv)
+plot(sbst, col = pmax(0, -sbst$kappa1 * sbst$kappa2)
+plot(sbst, col = "shape index")
+ppath <- planepath.face3d(sbst, face$landmarks["pn", ],
+                          direction = face$landmarks["pn", ] - face$landmarks["se", ],
+                          rotation = 0)$path
+spheres3d(ppath)
+
+# Chin
+
+
+# Prior information
+
+load("~/OneDrive - University of Glasgow/research/face3d_0.1-1/lmks-liberty.rda")
+load(fls[81])
+rownames(lmks.liberty) <- rownames(face$lmks)
+lmks.liberty <- lmks.liberty[-match(c("tL", "tR", "oiL", "oiR"), rownames(lmks.liberty)), , ]
+gpa <- gpa.face3d(lmks.liberty, match.ids = landmark.names, scale = FALSE)
+
+tan  <- apply(sweep(gpa$aligned, 1:2, gpa$mean), 3, c)
+mnt  <- apply(tan, 1, mean)
+covt <- cov(t(tan))
+
+plot(face)
+spheres3d(face$landmarks, col = "yellow", radius = 3)
+n.lmks <- nrow(lmks.liberty)
+for (i in 1:n.lmks) {
+   ind <- c(i, i + n.lmks, i + 2 * n.lmks)
+   plot3d(ellipse3d(covt[ind, ind], centre = gpa$mean[i, ]), 
+          col = "lightblue", alpha = 0.5, add = TRUE)
+}
+
+# Procrustes registration on the four landmarks
+opa <- opa.face3d(gpa$mean[landmark.names, ], face$landmarks[landmark.names, ],
+                  gpa$mean, scale = FALSE, return.parameters = TRUE)
+for (i in 1:n.lmks) pop3d()
+for (i in 1:n.lmks) {
+   ind <- c(i, i + n.lmks, i + 2 * n.lmks)
+   plot3d(ellipse3d(opa$rotation %*% covt[ind, ind] %*% t(opa$rotation), centre = opa$opa[i, ]),
+          col = "lightblue", alpha = 0.5, add = TRUE)
+}
+
+# Conditional distribution of the remaining landmark.names
+ind.cond <- match(landmark.names, rownames(lmks.liberty))
+ind.cond <- c(ind.cond, ind.cond + n.lmks, ind.cond + 2 * n.lmks)
+mnt.cond <- mnt[-ind.cond] + covt[-ind.cond, ind.cond] %*%
+   ginv(covt[ind.cond, ind.cond]) %*%
+   (c(face$landmarks[landmark.names, ] - gpa$mean[ind.cond]))
+spheres3d(matrix(mnt.cond + gpa$mean[-ind.cond], ncol = 3), col = "red")
+
+
+
+for (i in 1:length(fls)) {
+   cat(i, "")
+   load(fls[i])
+   
+   sbst  <- subset(face, face$shape.index > 0.2)
+   parts <- connected.face3d(sbst)
+   sbst  <- subset(sbst, parts == 1)
+   chull <- convhulln(sbst$coords)
+   cpts  <- unique(c(chull))
+   
+   plot(sbst, col = sbst$kappa2)
+   # spheres3d(sbst$coords[cpts, ], radius = 1, col = "white")
+   
+   # sbst1 <- subset(sbst, sbst$kappa2 < quantile(sbst$kappa2, 0.10))
+   # plot(sbst1, col = sbst1$kappa2)
+   # 
+   # edges <- edges.face3d(sbst)
+   # lapply(edges, function(x) lines3d(sbst$coords[x, ], lwd = 2, col = "blue"))
+   # 
+   # dst  <- rdist(sbst$coords[cpts, ], sbst$coords[cpts, ])
+   # ind  <- which(apply(dst, 1, min) > 10)
+   # 
+   # crv <- -(sbst$kappa1[cpts] + sbst$kappa2[cpts])
+   # dst <- rdist(sbst$coords[cpts, ], sbst$coords)
+   # val <- apply(dst, 1, function(x) length(which(x < 5)))
+   # dst <- rdist(sbst$coords[cpts, ], sbst$coords[cpts, ])
+   # val <- apply(dst, 1, function(x) length(which(x < 5))) / val
+   # val <- apply(dst, 1, function(x) mean(crv[x < 5])) * val
+   # pn  <- sbst$coords[cpts, ][which.max(val), ]
+   # spheres3d(pn, col = "yellow", radius = 3)
+   
+   # plot(sbst, col = sbst$kappa2)
+   
+   snapshot3d(paste("~/Desktop/temp_pos/temp_", i, ".png", sep = ""))
+}
+
+
+# What other approximate landmarks can we find?
+
+for (i in 1:length(fls)) {
+   
+   cat(i, "")
+   load(fls[i])
+   plot(face)
+   spheres3d(face$landmarks, col = "green", radius = 2)
+
+   pn   <- face$landmarks["pn", ]
+   dst  <- c(rdist(face$coords, t(pn)))
+   ind  <- which(dst < 50)
+   sbst <- subset(face, ind)
+   plot(sbst)
+   spheres3d(pn, col = "green", radius = 2)
+   sbst <- index.face3d(sbst, overwrite = TRUE)
+
+   nrm   <- face$normals[which.min(dst), ]
+   drn   <- c(crossproduct(face$landmarks["se", ] - pn, nrm))
+   pathL <- planepath.face3d(sbst, pn, direction =  drn, rotation.range = pi / 4, si.target = 1)
+   pathR <- planepath.face3d(sbst, pn, direction = -drn, rotation.range = pi / 4, si.target = 1)
+   acL   <- gcurvature.face3d(pathL$path, 10)$pos.max
+   acR   <- gcurvature.face3d(pathR$path, 10)$pos.max
+   
+   drn   <- pn -face$landmarks["se", ]
+   pathM <- planepath.face3d(sbst, pn, direction =  drn, rotation.range = pi / 4, si.target = 1)
+   sn    <- gcurvature.face3d(pathM$path, 10)$pos.max
+   
+   plot(sbst, col = sbst$kappa2)
+   spheres3d(pn, col = "green", radius = 2)
+   spheres3d(pathL$path, col = "yellow")
+   spheres3d(pathR$path, col = "yellow")
+   spheres3d(pathM$path,  col = "yellow")
+   spheres3d(acL, col = "green", radius = 2)
+   spheres3d(acR, col = "green", radius = 2)
+   spheres3d(sn,  col = "green", radius = 2)
+   
+   snapshot3d(paste("~/Desktop/temp_nose/temp_", i, ".png", sep = ""))
+}
+
+
+face     <- template_male
+selected <- sample(1:nrow(face$coords), 1000)
+face     <- index.face3d(face, subset = selected, distance = 50, overwrite = TRUE)
+wp       <- warp.face3d(face$coords[selected, ], face$kappa1[selected], face$coords)
+plot(face, col = wp)
+
+# face.1  <- index.face3d(face, distance = 10,  overwrite = TRUE)
+# face.5  <- index.face3d(face, distance = 50,  overwrite = TRUE)
+# face.10 <- index.face3d(face, distance = 100, overwrite = TRUE)
+# face.15 <- index.face3d(face, distance = 150, overwrite = TRUE)
+# 
+# plot(face.1,  col = "shape index")
+# plot(face.5,  col = "shape index", new = TRUE)
+# plot(face.10, col = "shape index", new = TRUE)
+# plot(face.15, col = "shape index", new = TRUE)

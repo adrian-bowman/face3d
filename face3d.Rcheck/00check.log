@@ -1,0 +1,32 @@
+* using log directory ‘/Users/adrianbowman/OneDrive - University of Glasgow/research/face3d_0.1-1/face3d.Rcheck’
+* using R version 3.6.1 (2019-07-05)
+* using platform: x86_64-apple-darwin15.6.0 (64-bit)
+* using session charset: UTF-8
+* using option ‘--as-cran’
+* checking for file ‘face3d/DESCRIPTION’ ... OK
+* checking extension type ... Package
+* this is package ‘face3d’ version ‘0.1’
+* checking CRAN incoming feasibility ... NOTE
+Maintainer: ‘Adrian Bowman <adrian.bowman@glasgow.ac.uk>’
+
+New submission
+
+No package encoding and non-ASCII characters in the following R files:
+  R/model.R
+    166: #  # here need to fix 1156 resample versus all else#############<c3><9f>
+
+The Date field is over a month old.
+
+Size of tarball: 11710961 bytes
+* checking package namespace information ... OK
+* checking package dependencies ... ERROR
+Package suggested but not available: ‘jpeg’
+
+The suggested packages are required for a complete check.
+Checking can be attempted without them by setting the environment
+variable _R_CHECK_FORCE_SUGGESTS_ to a false value.
+
+See section ‘The DESCRIPTION file’ in the ‘Writing R Extensions’
+manual.
+* DONE
+Status: 1 ERROR, 1 NOTE

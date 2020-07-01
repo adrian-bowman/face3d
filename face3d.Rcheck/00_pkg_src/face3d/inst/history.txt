@@ -1,0 +1,5 @@
+History of the `face3d' package
+by Adrian W. Bowman, Liberty Vittert & Stanislav Katina
+-------------------------------------------------------
+
+xxx  2020: version 0.1-1 released.
