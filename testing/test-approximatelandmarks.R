@@ -1,6 +1,6 @@
 #     Approximate location of landmarks on the face
 
-install.packages("~/OneDrive - University of Glasgow/research/face3d_0.1-1/face3d",
+install.packages("~/OneDrive - University of Glasgow/research/face3d/face3d",
                  repos = NULL, type = "source")
 library(face3d)
 library(rgl)
@@ -29,36 +29,27 @@ for (i in 1:length(fls)) {
    s.spacing  <- 10
    s.distance <- 40
    trim       <- 30
+   landmark.names <- "pn"
    face <- approximatelandmarks.face3d(face, landmark.names, sample.spacing = s.spacing,
                                        sample.distance = s.distance, trim = trim,
-                                       distance = 10, monitor = 1)
-   plot(face)
-   clr <- rep("blue", nrow(face$landmarks))
-   clr[grep("R", rownames(face$landmarks))] <- "green"
-   clr[grep("L", rownames(face$landmarks))] <- "orange"
-   spheres3d(face$landmarks, radius = 3, col = clr)
-
-   if ("lmks" %in% names(face))
-      dst[i, ] <- apply(face$landmarks - face$lmks[landmark.names, ], 1,
-                              function(x) sqrt(sum(x^2)))
+                                       distance = 10, monitor = 2)
+   # plot(face)
+   # clr <- rep("blue", nrow(face$landmarks))
+   # clr[grep("R", rownames(face$landmarks))] <- "green"
+   # clr[grep("L", rownames(face$landmarks))] <- "orange"
+   # spheres3d(face$landmarks, radius = 3, col = clr)
+   # 
+   # if ("lmks" %in% names(face))
+   #    dst[i, ] <- apply(face$landmarks - face$lmks[landmark.names, ], 1,
+   #                            function(x) sqrt(sum(x^2)))
    # save(face, file = fls[i])
    
-   snapshot3d(paste("~/Desktop/temp/temp_", i, ".png", sep = ""))
+   snapshot3d(paste("~/Desktop/temp_chin/temp_", i, ".png", sep = ""))
    # snapshot3d(paste("~/Desktop/temp/temp_crv", i, ".png", sep = ""))
 }
 
 
-# Other landmark
-
-i <- 81
-load(fls[i])
-landmark.names <- c("pn", "enL", "enR", "se")
-face$landmarks <- NULL
-face           <- approximatelandmarks.face3d(face, landmark.names, distance = 10,
-                                              threshold = threshold, monitor = 0)
-plot(face)
-spheres3d(face$landmarks[landmark.names, ], radius = 3, col = "yellow")
-spheres3d(     face$lmks[landmark.names, ], radius = 3, col = "green")
+# Other landmarks
 
 # sn
 
@@ -77,7 +68,7 @@ sbst     <- subset(sbst, sbst$crv < 0)
 plot(sbst, col = -sbst$crv, new = TRUE)
 sbst <- subset(sbst, sbst$crv < median(sbst$crv))
 plot(sbst, col = -sbst$crv)
-plot(sbst, col = pmax(0, -sbst$kappa1 * sbst$kappa2)
+plot(sbst, col = pmax(0, -sbst$kappa1 * sbst$kappa2))
 plot(sbst, col = "shape index")
 ppath <- planepath.face3d(sbst, face$landmarks["pn", ],
                           direction = face$landmarks["pn", ] - face$landmarks["se", ],

@@ -202,6 +202,8 @@ plot.face3d <- function (shape, display = "surface", plot.isolated = TRUE,
        }
     }
 
+   print(col.palette)
+   print(breaks)
    if (key) colourkey.face3d(col.palette, breaks, scaling,
                              clabel = clabel, cex.axis = cex.axis)
 

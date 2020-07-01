@@ -54,9 +54,10 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       face$gc          <- face$kappa1 * face$kappa2
 
       if (monitor > 0) cat("completed.\n")
-      if (monitor > 2) {
+      if (monitor > 1) {
          plot(face, col = "shape index")
-         invisible(readline(prompt = "      Press [enter] to continue"))
+         plot(face, col = face$gc, key = TRUE)
+         if (monitor > 2) invisible(readline(prompt = "      Press [enter] to continue"))
       }
    
       if (all(landmark.names == "none")) return(invisible(face))
@@ -96,6 +97,10 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       # Find the patches with very high Gaussian curvature
       sbst1    <- subset(sbst.pos, sbst.pos$gc > quantile(sbst.pos$gc, 0.90), retain.indices = TRUE)
 
+      # sbst2    <- subset(sbst.pos, sbst.pos$gc > quantile(sbst.pos$gc, 0.80), retain.indices = TRUE)
+      # plot(sbst2, col = sbst2$gc)
+      # return()
+      
       # Remove those which are close to the largest edge
       p1       <- connected.face3d(sbst1)
       edge.pts <- sbst.pos$coords[edges.pos[[edge.ind]], ]
@@ -108,26 +113,26 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       ind      <- logical(length = length(unique(p1)))
       for (j in 1:length(unique(p1)))
          ind[j] <- (min(rdist(subset(sbst1, p1 == unique(p1)[j])$coords, sbst.neg$coords)) < 20)
-      sbst1 <- subset(sbst1, p1 %in% unique(p1)[ind])
+      sbst.nose <- subset(sbst1, p1 %in% unique(p1)[ind])
       p1 <- p1[p1 %in% unique(p1)[ind]]
       
       # Integrate the scores over each patch and find the largest
       scores <- numeric(0)
       for (j in unique(p1))
-         scores <- c(scores, sum(area.face3d(subset(sbst1, p1 == j))$points * sbst1$gc[p1 == j]))
+         scores <- c(scores, sum(area.face3d(subset(sbst.nose, p1 == j))$points * sbst.nose$gc[p1 == j]))
       ind  <- order(scores, decreasing = TRUE)
-      sbs  <- subset(sbst1, p1 == unique(p1)[ind[1]])
+      sbs  <- subset(sbst.nose, p1 == unique(p1)[ind[1]])
       mode <- mode.face3d(sbs, sbs$gc, 10)
       if (length(ind) > 1) {
-         sbs   <- subset(sbst1, p1 == unique(p1)[ind[2]])
+         sbs   <- subset(sbst.nose, p1 == unique(p1)[ind[2]])
          mode2 <- mode.face3d(sbs, sbs$gc, 10)
          if (mode2$value > mode$value) mode <- mode2
       }
       lmks["pn", ] <- mode$mode
 
       if (monitor > 1) {
-         plot(subset(sbst.pos, -sbst1$subset))
-         plot(sbst1, col = sbst1$gc, add = TRUE)
+         plot(subset(sbst.pos, -sbst.nose$subset))
+         plot(sbst.nose, col = sbst1$gc, add = TRUE)
          spheres3d(lmks["pn", ], radius = 3, col = "red")
          if (monitor > 2) {
             invisible(readline(prompt = "      Press [enter] to continue"))
