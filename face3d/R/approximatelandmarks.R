@@ -97,9 +97,9 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       # Find the patches with very high Gaussian curvature
       sbst1    <- subset(sbst.pos, sbst.pos$gc > quantile(sbst.pos$gc, 0.90), retain.indices = TRUE)
 
-      # sbst2    <- subset(sbst.pos, sbst.pos$gc > quantile(sbst.pos$gc, 0.80), retain.indices = TRUE)
-      # plot(sbst2, col = sbst2$gc)
-      # return()
+      sbst2    <- subset(sbst.pos, sbst.pos$gc > quantile(sbst.pos$gc, 0.80), retain.indices = TRUE)
+      plot(sbst2, col = sbst2$gc)
+      return()
       
       # Remove those which are close to the largest edge
       p1       <- connected.face3d(sbst1)
