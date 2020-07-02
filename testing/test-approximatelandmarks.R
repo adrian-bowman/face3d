@@ -1,7 +1,8 @@
 #     Approximate location of landmarks on the face
 
-install.packages("~/OneDrive - University of Glasgow/research/face3d/face3d",
-                 repos = NULL, type = "source")
+setwd("~/OneDrive - University of Glasgow/research/face3d")
+
+install.packages("face3d", repos = NULL, type = "source")
 library(face3d)
 library(rgl)
 library(fields)
@@ -18,8 +19,9 @@ fls <- fls[-182]      # main area of positive curvature is the clothing
 
 landmark.names <- c("pn", "enL", "enR", "se")
 # landmark.names <- "none"
-
+# landmark.names <- "pn"
 dst <- matrix(NA, nrow = length(fls), ncol = 4, dimnames = list(NULL, landmark.names))
+
 for (i in 1:length(fls)) {
    cat(i, "")
    load(fls[i])
@@ -27,27 +29,40 @@ for (i in 1:length(fls)) {
    face$landmarks <- NULL
    s.spacing  <- if ((i %in% c(101, 113, 130)) | (i >= 182)) 8 else 10
    s.spacing  <- 10
-   s.distance <- 40
+   s.distance <- 45
    trim       <- 30
-   landmark.names <- "pn"
    face <- approximatelandmarks.face3d(face, landmark.names, sample.spacing = s.spacing,
                                        sample.distance = s.distance, trim = trim,
-                                       distance = 10, monitor = 2)
-   # plot(face)
-   # clr <- rep("blue", nrow(face$landmarks))
-   # clr[grep("R", rownames(face$landmarks))] <- "green"
-   # clr[grep("L", rownames(face$landmarks))] <- "orange"
-   # spheres3d(face$landmarks, radius = 3, col = clr)
-   # 
-   # if ("lmks" %in% names(face))
-   #    dst[i, ] <- apply(face$landmarks - face$lmks[landmark.names, ], 1,
-   #                            function(x) sqrt(sum(x^2)))
-   # save(face, file = fls[i])
+                                       distance = 10, monitor = 1)
+   plot(face)
+   clr <- rep("blue", nrow(face$landmarks))
+   clr[grep("R", rownames(face$landmarks))] <- "green"
+   clr[grep("L", rownames(face$landmarks))] <- "orange"
+   spheres3d(face$landmarks, radius = 3, col = clr)
+
+   if ("lmks" %in% names(face))
+      dst[i, ] <- apply(face$landmarks - face$lmks[landmark.names, ], 1,
+                              function(x) sqrt(sum(x^2)))
+   save(face, file = fls[i])
    
-   snapshot3d(paste("~/Desktop/temp_chin/temp_", i, ".png", sep = ""))
+   snapshot3d(paste("~/Desktop/temp/temp_", i, ".png", sep = ""))
    # snapshot3d(paste("~/Desktop/temp/temp_crv", i, ".png", sep = ""))
 }
 
+load("lmks-liberty.rda")
+# load(fls[81])
+# rownames(lmks.liberty) <- rownames(face$lmks)
+# save(lmks.liberty, file = "lmks-liberty.rda")
+
+lmks.liberty <- lmks.liberty[-match(c("tL", "tR", "oiL", "oiR"), rownames(lmks.liberty)), , ]
+gpa <- gpa.face3d(lmks.liberty, match.ids = landmark.names, scale = FALSE)
+mn  <- gpa$mean
+# Move the mean to match the mid-point of pn and se.
+# mn <- sweep(mn, 2, apply(face$landmarks[c("pn", "se"), ] - mn[c("pn", "se"), ], 2, mean))
+mn1 <- apply(face$landmarks[c("pn", "se"), ], 2, mean)
+mn2 <- apply(mn[c("pn", "se"), ], 2, mean)
+mn  <- sweep(mn, 2, mn2 - mn1)
+spheres3d(mn, col = "yellow", radius = 3)
 
 # Other landmarks
 
@@ -80,7 +95,7 @@ spheres3d(ppath)
 
 # Prior information
 
-load("~/OneDrive - University of Glasgow/research/face3d_0.1-1/lmks-liberty.rda")
+load("lmks-liberty.rda")
 load(fls[81])
 rownames(lmks.liberty) <- rownames(face$lmks)
 lmks.liberty <- lmks.liberty[-match(c("tL", "tR", "oiL", "oiR"), rownames(lmks.liberty)), , ]

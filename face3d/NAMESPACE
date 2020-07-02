@@ -4,7 +4,6 @@ export(
   area.face3d,
   as.face3d,
   asymmetry.face3d,
-  bayesian.landmarks,
   centre.face3d,
   center.face3d,
   closest.face3d,
