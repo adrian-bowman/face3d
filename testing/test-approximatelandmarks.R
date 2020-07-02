@@ -27,13 +27,12 @@ for (i in 1:length(fls)) {
    load(fls[i])
    class(face) <- "face3d"
    face$landmarks <- NULL
-   s.spacing  <- if ((i %in% c(101, 113, 130)) | (i >= 182)) 8 else 10
    s.spacing  <- 10
    s.distance <- 45
    trim       <- 30
    face <- approximatelandmarks.face3d(face, landmark.names, sample.spacing = s.spacing,
                                        sample.distance = s.distance, trim = trim,
-                                       distance = 10, monitor = 1)
+                                       distance = 10, monitor = 3)
    plot(face)
    clr <- rep("blue", nrow(face$landmarks))
    clr[grep("R", rownames(face$landmarks))] <- "green"
@@ -48,6 +47,7 @@ for (i in 1:length(fls)) {
    snapshot3d(paste("~/Desktop/temp/temp_", i, ".png", sep = ""))
    # snapshot3d(paste("~/Desktop/temp/temp_crv", i, ".png", sep = ""))
 }
+save(dst, file = "~/Desktop/discrepancies.Rda")
 
 load("lmks-liberty.rda")
 # load(fls[81])
