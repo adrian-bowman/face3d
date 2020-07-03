@@ -51,6 +51,7 @@ save(dst, file = "~/Desktop/discrepancies.Rda")
 
 i <- 1
 load(fls[i])
+
 plot(face)
 clr <- rep("blue", nrow(face$landmarks))
 clr[grep("R", rownames(face$landmarks))] <- "green"
@@ -64,8 +65,16 @@ spheres3d(face$landmarks, radius = 3, col = clr)
 
 load("lmks-liberty.rda")
 lmks.liberty <- lmks.liberty[-match(c("tL", "tR", "oiL", "oiR"), rownames(lmks.liberty)), , ]
-gpa <- gpa.face3d(lmks.liberty, scale = FALSE)
-mn  <- gpa$mean
+landmark.names <- c("pn", "se", "acL", "acR")
+lmks   <- lmks.liberty[landmark.names, , ]
+
+gpa    <- gpa.face3d(lmks, scale = FALSE)
+mn     <- gpa$mean
+n.lmks <- nrow(lmks)
+tan    <- apply(sweep(gpa$aligned, 1:2, gpa$mean), 3, c)
+mnt    <- apply(tan, 1, mean)
+covt   <- cov(t(tan))
+
 # Move the mean to match the mid-point of pn and se.
 # mn <- sweep(mn, 2, apply(face$landmarks[c("pn", "se"), ] - mn[c("pn", "se"), ], 2, mean))
 mn1 <- apply(face$landmarks[c("pn", "se"), ], 2, mean)
@@ -82,18 +91,12 @@ mn    <- sweep(mn, 2, mn1)
 mn    <- rotate3d(mn, angle, raxis[1] , raxis[2], raxis[3])
 mn    <- sweep(mn, 2, mn1, "+")
 rotmat <- rotationMatrix(angle, raxis[1] , raxis[2], raxis[3])[1:3, 1:3]
-
-n.lmks <- nrow(lmks.liberty)
-tan    <- apply(sweep(gpa$aligned, 1:2, gpa$mean), 3, c)
-mnt    <- apply(tan, 1, mean)
-covt   <- cov(t(tan))
+pop3d()
+spheres3d(mn, col = "yellow", radius = 3)
 
 plot(face)
-clr <- rep("blue", nrow(face$landmarks))
-clr[grep("R", rownames(face$landmarks))] <- "green"
-clr[grep("L", rownames(face$landmarks))] <- "orange"
-spheres3d(face$landmarks, radius = 3, col = clr)
-spheres3d(mn, col = "yellow", radius = 3)
+spheres3d(face$landmarks[c("pn", "se"), ], radius = 3, col = "blue")
+# spheres3d(mn, col = "yellow", radius = 3)
 for (j in 1:n.lmks) {
    ind    <- c(j, j + n.lmks, j + 2 * n.lmks)
    covt.r <- rotate3d(covt[ind, ind], angle, raxis[1] , raxis[2], raxis[3])
@@ -102,6 +105,19 @@ for (j in 1:n.lmks) {
           col = "lightblue", alpha = 0.5, add = TRUE)
 }
 
+# Optimise over location and orientation - no likelihood yet
+dst  <- c(rdist(t(face$landmarks["pn", ]), face$coords))
+face <- subset(face, dst < 100)
+
+
+
+face <- index.face3d(face, overwrite = TRUE)
+plot(face, col = "shape index")
+plot(face, col = face$kappa1)
+plot(face, col = face$kappa2)
+plot(face, col = face$kappa1 * face$kappa2)
+
+fit <- function()
 
 # Prior information
 
