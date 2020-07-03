@@ -13,8 +13,10 @@ gpa.face3d <- function(x, match.ids, scale = TRUE, model.mesh = FALSE, tol = 1e-
    if (length(match.ids) < dim(x)[1]) {
       for (i in 1:n) y[ , , i] <- opa.face3d(x[match.ids, , i], gpa$rotated[ , , i], x[ , , i], scale = scale)
    }
-   else
+   else {
       y <- gpa$rotated
+      dimnames(y) <- dimnames(x)
+   }
    if (!model.mesh)
       return(invisible(list(aligned = y, mean = apply(y, 1:2, mean))))
    
