@@ -49,13 +49,22 @@ for (i in 1:length(fls)) {
 }
 save(dst, file = "~/Desktop/discrepancies.Rda")
 
-load("lmks-liberty.rda")
+i <- 1
+load(fls[i])
+plot(face)
+clr <- rep("blue", nrow(face$landmarks))
+clr[grep("R", rownames(face$landmarks))] <- "green"
+clr[grep("L", rownames(face$landmarks))] <- "orange"
+spheres3d(face$landmarks, radius = 3, col = clr)
+
+# load("lmks-liberty.rda")
 # load(fls[81])
 # rownames(lmks.liberty) <- rownames(face$lmks)
 # save(lmks.liberty, file = "lmks-liberty.rda")
 
+load("lmks-liberty.rda")
 lmks.liberty <- lmks.liberty[-match(c("tL", "tR", "oiL", "oiR"), rownames(lmks.liberty)), , ]
-gpa <- gpa.face3d(lmks.liberty, match.ids = landmark.names, scale = FALSE)
+gpa <- gpa.face3d(lmks.liberty, scale = FALSE)
 mn  <- gpa$mean
 # Move the mean to match the mid-point of pn and se.
 # mn <- sweep(mn, 2, apply(face$landmarks[c("pn", "se"), ] - mn[c("pn", "se"), ], 2, mean))
@@ -64,46 +73,37 @@ mn2 <- apply(mn[c("pn", "se"), ], 2, mean)
 mn  <- sweep(mn, 2, mn2 - mn1)
 spheres3d(mn, col = "yellow", radius = 3)
 
-# Other landmarks
+a1    <- face$landmarks["se", ] - mn1
+a2    <- mn["se", ] - mn1
+raxis <- c(crossproduct(a1, a2))
+angle <- acos(sum((a1 * a2)) / sqrt(sum(a1^2) * sum(a2^23)))
+angle <- angle * 2 * pi * angle / 360
+mn    <- sweep(mn, 2, mn1)
+mn    <- rotate3d(mn, angle, raxis[1] , raxis[2], raxis[3])
+mn    <- sweep(mn, 2, mn1, "+")
+rotmat <- rotationMatrix(angle, raxis[1] , raxis[2], raxis[3])[1:3, 1:3]
 
-# sn
+n.lmks <- nrow(lmks.liberty)
+tan    <- apply(sweep(gpa$aligned, 1:2, gpa$mean), 3, c)
+mnt    <- apply(tan, 1, mean)
+covt   <- cov(t(tan))
 
-dst      <- rdist(t(face$lmks["pn", ]), face$coords)
-drn      <- face$landmarks["pn", ] - face$landmarks["se", ]
-nrm      <- face$normals[which.min(dst), ]
-drn      <- crossproduct(drn, nrm)
-prp      <- sweep(sbst$coords, 2, face$landmarks["pn", ]) %*% drn
-# Adjust the distance from the prior information: more than to sn but less than to lips?
-sbst     <- subset(face, dst < 40 & abs(prp) < 5)
-crv      <- sbst$kappa1 * sbst$kappa2
-mode     <- mode.face3d(sbst, -crv, 5)$mode
-spheres3d(mode, col = "yellow")
-
-sbst     <- subset(sbst, sbst$crv < 0)
-plot(sbst, col = -sbst$crv, new = TRUE)
-sbst <- subset(sbst, sbst$crv < median(sbst$crv))
-plot(sbst, col = -sbst$crv)
-plot(sbst, col = pmax(0, -sbst$kappa1 * sbst$kappa2))
-plot(sbst, col = "shape index")
-ppath <- planepath.face3d(sbst, face$landmarks["pn", ],
-                          direction = face$landmarks["pn", ] - face$landmarks["se", ],
-                          rotation = 0)$path
-spheres3d(ppath)
-
-# Chin
+plot(face)
+clr <- rep("blue", nrow(face$landmarks))
+clr[grep("R", rownames(face$landmarks))] <- "green"
+clr[grep("L", rownames(face$landmarks))] <- "orange"
+spheres3d(face$landmarks, radius = 3, col = clr)
+spheres3d(mn, col = "yellow", radius = 3)
+for (j in 1:n.lmks) {
+   ind    <- c(j, j + n.lmks, j + 2 * n.lmks)
+   covt.r <- rotate3d(covt[ind, ind], angle, raxis[1] , raxis[2], raxis[3])
+   covt.r <- rotmat %*% covt[ind, ind] %*% t(rotmat)
+   plot3d(ellipse3d(covt.r, centre = mn[j, ]),
+          col = "lightblue", alpha = 0.5, add = TRUE)
+}
 
 
 # Prior information
-
-load("lmks-liberty.rda")
-load(fls[81])
-rownames(lmks.liberty) <- rownames(face$lmks)
-lmks.liberty <- lmks.liberty[-match(c("tL", "tR", "oiL", "oiR"), rownames(lmks.liberty)), , ]
-gpa <- gpa.face3d(lmks.liberty, match.ids = landmark.names, scale = FALSE)
-
-tan  <- apply(sweep(gpa$aligned, 1:2, gpa$mean), 3, c)
-mnt  <- apply(tan, 1, mean)
-covt <- cov(t(tan))
 
 plot(face)
 spheres3d(face$landmarks, col = "yellow", radius = 3)
@@ -132,6 +132,32 @@ mnt.cond <- mnt[-ind.cond] + covt[-ind.cond, ind.cond] %*%
    (c(face$landmarks[landmark.names, ] - gpa$mean[ind.cond]))
 spheres3d(matrix(mnt.cond + gpa$mean[-ind.cond], ncol = 3), col = "red")
 
+
+# Other landmarks
+
+# sn
+
+dst      <- rdist(t(face$lmks["pn", ]), face$coords)
+drn      <- face$landmarks["pn", ] - face$landmarks["se", ]
+nrm      <- face$normals[which.min(dst), ]
+drn      <- crossproduct(drn, nrm)
+prp      <- sweep(sbst$coords, 2, face$landmarks["pn", ]) %*% drn
+# Adjust the distance from the prior information: more than to sn but less than to lips?
+sbst     <- subset(face, dst < 40 & abs(prp) < 5)
+crv      <- sbst$kappa1 * sbst$kappa2
+mode     <- mode.face3d(sbst, -crv, 5)$mode
+spheres3d(mode, col = "yellow")
+
+sbst     <- subset(sbst, sbst$crv < 0)
+plot(sbst, col = -sbst$crv, new = TRUE)
+sbst <- subset(sbst, sbst$crv < median(sbst$crv))
+plot(sbst, col = -sbst$crv)
+plot(sbst, col = pmax(0, -sbst$kappa1 * sbst$kappa2))
+plot(sbst, col = "shape index")
+ppath <- planepath.face3d(sbst, face$landmarks["pn", ],
+                          direction = face$landmarks["pn", ] - face$landmarks["se", ],
+                          rotation = 0)$path
+spheres3d(ppath)
 
 
 for (i in 1:length(fls)) {
