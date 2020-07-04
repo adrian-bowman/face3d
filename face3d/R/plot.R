@@ -26,7 +26,7 @@ plot.face3d <- function (shape, display = "surface", plot.isolated = TRUE,
    scaling.missing  <- missing(scaling)
    range.colour.missing <- missing(range.colour)
 
-   if (!(is.list(shape) && ("coords" %in% names(shape)) && ("triples" %in% names(shape))))
+   if (!(is.list(shape) && ("vertices" %in% names(shape)) && ("triangles" %in% names(shape))))
 		stop("this is not a face3d object.")
 
    pars <- list(...)
@@ -34,9 +34,9 @@ plot.face3d <- function (shape, display = "surface", plot.isolated = TRUE,
       stop("the lit argument is set by default.")
 
    if (!missing(subset)) {
-      if (is.logical(subset) & (length(subset) != nrow(shape$coords)))
-         stop("the length of subset does not match the shape coords.")
-      if (is.integer(subset) & all(subset >= 1) & all(subset <= nrow(shape$coords)))
+      if (is.logical(subset) & (length(subset) != nrow(shape$vertices)))
+         stop("the length of subset does not match the shape vertices.")
+      if (is.integer(subset) & all(subset >= 1) & all(subset <= nrow(shape$vertices)))
          shape <- subset.face3d(shape, subset)
       else
          stop("subset contains inappropriate values.")
@@ -68,7 +68,7 @@ plot.face3d <- function (shape, display = "surface", plot.isolated = TRUE,
       if (!("normals" %in% names(shape))) shape <- normals.face3d(shape)
       clr  <- if (length(colour) == 1 && is.character(colour) &&
                   !(substr(colour, 1, 7) %in% c("texture", "normal-"))) colour else "black"
-      crds <- cbind(shape$coords, shape$coords + vector.scale * shape$normals)
+      crds <- cbind(shape$vertices, shape$vertices + vector.scale * shape$normals)
       crds <- matrix(c(t(crds)), ncol = 3, byrow = TRUE)
       rgl::segments3d(crds, col = clr)
    }
@@ -82,7 +82,7 @@ plot.face3d <- function (shape, display = "surface", plot.isolated = TRUE,
       drn  <- substr(display1, nchar(display1), nchar(display1))
       if (!(drn %in% c("1", "2"))) stop("the final character of display should be '1' or '2'.")
       drn  <- as.numeric(drn)
-      crds <- cbind(shape$coords, shape$coords + vector.scale * t(shape$directions[ , drn, ]))
+      crds <- cbind(shape$vertices, shape$vertices + vector.scale * t(shape$directions[ , drn, ]))
       crds <- matrix(c(t(crds)), ncol = 3, byrow = TRUE)
       rgl::segments3d(crds, col = clr)
    }
@@ -189,14 +189,14 @@ plot.face3d <- function (shape, display = "surface", plot.isolated = TRUE,
        else if (col.palette[1] == "diverge_topo")
           col.palette  <- diverge.topo(nbreaks - 1)
  
-       clr         <- rep(0, nrow(shape$coords))
+       clr         <- rep(0, nrow(shape$vertices))
        ind         <- !is.na(colour)
        clr[ind]    <- cut(colour[ind], breaks, labels = FALSE, include.lowest = TRUE)
        colour      <- rep("white", length(colour))
        colour[ind] <- col.palette[clr[ind]]
-       if (length(colour) == length(shape$triples) / 3)
+       if (length(colour) == length(c(shape$triangles)) / 3)
           colour <- rep(colour, each = 3)
-       else if (length(colour) != nrow(shape$coords)) {
+       else if (length(colour) != nrow(shape$vertices)) {
           colour <- "grey"
           cat("The length of the colour vector is inappropriate - reverting to grey.\n")
        }
@@ -206,28 +206,28 @@ plot.face3d <- function (shape, display = "surface", plot.isolated = TRUE,
                              clabel = clabel, cex.axis = cex.axis)
 
    single.colour <- (length(table(colour)) == 1)
-   if (single.colour & (length(colour) == 1)) colour <- rep(colour, nrow(shape$coords))
-   if (("points" %in% display) & (length(colour) != nrow(shape$coords)))
+   if (single.colour & (length(colour) == 1)) colour <- rep(colour, nrow(shape$vertices))
+   if (("points" %in% display) & (length(colour) != nrow(shape$vertices)))
    	  stop("mismatch between display and the length of colour.")
    if (any(c("mesh", "surface") %in% display)) {
-   	  if (length(colour) == nrow(shape$coords)) colour <- colour[shape$triples]
-   	  else if (length(colour) != length(shape$triples))
+   	  if (length(colour) == nrow(shape$vertices)) colour <- colour[c(t(shape$triangles))]
+   	  else if (length(colour) != length(c(shape$triangles)))
    	     stop("mismatch between display and the length of colour.")
    }
    
    if ("points" %in% display)
-      rgl::points3d(shape$coords, col = colour, ...)
+      rgl::points3d(shape$vertices, col = colour, ...)
    if ("spheres" %in% display)
-      rgl::spheres3d(shape$coords, col = colour, ...)
+      rgl::spheres3d(shape$vertices, col = colour, ...)
    if ("mesh" %in% display)
-      rgl::triangles3d(shape$coords[shape$triples, ], col = colour,
+      rgl::triangles3d(shape$vertices[c(t(shape$triangles)), ], col = colour,
             front = "line", back = "line", lit = FALSE, ...)
    if ("surface" %in% display)
-      rgl::triangles3d(shape$coords[shape$triples, ], col = colour, lit = single.colour, ...)
+      rgl::triangles3d(shape$vertices[c(t(shape$triangles)), ], col = colour, lit = single.colour, ...)
    
    if (any(display %in% c("mesh", "surface")) & plot.isolated) {
-      ind <- which(!(1:nrow(shape$coords) %in% c(shape$triples)))
-      rgl::spheres3d(shape$coords[ind, ], ...)
+      ind <- which(!(1:nrow(shape$vertices) %in% c(shape$triangles)))
+      rgl::spheres3d(shape$vertices[ind, ], ...)
    }
 
    if (!new & !add) rgl::pop3d(id = ids)

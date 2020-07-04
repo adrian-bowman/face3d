@@ -1,12 +1,12 @@
 index.face3d <- function(shape, extent = 2, distance = 10, type = "euclidean",
-                         subset = 1:nrow(shape$coords),
+                         subset = 1:nrow(shape$vertices),
                          extension = "NA", overwrite = FALSE, directions = FALSE) {
 
    sbst <- subset
-   if (all(is.logical(subset)) & (length(sbst) == nrow(shape$coords))) sbst <- which(sbst)
-   if (length(sbst) == 1 && sbst <= 1) sbst <- round(nrow(shape$coords) * sbst)
+   if (all(is.logical(subset)) & (length(sbst) == nrow(shape$vertices))) sbst <- which(sbst)
+   if (length(sbst) == 1 && sbst <= 1) sbst <- round(nrow(shape$vertices) * sbst)
 
-   if (!("shape.index" %in% names(shape))) shape$shape.index <- rep(NA, nrow(shape$coords))
+   if (!("shape.index" %in% names(shape))) shape$shape.index <- rep(NA, nrow(shape$vertices))
    if (!overwrite) sbst <- sbst[is.na(shape$shape.index[sbst])]
    if (length(sbst) == 0) return(invisible(shape))
 
@@ -31,7 +31,7 @@ index.face3d <- function(shape, extent = 2, distance = 10, type = "euclidean",
    }
    
    index.fn <- function(i, axes, directions) {
-   	  pt.i  <- shape$coords[sbst[i], ]
+   	  pt.i  <- shape$vertices[sbst[i], ]
    	  if (type == "mesh") {
    	     nbrs <- unique(c(triples[trngs1[[i]], ]))
            if (extent > 1) {
@@ -89,9 +89,9 @@ index.face3d <- function(shape, extent = 2, distance = 10, type = "euclidean",
 #    axes     <- lapply(1:length(vec), function(i) cbind(shape$normals[i, ], a2[i, ], a3[i, ]))
 
    # sbst <- subset
-   # if (all(is.logical(subset)) & (length(sbst) == nrow(shape$coords))) sbst <- which(sbst)
-   # if (length(sbst) == 1 && sbst <= 1) sbst <- round(nrow(shape$coords) * sbst)
-   pts <- shape$coords[sbst, ]
+   # if (all(is.logical(subset)) & (length(sbst) == nrow(shape$vertices))) sbst <- which(sbst)
+   # if (length(sbst) == 1 && sbst <= 1) sbst <- round(nrow(shape$vertices) * sbst)
+   pts <- shape$vertices[sbst, ]
    
    if (extension.missing) {
       if (length(sbst) < 10) extensn <- TRUE
@@ -101,24 +101,24 @@ index.face3d <- function(shape, extent = 2, distance = 10, type = "euclidean",
       }
    }
    if (is.logical(extensn) && extensn) {
-      dst     <- rdist(shape$coords[sbst, ], shape$coords)
+      dst     <- rdist(shape$vertices[sbst, ], shape$vertices)
       ind.ext <- apply(dst, 1, function(x) which(x <= distance))
       ind.ext <- unique(c(unlist(ind.ext)))
    }
    else if (is.integer(extensn)) ind.ext <- c(sbst, extensn)
-   pts.ext <- shape$coords[ind.ext, ]
+   pts.ext <- shape$vertices[ind.ext, ]
    
    if (type == "mesh") {
-   	triples   <- matrix(shape$triples, ncol = 3, byrow = TRUE)
+   	triples   <- shape$triangles
       triangles <- 1:nrow(triples)
       trngs1    <-               tapply(triangles, triples[ , 1], c)
       trngs1    <- clist(trngs1, tapply(triangles, triples[ , 2], c))
       trngs1    <- clist(trngs1, tapply(triangles, triples[ , 3], c))
    }
    
-   if (!("kappa1"      %in% names(shape))) shape$kappa1      <- rep(NA, nrow(shape$coords))
-   if (!("kappa2"      %in% names(shape))) shape$kappa2      <- rep(NA, nrow(shape$coords))
-   if (!("rss"         %in% names(shape))) shape$rss         <- rep(NA, nrow(shape$coords))
+   if (!("kappa1"      %in% names(shape))) shape$kappa1      <- rep(NA, nrow(shape$vertices))
+   if (!("kappa2"      %in% names(shape))) shape$kappa2      <- rep(NA, nrow(shape$vertices))
+   if (!("rss"         %in% names(shape))) shape$rss         <- rep(NA, nrow(shape$vertices))
    index                   <- mapply(index.fn, 1:length(sbst), axes[sbst], directions)
    index                   <- matrix(unlist(index), nrow = length(sbst), byrow = TRUE)
    shape$shape.index[sbst] <- index[ , 1]
@@ -129,11 +129,11 @@ index.face3d <- function(shape, extent = 2, distance = 10, type = "euclidean",
    if (directions & (overwrite | !("directions" %in% names(shape)))) {
       axes       <- array(unlist(axes), dim = c(3, 3, length(axes)))
       axes       <- axes[ , , sbst]
-      shape$directions <- array(NA, dim = c(2, 2, nrow(shape$coords)))
+      shape$directions <- array(NA, dim = c(2, 2, nrow(shape$vertices)))
       shape$directions[ , , sbst] <- array(c(t(index[ , 5:8])), dim = c(2, 2, length(sbst)))
       a <- shape$directions[1, 1, sbst]
       b <- shape$directions[2, 1, sbst]
-      shape$directions <- array(NA, dim = c(3, 2, nrow(shape$coords)))
+      shape$directions <- array(NA, dim = c(3, 2, nrow(shape$vertices)))
       shape$directions[ , 1, sbst] <- t(a * t(axes[ , 2, ]) + b * t(axes[ , 3, ]))
       shape$directions[ , 2, sbst] <- t(b * t(axes[ , 2, ]) - a * t(axes[ , 3, ]))
       # print(a * t(shape$axes[ , 2, ]) + b * t(shape$axes[ , 3, ]))

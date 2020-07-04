@@ -33,7 +33,7 @@ midline.face3d <- function(shape, x1, x2, reference, d.asym = 20, d.search = 20,
    kappa2.ref <- approx(al, kappa2.ref, n = nv)$y
    si.ref     <- approx(al, si.ref,     n = nv)$y
    reference  <- resample.face3d(reference, nv)
-   rd         <- rdist(shape$coords, reference)
+   rd         <- rdist(shape$vertices, reference)
    rd         <- apply(rd, 1, min)
    ind.sbst   <- (rd < (d.search + d.asym) * 1.1 * 2)
    sbst       <- subset.face3d(shape, ind.sbst)

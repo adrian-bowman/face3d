@@ -159,8 +159,8 @@ for (k in 1:15){
  }  
  
   
-rendered.object        <- list(coords = rend.object, 
-                               triples = c(triples.left, triples.right, triples.ij, triples.ijij))                       
+rendered.object        <- list(vertices = rend.object, 
+                               triangles = matrix(c(triples.left, triples.right, triples.ij, triples.ijij), ncol = 3, byrow = TRUE))
 class(rendered.object) <- "face3d"
 
 invisible(rendered.object)

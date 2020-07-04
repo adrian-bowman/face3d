@@ -4,13 +4,13 @@
    # if (missing(lmks)) lmks <- c("pn",  "acL",  "acR",  "sn",  "se",  "n", "exL", "exR", "enL", "enR",
                                 # "ls", "cphL", "cphR", "chL", "chR", "st",  "li",  "sl", "gn")
 
-   # if ("lmks" %in% names(face)) {
-      # ind <- which(is.na(match(lmks, rownames(face$lmks))))
+   # if ("landmarks" %in% names(face)) {
+      # ind <- which(is.na(match(lmks, rownames(face$landmarks))))
       # if (length(ind) > 0)
-         # face$lmks <- rbind(face$lmks, matrix(nrow = length(ind), ncol = 3, dimnames = list(lmks[ind])))
+         # face$landmarks <- rbind(face$landmarks, matrix(nrow = length(ind), ncol = 3, dimnames = list(lmks[ind])))
    # }
    # else
-      # face$lmks <- matrix(nrow = length(lmks), ncol = 3, dimnames = list(lmks))
+      # face$landmarks <- matrix(nrow = length(lmks), ncol = 3, dimnames = list(lmks))
 
    # # lmks4 <- matrix(nrow = 4, ncol = 3, dimnames = list(c("pn", "enL", "enR", "se"), NULL))
 
@@ -48,7 +48,7 @@
          # # sbst1 <- subset.face3d(sbst, parts == i) 
          # # # sbst1 <- index.face3d(sbst1, overwrite = TRUE)
          # # # sbst1  <- subset.face3d(sbst1, abs(sbst1$shape.index - si) < si.within)
-         # # dst   <- as.matrix(dist(sbst1$coords))
+         # # dst   <- as.matrix(dist(sbst1$vertices))
          # # crv   <- sbst1$kappa1
          # # crv   <- sbst1$kappa1 + sbst1$kappa2
          # # crv   <- sbst1$kappa1 * sbst1$kappa2
@@ -61,13 +61,13 @@
          # # neg   <- (abs(si) > si.within)
          # # ind   <- if (neg) beta > 0 else beta < 0
          # # rss[ind] <- max(rss)
-         # # lmk.i <- sbst1$coords[which.min(rss), ]
+         # # lmk.i <- sbst1$vertices[which.min(rss), ]
          # # lmk   <- if (i == 1) lmk.i else rbind(lmk, lmk.i)
-         # # suppressWarnings(if (i==1) sbst.pair <- sbst1$coords
+         # # suppressWarnings(if (i==1) sbst.pair <- sbst1$vertices
          # # else if (is.na(constraint)!= FALSE){
          	    # # sbst.pair.f <- array(0, dim=c(100,3,2))
          	    # # sbst.pair.f[c(1:dim(sbst.pair)[1]),,1] <- sbst.pair
-         	    # # sbst.pair.f[c(1:dim(sbst1$coords)[1]),,2]<- sbst1$coords
+         	    # # sbst.pair.f[c(1:dim(sbst1$vertices)[1]),,2]<- sbst1$vertices
          	    # # sbst.pair <- sbst.pair.f}
          # # else sbst.pair.f <- NA)
          # # if (monitor) {
@@ -93,18 +93,18 @@
 
       # monitor.extra <- FALSE
    
-      # if (any(is.na(face$lmks["pn", ]))) {
+      # if (any(is.na(face$landmarks["pn", ]))) {
          # if (monitor) cat("Locating pn ... ")
          # nrst <- face$nearest
          # nrst <- nrst[!is.na(nrst)] 
-         # nrst <- face$coords[nrst, ]
+         # nrst <- face$vertices[nrst, ]
          # ord  <- order(nrst[ , 3], decreasing = TRUE)
          # nrst <- nrst[ord, ]
          # flag <- FALSE
          # i    <- 0
          # while (!flag & (i < nrow(nrst))) {
             # i    <- i + 1
-            # ind  <- apply(sweep(face$coords, 2, nrst[i, ]), 1, function(x) sqrt(sum(x^2))) < 20
+            # ind  <- apply(sweep(face$vertices, 2, nrst[i, ]), 1, function(x) sqrt(sum(x^2))) < 20
             # face <- index.face3d(face, subset = ind)
             # crv  <- pmin(-face$kappa1[ind], -face$kappa2[ind])
             # crv[face$shape.index[ind] < 0.8] <- 0
@@ -112,44 +112,44 @@
             # # plot(face, colour = "shape index", new = FALSE)
          # }
          # if (!flag) stop("pn could not be identified.")                        
-         # face$lmks["pn", ] <- quadlocate(face, edist.face3d(face$coords, nrst[i, ]) < 30,
+         # face$landmarks["pn", ] <- quadlocate(face, edist.face3d(face$vertices, nrst[i, ]) < 30,
                                          # 1, 0.25, monitor = monitor)$lmk
-         # # face$lmks["pn", ] <- quadlocate(face, edist.face3d(face$coords, face$lmks["pn", ]) < 10,
+         # # face$landmarks["pn", ] <- quadlocate(face, edist.face3d(face$vertices, face$landmarks["pn", ]) < 10,
                                          # # 1, 0.25, monitor = monitor)$lmk
       # }
       
-      # if (any(is.na(c(face$lmks[c("enL", "enR"), ])))) {
+      # if (any(is.na(c(face$landmarks[c("enL", "enR"), ])))) {
          # if (monitor) cat("enL/R ... ")
          # face <- index.face3d(face, subset = 
-           # (edist.face3d(face$coords, face$lmks["pn", ]) < 70) & (face$coords[ , 2] > face$lmks["pn", 2] + 10))
-         # face$lmks[c("enL", "enR"), ] <- quadlocate(face,
-                 # (edist.face3d(face$coords, face$lmks["pn", ]) < 70) & (face$coords[ , 2] > face$lmks["pn", 2] + 10),
+           # (edist.face3d(face$vertices, face$landmarks["pn", ]) < 70) & (face$vertices[ , 2] > face$landmarks["pn", 2] + 10))
+         # face$landmarks[c("enL", "enR"), ] <- quadlocate(face,
+                 # (edist.face3d(face$vertices, face$landmarks["pn", ]) < 70) & (face$vertices[ , 2] > face$landmarks["pn", 2] + 10),
                  # -1, 0.3, pair = TRUE, monitor = monitor)$lmk
-         # # face$lmks["enL", ] <- quadlocate(face, edist.face3d(face$coords, face$lmks["enL", ]) < 20,
+         # # face$landmarks["enL", ] <- quadlocate(face, edist.face3d(face$vertices, face$landmarks["enL", ]) < 20,
                  # # -1, 0.25, monitor = monitor)$lmk
-         # # face$lmks["enR", ] <- quadlocate(face, edist.face3d(face$coords, face$lmks["enR", ]) < 20,
+         # # face$landmarks["enR", ] <- quadlocate(face, edist.face3d(face$vertices, face$landmarks["enR", ]) < 20,
                  # # -1, 0.25, monitor = monitor)$lmk
       # }
       
-      # if (any(is.na(face$lmks["se", ]))) {
+      # if (any(is.na(face$landmarks["se", ]))) {
          # if (monitor) cat("se ... ")
-         # curve <- planepath.face3d(face, face$lmks["enL", ], face$lmks["enR", ], boundary = c(0.2, 2))$path
+         # curve <- planepath.face3d(face, face$landmarks["enL", ], face$landmarks["enR", ], boundary = c(0.2, 2))$path
          # gcrv  <- gcurvature.face3d(curve, 4)
          # ind   <- which.max(gcrv$gcurvature)
-         # face$lmks["se", ] <- gcrv$resampled.curve[ind, ]
+         # face$landmarks["se", ] <- gcrv$resampled.curve[ind, ]
          # if (monitor.extra) {
             # plot(face, new = FALSE)
             # spheres3d(gcrv$resampled.curve, col = "green")
-            # spheres3d(face$lmks["se", ], radius = 1.5, col = "blue")
+            # spheres3d(face$landmarks["se", ], radius = 1.5, col = "blue")
             # scan()
          # }
          # face <- index.face3d(face, subset = 
-           # edist.face3d(face$coords, face$lmks["se", ]) < 10)
+           # edist.face3d(face$vertices, face$landmarks["se", ]) < 10)
          
          # # se is a saddlepoint but the negative curvature will be stronger so go from -0.25 to ridge (0.5).
-         # face$lmks["se", ] <- quadlocate(face, edist.face3d(face$coords, face$lmks["se", ]) < 10,
+         # face$landmarks["se", ] <- quadlocate(face, edist.face3d(face$vertices, face$landmarks["se", ]) < 10,
                                                     # 0.25, 0.35, monitor = monitor)$lmk
-         # # face$lmks["se", ] <- quadlocate(face, edist.face3d(face$coords, face$lmks["se", ]) < 10,
+         # # face$landmarks["se", ] <- quadlocate(face, edist.face3d(face$vertices, face$landmarks["se", ]) < 10,
                                                     # # 0.125, 0.375, monitor = monitor)$lmk
       # }
       
@@ -162,13 +162,13 @@
    # #                       locate acL, acR
    # #---------------------------------------------------------------------------------
    
-         # # ind   <- apply(face$coords, 1, function(x) sqrt(sum((x - face$lmks["pn", ])^2))) < 70
+         # # ind   <- apply(face$vertices, 1, function(x) sqrt(sum((x - face$landmarks["pn", ])^2))) < 70
          # # face  <- index.face3d(face, distance = 10, subset = ind)
-         # # ind   <- (face$shape.index < -0.25) & abs(face$coords[ , 2] - face$lmks["pn", 2]) < 20 &
-                       # # apply(face$coords, 1, function(x) sqrt(sum((x - face$lmks["pn", ])^2))) < 50
+         # # ind   <- (face$shape.index < -0.25) & abs(face$vertices[ , 2] - face$landmarks["pn", 2]) < 20 &
+                       # # apply(face$vertices, 1, function(x) sqrt(sum((x - face$landmarks["pn", ])^2))) < 50
          # # sbst  <- subset.face3d(face, ind)
          # # parts <- connected.face3d(sbst)
-         # # ind   <- as.numeric(rownames(sbst$coords)[parts %in% 1:2])
+         # # ind   <- as.numeric(rownames(sbst$vertices)[parts %in% 1:2])
          # # sbst  <- subset.face3d(sbst, parts %in% 1:2)
          # # crv   <- pmin(sbst$kappa1, sbst$kappa2)
          # # brks  <- seq(0.0, 0.2, length = 21)
@@ -176,20 +176,20 @@
          # # parts <- parts[parts %in% 1:2]
          # # sbst1 <- subset.face3d(sbst, parts == 1)
          # # crv1  <- crv[parts == 1]
-         # # alL   <- sbst1$coords[which.max(crv1), ]
+         # # alL   <- sbst1$vertices[which.max(crv1), ]
          # # sbst2 <- subset.face3d(sbst, parts == 2)
          # # crv2  <- crv[parts == 2]
-         # # alR   <- sbst2$coords[which.max(crv2), ]
+         # # alR   <- sbst2$vertices[which.max(crv2), ]
          # # al    <- if (alL[1] > alR[1]) cbind(alL, alR) else cbind(alR, alL)
          
-         # # ind   <- apply(face$coords, 1, function(x) sqrt(sum((x - face$lmks["pn", ])^2))) < 40
+         # # ind   <- apply(face$vertices, 1, function(x) sqrt(sum((x - face$landmarks["pn", ])^2))) < 40
          # # face  <- index.face3d(face, distance = 10, subset = ind)
          # # ind   <- ind & (face$shape.index > 0.25)
          # # sbst  <- subset.face3d(face, ind)
          # # sbst  <- subset(sbst, connected.face3d(sbst) == 1)
 
-         # # if ("acL" %in% lmks) face$lmks["acL", ] <- al[ , 1]
-         # # if ("acR" %in% lmks) face$lmks["acR", ] <- al[ , 2]
+         # # if ("acL" %in% lmks) face$landmarks["acL", ] <- al[ , 1]
+         # # if ("acR" %in% lmks) face$landmarks["acR", ] <- al[ , 2]
 
 
    # #---------------------------------------------------------------------------------
@@ -211,7 +211,7 @@
    # glmks           <- glmks[reorder.num, ,] 
    # gmean           <- gpa$mean
    # gmean           <- gmean[reorder.num, ]
-   # face$lmks       <- face$lmks[reorder.num, ]
+   # face$landmarks       <- face$landmarks[reorder.num, ]
    # gmean.mean <- apply(gmean, 2, mean)
    # k          <- dim(glmks)[1]
    # n          <- dim(glmks)[3]
@@ -227,11 +227,11 @@
                         
      
       # # if (monitor){
-       # #lmks4             <- face$lmks[c("pn", "se", "enL", "enR"), ]   
+       # #lmks4             <- face$landmarks[c("pn", "se", "enL", "enR"), ]   
        # #lmean             <- apply(lmks4, 2, mean)
        # #opa               <- procOPA(g4, lmks4, scale = FALSE)
-       # #face1$lmks        <- sweep(sweep(face$lmks,   2, lmean) %*% opa$R, 2, g4mean, "+")
-       # #face1$coords      <- sweep(sweep(face$coords, 2, lmean) %*% opa$R, 2, g4mean, "+")
+       # #face1$landmarks        <- sweep(sweep(face$landmarks,   2, lmean) %*% opa$R, 2, g4mean, "+")
+       # #face1$vertices      <- sweep(sweep(face$vertices, 2, lmean) %*% opa$R, 2, g4mean, "+")
       # # plot(face1, new = FALSE)
                   # # for (i in 1:k) {
                         # # ind      <- (i - 1) * 3 + 1:3
@@ -254,17 +254,17 @@
    # for (iter in 1:niter) { 
     	# #i <- 2   #just doing sellion at the moment
     	  # # doing opa on "new placement"
-      # lmks4             <- face$lmks[c("pn", "se", "enL", "enR"), ]   
+      # lmks4             <- face$landmarks[c("pn", "se", "enL", "enR"), ]   
       # id                <- rownames(lmks4)[i]
       # lmean             <- apply(lmks4, 2, mean)
       # opa               <- procOPA(g4, lmks4, scale = FALSE)
-      # face$lmks         <- sweep(sweep(face$lmks,   2, lmean) %*% opa$R, 2, g4mean, "+")
-      # face$coords       <- sweep(sweep(face$coords, 2, lmean) %*% opa$R, 2, g4mean, "+")
+      # face$landmarks         <- sweep(sweep(face$landmarks,   2, lmean) %*% opa$R, 2, g4mean, "+")
+      # face$vertices       <- sweep(sweep(face$vertices, 2, lmean) %*% opa$R, 2, g4mean, "+")
       
       # #picking out 4 landmarks
-      # lmks.cond         <- face$lmks[c("pn", "se", "enL", "enR"), ]   
+      # lmks.cond         <- face$landmarks[c("pn", "se", "enL", "enR"), ]   
       # if(monitor){plot(face, new=FALSE)
-      	           # spheres3d(face$lmks)
+      	           # spheres3d(face$landmarks)
       	           # print("found landmarks")
       	           # scan()}
       	           
@@ -274,7 +274,7 @@
       # cond.cov          <- covmat.i - covmat4[ind, -ind] %*% solve(covmat4[-ind,-ind]) %*%covmat4[-ind, ind]   
       # cond.mean         <-  c(t(g4))[ind] +  covmat4[ind, -ind] %*% solve(covmat4[-ind,-ind]) %*% 
                             # (c(t(lmks.cond[-i,]))  - c(t(g4))[-ind] ) 
-      # crds              <- sweep(face$coords, 2, cond.mean)
+      # crds              <- sweep(face$vertices, 2, cond.mean)
       # M.dst             <- rowSums((crds %*% solve(cond.cov)) * crds)
       # crds              <- sweep(crds, 2, cond.mean, "+")
       # ind               <- (M.dst <= stddev[i])
@@ -282,7 +282,7 @@
       # #face              <- index.face3d(face, subset = ind)  
       # sbst              <- subset.face3d(face, ind)
      # if(monitor){plot(face, new=FALSE)
-      	           # spheres3d(sbst$coords)
+      	           # spheres3d(sbst$vertices)
       	           # print("prior of interest")
       	           # scan()}
      # if(monitor){plot(sbst,colour="shape index", new=FALSE)
@@ -312,7 +312,7 @@
       	           
       # new.cond.lmk      <- ql$sbst.pair[as.numeric(names(which.min(logpost))), ]        
       # if (monitor){       plot(face, new = FALSE)
-                           # spheres3d(face$lmks)  
+                           # spheres3d(face$landmarks)  
                            # spheres3d(new.cond.lmk, radius=.5,col="red")
                            # print("red is new landmark")
                            # scan() 
@@ -320,7 +320,7 @@
                      
         # } 
         
-        # face$lmks[id,] <- new.cond.lmk
+        # face$landmarks[id,] <- new.cond.lmk
      
      # }
       
@@ -340,38 +340,38 @@
      # lmk                <- gmean[k, ]
      # ind                <- (k - 1) * 3 + 1:3 
      # covmat.i           <- covmat[ind, ind]                
-     # crds               <- sweep(face$coords, 2, lmk)
+     # crds               <- sweep(face$vertices, 2, lmk)
      # dst                <- rowSums((crds %*% solve(covmat.i)) * crds)
      # crds               <- sweep(crds, 2, lmk, "+")
      # ind                <- (dst <= stdd[tt])
      # sbst               <- subset.face3d(face, ind)
      # sbst               <- index.face3d(sbst, distance = 5)
-     # ql                 <- quadlocate(sbst, rep(TRUE, nrow(sbst$coords)), 
+     # ql                 <- quadlocate(sbst, rep(TRUE, nrow(sbst$vertices)), 
      					  # si= si[tt], si.within= si.within[tt], pair = FALSE, monitor = FALSE)
      # logprior           <- -dst
      # logprior           <- logprior[ql$indices2]
      # loglik             <- -ql$rss
      # logpost            <- loglik + logprior
      # id                 <- rownames(gmean)[k] 
-     # face$lmks[id, ]    <- ql$sbst.pair[as.numeric(which.max(logpost)), ] 
+     # face$landmarks[id, ]    <- ql$sbst.pair[as.numeric(which.max(logpost)), ] 
      # if(monitor){ 
      # plot(face)
      # spheres3d(ql$sbst.pair[as.numeric(which.max(loglik)), ], col="orange" )
      # spheres3d(ql$sbst.pair[as.numeric(which.max(logprior)), ], col="blue" )
      # spheres3d(ql$sbst.pair[as.numeric(which.max(logpost)), ] , radius=1.1) }
      
-      # lmks.new          <- face$lmks[c(1:k), ]   
+      # lmks.new          <- face$landmarks[c(1:k), ]   
       # lmean             <- apply(lmks.new, 2, mean)
       # opa               <- procOPA(gmean[c(1:k), ], lmks.new, scale = FALSE)
-      # face$lmks         <- sweep(sweep(face$lmks,   2, lmean) %*% opa$R, 2, (apply(gmean[c(1:k), ], 2, mean)), "+")
-      # face$coords       <- sweep(sweep(face$coords, 2, lmean) %*% opa$R, 2, (apply(gmean[c(1:k), ], 2, mean)), "+")
+      # face$landmarks         <- sweep(sweep(face$landmarks,   2, lmean) %*% opa$R, 2, (apply(gmean[c(1:k), ], 2, mean)), "+")
+      # face$vertices       <- sweep(sweep(face$vertices, 2, lmean) %*% opa$R, 2, (apply(gmean[c(1:k), ], 2, mean)), "+")
       # tt                <- tt+1
      
      # }
      # if (monitor){
-     # spheres3d(sbst$coords)
+     # spheres3d(sbst$vertices)
      # plot(face)
-     # spheres3d(face$lmks) 
+     # spheres3d(face$landmarks) 
  # }
   
   
@@ -393,7 +393,7 @@
      # lmk                <- gmean[k, ]
      # ind                <- (k - 1) * 3 + 1:3
      # covmat.i           <- covmat[ind, ind]
-     # crds               <- sweep(face$coords, 2, lmk)
+     # crds               <- sweep(face$vertices, 2, lmk)
      # dst                <- rowSums((crds %*% solve(covmat.i)) * crds)
      # crds               <- sweep(crds, 2, lmk, "+")
      # ind                <- (dst <= stdd[tt])
@@ -411,7 +411,7 @@
      # lmk                <- gmean[k, ]
      # ind                <- (k - 1) * 3 + 1:3
      # covmat.i           <- covmat[ind, ind]
-     # crds               <- sweep(face$coords, 2, lmk)
+     # crds               <- sweep(face$vertices, 2, lmk)
      # dst                <- rowSums((crds %*% solve(covmat.i)) * crds)
      # crds               <- sweep(crds, 2, lmk, "+")
      # ind                <- (dst <= stdd[tt])
@@ -439,15 +439,15 @@
   
   
                 
-  # prod     <- rep(NA, dim(sub1$coords)[1])
-  # allprod  <- matrix(NA, ncol= dim(sub1$coords)[1], nrow= dim(sub$coords)[1])
+  # prod     <- rep(NA, dim(sub1$vertices)[1])
+  # allprod  <- matrix(NA, ncol= dim(sub1$vertices)[1], nrow= dim(sub$vertices)[1])
 
   
- # for(i in 1:dim(sub$coords)[1]) {
- # for(j in 1:dim(sub1$coords)[1]) {
+ # for(i in 1:dim(sub$vertices)[1]) {
+ # for(j in 1:dim(sub1$vertices)[1]) {
   
-  # lmks.cond         <- rbind(face$lmks[c("pn", "se", "enL", "enR", "sn"),], sub1$coords[j,], sub$coords[i,])  
-  # #lmk               <- face$lmks[c("acL", "acR"),]         
+  # lmks.cond         <- rbind(face$landmarks[c("pn", "se", "enL", "enR", "sn"),], sub1$vertices[j,], sub$vertices[i,])  
+  # #lmk               <- face$landmarks[c("acL", "acR"),]         
   
   # ind               <- (7 - 2) * 3 + 1:6
   # covmat.i          <- covmat7[ind, ind]                         
@@ -455,7 +455,7 @@
   # cond.mean         <-  c(t(g7))[ind] +  covmat7[ind, -ind] %*% solve(covmat7[-ind,-ind]) %*% 
                             # (c(t(lmks.cond[c(1:5),]))  - c(t(g7))[-ind] ) 
                             
-   # crds              <- sweep(face$coords, 2, cond.mean)
+   # crds              <- sweep(face$vertices, 2, cond.mean)
       # M.dst             <- rowSums((crds %*% solve(cond.cov)) * crds)
       # crds              <- sweep(crds, 2, cond.mean, "+")
       # ind               <- (M.dst <= 20)
@@ -495,16 +495,16 @@
                            # gmean[c(1:5, 7, 6),]), c(2, 1, 3))), nrow = n, byrow = TRUE))          
  
  
-# prod     <- rep(NA, dim(sub1$coords)[1])
-  # allprod  <- matrix(NA, ncol= dim(sub1$coords)[1], nrow= dim(sub$coords)[1])
+# prod     <- rep(NA, dim(sub1$vertices)[1])
+  # allprod  <- matrix(NA, ncol= dim(sub1$vertices)[1], nrow= dim(sub$vertices)[1])
 
   
- # for(i in 1:dim(sub$coords)[1]) {
- # for(j in 1:dim(sub1$coords)[1]) {
+ # for(i in 1:dim(sub$vertices)[1]) {
+ # for(j in 1:dim(sub1$vertices)[1]) {
   
   
-  # lmks.cond         <- rbind(face$lmks[c("pn", "se", "enL", "enR", "sn"),], sub$coords[i,], sub1$coords[j,])  
-  # #lmk               <- face$lmks[c("acL", "acR"),]         
+  # lmks.cond         <- rbind(face$landmarks[c("pn", "se", "enL", "enR", "sn"),], sub$vertices[i,], sub1$vertices[j,])  
+  # #lmk               <- face$landmarks[c("acL", "acR"),]         
   
   # ind               <- (7 - 1) * 3 + 1:3
   # covmat.i          <- covmat7[ind, ind]                         
@@ -512,7 +512,7 @@
   # cond.mean         <-  c(t(g7))[ind] +  covmat7[ind, -ind] %*% solve(covmat7[-ind,-ind]) %*% 
                             # (c(t(lmks.cond[-7,]))  - c(t(g7))[-ind] ) 
                             
-   # crds              <- sweep(face$coords, 2, cond.mean)
+   # crds              <- sweep(face$vertices, 2, cond.mean)
       # M.dst             <- rowSums((crds %*% solve(cond.cov)) * crds)
       # crds              <- sweep(crds, 2, cond.mean, "+")
       # ind               <- (M.dst <= 20)
@@ -551,10 +551,10 @@
 
 
 
-# ql                 <- quadlocate(sbst, rep(TRUE, nrow(sbst$coords)),
+# ql                 <- quadlocate(sbst, rep(TRUE, nrow(sbst$vertices)),
      					  # si= si[tt], si.within= si.within[tt], pair = FALSE, monitor = FALSE)
 
-# ql1                 <- quadlocate(sbst1, rep(TRUE, nrow(sbst1$coords)),
+# ql1                 <- quadlocate(sbst1, rep(TRUE, nrow(sbst1$vertices)),
      					  # si= si[tt], si.within= si.within[tt], pair = FALSE, monitor = FALSE)
 
 
@@ -586,11 +586,11 @@
 
      # k<-6
      # id                 <- rownames(gmean)[k]
-     # face$lmks[id, ]    <- sub$coords[as.numeric(which.max(logpost)), ]
+     # face$landmarks[id, ]    <- sub$vertices[as.numeric(which.max(logpost)), ]
 
      # k<-7
      # id                 <- rownames(gmean)[k]
-     # face$lmks[id, ]    <- sub1$coords[as.numeric(which.max(logpost1)), ]
+     # face$landmarks[id, ]    <- sub1$vertices[as.numeric(which.max(logpost1)), ]
 
 
 
@@ -664,30 +664,30 @@
      # # g.new.mean   <- apply(g.new, 2, mean)
      # # covmat.new   <- cov(matrix(c(aperm(sweep(glmks[c(1:(k-1)),,], 1:2, 
                            # # gmean[c(1:(k-1)),]), c(2, 1, 3))), nrow = n, byrow = TRUE))
-     # # lmks.new           <- rbind(face$lmks[c(1:(k-1)), ])
+     # # lmks.new           <- rbind(face$landmarks[c(1:(k-1)), ])
      # # id                 <- rownames(lmks.new)[(k-1)]
      # # lmean              <- apply(lmks.new, 2, mean)
      # # opa                <- procOPA(g.new, lmks.new, scale = FALSE)
-     # # face$lmks          <- sweep(sweep(face$lmks,   2, lmean) %*% opa$R, 2, g.new.mean, "+")
-     # # face$coords        <- sweep(sweep(face$coords, 2, lmean) %*% opa$R, 2, g.new.mean, "+")
+     # # face$landmarks          <- sweep(sweep(face$landmarks,   2, lmean) %*% opa$R, 2, g.new.mean, "+")
+     # # face$vertices        <- sweep(sweep(face$vertices, 2, lmean) %*% opa$R, 2, g.new.mean, "+")
 
      # # lmk               <- gmean[k, ]
      # # ind               <- (k - 1) * 3 + 1:3 
      # # covmat.i          <- covmat[ind, ind]                
-     # # crds              <- sweep(face$coords, 2, lmk)
+     # # crds              <- sweep(face$vertices, 2, lmk)
      # # dst               <- rowSums((crds %*% solve(covmat.i)) * crds)
      # # crds              <- sweep(crds, 2, lmk, "+")
      # # ind               <- (dst <= stdd[tt])
      # # sbst              <- subset.face3d(face, ind)
      # # sbst              <- index.face3d(sbst)
-     # # ql                <- quadlocate(sbst, rep(TRUE, nrow(sbst$coords)), 
+     # # ql                <- quadlocate(sbst, rep(TRUE, nrow(sbst$vertices)), 
      					  # # si= si[tt], si.within= si.within[tt], pair = FALSE, monitor = FALSE)
      # # logprior          <- -dst
      # # logprior          <- logprior[ql$indices2]
      # # loglik            <- ql$rss
      # # logpost           <- loglik + logprior
      # # id                <- rownames(gmean)[k] 
-     # # face$lmks[id, ]   <- ql$sbst.pair[as.numeric(which.min(logpost)), ]  
+     # # face$landmarks[id, ]   <- ql$sbst.pair[as.numeric(which.min(logpost)), ]  
       
 
       
@@ -697,20 +697,20 @@
      # # g.new.mean   <- apply(g.new, 2, mean)
      # # covmat.new   <- cov(matrix(c(aperm(sweep(glmks[c(1:k),,], 1:2, 
                            # # gmean[c(1:k),]), c(2, 1, 3))), nrow = n, byrow = TRUE))
-     # # lmks.new           <- rbind(face$lmks[c(1:k), ])
+     # # lmks.new           <- rbind(face$landmarks[c(1:k), ])
      # # id                 <- rownames(lmks.new)[k]
      # # lmean              <- apply(lmks.new, 2, mean)
      # # opa                <- procOPA(g.new, lmks.new, scale = FALSE)
-     # # face$lmks          <- sweep(sweep(face$lmks,   2, lmean) %*% opa$R, 2, g.new.mean, "+")
-     # # face$coords        <- sweep(sweep(face$coords, 2, lmean) %*% opa$R, 2, g.new.mean, "+")
-      # # lmks.cond         <- face$lmks[c(1:k), ]    	           
+     # # face$landmarks          <- sweep(sweep(face$landmarks,   2, lmean) %*% opa$R, 2, g.new.mean, "+")
+     # # face$vertices        <- sweep(sweep(face$vertices, 2, lmean) %*% opa$R, 2, g.new.mean, "+")
+      # # lmks.cond         <- face$landmarks[c(1:k), ]    	           
       # # lmk               <- lmks.cond[k, ]
       # # ind               <- (k - 1) * 3 + 1:3
       # # covmat.i          <- covmat.new[ind, ind]                         
       # # cond.cov          <- covmat.i - covmat.new[ind, -ind] %*% solve(covmat.new[-ind,-ind]) %*%covmat.new[-ind, ind]   
       # # cond.mean         <-  c(t(g.new))[ind] +  covmat.new[ind, -ind] %*% solve(covmat.new[-ind,-ind]) %*% 
                             # # (c(t(lmks.cond[-i,]))  - c(t(g.new))[-ind] ) 
-      # # crds              <- sweep(face$coords, 2, cond.mean)
+      # # crds              <- sweep(face$vertices, 2, cond.mean)
        # # M.dst             <- rowSums((crds %*% solve(cond.cov)) * crds)
        # # crds              <- sweep(crds, 2, cond.mean, "+")
        # # ind               <- (M.dst <= stddev[tt])
@@ -724,7 +724,7 @@
       # # logpost           <- loglik + logprior
       # # new.cond.lmk      <- ql$sbst.pair[as.numeric(which.min(logpost)), ] 
       # # id                <- rownames(gmean)[k]                     
-      # # face$lmks[id,]    <- new.cond.lmk
+      # # face$landmarks[id,]    <- new.cond.lmk
        # # tt                 <- tt + 1
  # # print(k)
       # # }
@@ -764,7 +764,7 @@
         # # # lmk               <- gmean[i, ]
         # # # ind               <- (i - 1) * 3 + 1:3
         # # # covmat.i          <- covmat[ind, ind]                
-        # # # crds              <- sweep(face$coords, 2, lmk)
+        # # # crds              <- sweep(face$vertices, 2, lmk)
         # # # dst               <- rowSums((crds %*% solve(covmat.i)) * crds)
         # # # crds              <- sweep(crds, 2, lmk, "+")
         # # # ind               <- (dst <= 20)
@@ -776,9 +776,9 @@
         # # # plot(sbst, colour = 2 + sbst$kappa1 * sbst$kappa2, new = FALSE)
         # # # spheres3d(lmk, col = "green")        
         # # # scan()
-        # # # ql <- quadlocate(sbst, rep(TRUE, nrow(sbst$coords)), 0, 0.25, pair = FALSE, monitor = FALSE)
+        # # # ql <- quadlocate(sbst, rep(TRUE, nrow(sbst$vertices)), 0, 0.25, pair = FALSE, monitor = FALSE)
         # # # print(ql)
-        # # # print(nrow(sbst$coords))
+        # # # print(nrow(sbst$vertices))
         # # # plot(ql$sbst, colour = 2 + ql$rss, new = FALSE)
         # # # spheres3d(lmk, col = "green")        
         # # # spheres3d(ql$lmk, col = "red")        
@@ -788,7 +788,7 @@
         # # # gc                <- face$kappa1 * face$kappa2
         # # # loglik            <- log(gc[which.max(gc)])
         # # # logpost.i         <- loglik + logprior
-        # # # face$lmks["sn", ] <- crds[which.max(logpost.i), ]                
+        # # # face$landmarks["sn", ] <- crds[which.max(logpost.i), ]                
       
    
 
@@ -801,14 +801,14 @@
    # # # #do pair  - find each prior separately, colour subset only by mahal distance. 
       # # covmat4           <- cov(matrix(c(aperm(sweep(glmks[c(1,5,9,10),,], 1:2, 
                            # # gmean[c(1,5,9,10),]), c(2, 1, 3))), nrow = n, byrow = TRUE))
-     # # lmks.cond         <- face$lmks[c("pn", "se", "enL", "enR"), ]   
+     # # lmks.cond         <- face$landmarks[c("pn", "se", "enL", "enR"), ]   
       # # lmk               <- lmks.cond[3, ]
       # # ind               <- (3 - 1) * 3 + 1:3
       # # covmat.i          <- covmat4[ind, ind]                         
       # # cond.cov          <- covmat.i - covmat4[ind, -ind] %*% solve(covmat4[-ind,-ind]) %*%covmat4[-ind, ind]   
       # # cond.mean         <-  c(t(g4))[ind] +  covmat4[ind, -ind] %*% solve(covmat4[-ind,-ind])%*%   
                             # # (c(t(lmks.cond[-3,]))  - c(t(g4))[-ind] )   
-      # # crds              <- sweep(face$coords, 2, cond.mean)
+      # # crds              <- sweep(face$vertices, 2, cond.mean)
       # # M.dst             <- rowSums((crds %*% solve(cond.cov)) * crds)
       # # crds              <- sweep(crds, 2, cond.mean, "+")
       # # ind               <- (M.dst <= 20)
@@ -822,7 +822,7 @@
       # # cond.cov          <- covmat.i - covmat4[ind, -ind] %*% solve(covmat4[-ind,-ind]) %*%covmat4[-ind, ind]   
       # # cond.mean         <-  c(t(g4))[ind] +  covmat4[ind, -ind] %*% solve(covmat4[-ind,-ind]) %*% 
                             # # (c(t(lmks.cond[-4,]))  - c(t(g4))[-ind] )   
-      # # crds              <- sweep(face$coords, 2, cond.mean)
+      # # crds              <- sweep(face$vertices, 2, cond.mean)
       # # M.dst             <- rowSums((crds %*% solve(cond.cov)) * crds)
       # # crds              <- sweep(crds, 2, cond.mean, "+")
       # # ind               <- (M.dst <= 20)
@@ -831,11 +831,11 @@
       # # ind.R             <- ind
       # # logprior.R        <- logprior
 
-      # # sbst                                <- subset.face3d(face,(edist.face3d(face$coords, 
-                                             # # face$lmks["pn", ]) < 70) & (face$coords[ , 2] > face$lmks["pn", 2] + 10) ) #initial subset on area
+      # # sbst                                <- subset.face3d(face,(edist.face3d(face$vertices, 
+                                             # # face$landmarks["pn", ]) < 70) & (face$vertices[ , 2] > face$landmarks["pn", 2] + 10) ) #initial subset on area
       # # sbst                                <- index.face3d(sbst)    
       # # ind.final                           <- c( which(ind.L== "TRUE"), which(ind.R==TRUE)) 
-      # # ind.good                            <- match( ind.final,rownames(sbst$coords))
+      # # ind.good                            <- match( ind.final,rownames(sbst$vertices))
       # # sbst$shape.index[-ind.good]         <- 1
       # # sbst$kappa1[-ind.good]              <- -1       
       # # sbst$kappa2[-ind.good]              <- -1 
@@ -849,10 +849,10 @@
       # # new.cond.lmk.R                      <- ql$sbst.pair[,,1][which.max(logpost.R), ]   
       # # new.cond.lmk.L                      <- ql$sbst.pair[,,2][which.max(logpost.L), ] 
       # # if (monitor){                       plot(face, new=FALSE)
-                                           # # spheres3d(face$lmks)  
+                                           # # spheres3d(face$landmarks)  
                                            # # spheres3d(lmks.cond, col="red") 	
                    # # } 
-# # face$lmks[c("enL", "enR"),] <- rbind(new.cond.lmk.L, new.cond.lmk.R)
+# # face$landmarks[c("enL", "enR"),] <- rbind(new.cond.lmk.L, new.cond.lmk.R)
 
   # # } 
     
@@ -870,7 +870,7 @@
         # # # lmk               <- gpa$mean[i, ]
         # # # ind               <- (i - 1) * 3 + 1:3
         # # # covmat.i          <- covmat[ind, ind]                
-        # # # crds              <- sweep(face$coords, 2, lmk)
+        # # # crds              <- sweep(face$vertices, 2, lmk)
         # # # dst               <- rowSums((crds %*% solve(covmat.i)) * crds)
         # # # crds              <- sweep(crds, 2, lmk, "+")
         # # # ind               <- (dst <= 20)
@@ -882,9 +882,9 @@
         # # # plot(sbst, colour = 2 + sbst$kappa1 * sbst$kappa2, new = FALSE)
         # # # spheres3d(lmk, col = "green")        
         # # # scan()
-        # # # ql <- quadlocate(sbst, rep(TRUE, nrow(sbst$coords)), 0, 0.25, pair = FALSE, monitor = FALSE)
+        # # # ql <- quadlocate(sbst, rep(TRUE, nrow(sbst$vertices)), 0, 0.25, pair = FALSE, monitor = FALSE)
         # # # print(ql)
-        # # # print(nrow(sbst$coords))
+        # # # print(nrow(sbst$vertices))
         # # # plot(ql$sbst, colour = 2 + ql$rss, new = FALSE)
         # # # spheres3d(lmk, col = "green")        
         # # # spheres3d(ql$lmk, col = "red")        
@@ -894,4 +894,4 @@
         # # # gc                <- face$kappa1 * face$kappa2
         # # # loglik            <- log(gc[which.max(gc)])
         # # # logpost.i         <- loglik + logprior
-        # # # face$lmks["sn", ] <- crds[which.max(logpost.i), ]               
+        # # # face$landmarks["sn", ] <- crds[which.max(logpost.i), ]               

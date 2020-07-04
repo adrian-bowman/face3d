@@ -1,10 +1,12 @@
 "write.face3d" <- function (filename, shape, jpgfile, tiffile, quality = 100) {
+
     nc <- nchar(filename)
+    
     if (substr(filename, nc - 3, nc) == ".obj") {
-       trngs <- matrix(shape$triples, ncol = 3, byrow = T)
-       dfrm  <- data.frame(rep(c("v", "f"), c(nrow(shape$coords), nrow(trngs))),
-                           c(shape$coords[ , 1], trngs[ , 1]), c(shape$coords[ , 2], trngs[ , 2]),
-                           c(shape$coords[ , 3], trngs[ , 3]))
+       trngs <- shape$triangles
+       dfrm  <- data.frame(rep(c("v", "f"), c(nrow(shape$vertices), nrow(trngs))),
+                           c(shape$vertices[ , 1], trngs[ , 1]), c(shape$vertices[ , 2], trngs[ , 2]),
+                           c(shape$vertices[ , 3], trngs[ , 3]))
        write.table(dfrm, filename, quote = FALSE, row.names = FALSE, col.names = FALSE)
     }
     else if (substr(filename, nc - 3, nc) == ".ply") {
@@ -17,7 +19,7 @@
               ## COL-to-RGB tranfromation  
               CLR <- round(t(col2rgb(shape$colour, alpha = FALSE)),6)
               ## pulling all together
-              ALL <- cbind(shape$coords,CLR,rep(255,dim(CLR)[1]))
+              ALL <- cbind(shape$vertices,CLR,rep(255,dim(CLR)[1]))
               ALL1 <- apply(ALL,1,function(x) paste(x, collapse = " "))
               tripl1 <- apply(tripl,1,function(x) paste(x, collapse = " "))
               ## saving final results

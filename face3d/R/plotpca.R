@@ -45,8 +45,8 @@ plotpca.face3d <- function(x, group, high, display, npc, pc, p,
       if (template.match.missing) {
          if      (nrow(pca$mean) == nrow(template$mesh))   template.match <- template$mesh
          else if (nrow(pca$mean) == nrow(template$curves)) template.match <- template$curves
-         else if (nrow(pca$mean) == nrow(template$lmks))   template.match <- template$lmks
-         else stop("the dimensionality of the shapes does not match the mesh, curves or lmks components of the template.")
+         else if (nrow(pca$mean) == nrow(template$landmarks))   template.match <- template$landmarks
+         else stop("the dimensionality of the shapes does not match the mesh, curves or landmarks components of the template.")
       }
    }
    range.colour.missing <- missing(range.colour)
@@ -158,7 +158,7 @@ plotpca.face3d <- function(x, group, high, display, npc, pc, p,
       #    for (j in 1:n.animation) {
       #       shp        <- wp[[sq[i]]]
       #       wt         <- j / n.animation
-      #       shp$coords <- (1 - wt) * wp[[sq[i]]]$coords + wt * wp[[sq[i + 1]]]$coords
+      #       shp$vertices <- (1 - wt) * wp[[sq[i]]]$vertices + wt * wp[[sq[i + 1]]]$vertices
       #       p3d <- rgl::par3d(skipRedraw = TRUE)
       #       rgl::pop3d()
       #       plot(shp, col = "grey", add = TRUE)

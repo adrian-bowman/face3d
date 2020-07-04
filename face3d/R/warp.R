@@ -22,21 +22,21 @@ warp.face3d <- function(from, to, carry = from) {
   }
   
   clr <- NULL
-  triples.present <- ("triples" %in% names(carry))
-  if (is.list(carry) && (ncol(to) == 3) && ("coords" %in% names(carry)) && (triples.present)) {
-    trpls  <- carry$triples
+  triples.present <- ("triangles" %in% names(carry))
+  if (is.list(carry) && (ncol(to) == 3) && ("vertices" %in% names(carry)) && (triples.present)) {
+    trpls  <- c(t(carry$triangles))
     clr    <- if ("colour" %in% names(carry)) carry$colour else NULL
     carry1 <- list()
-    if ("lmks" %in% names(carry))   carry1$lmks   <- carry$lmks
+    if ("landmarks" %in% names(carry))   carry1$landmarks   <- carry$landmarks
     if ("curves" %in% names(carry)) carry1$curves <- carry$curves
     if ("mesh" %in% names(carry))   carry1$mesh   <- carry$mesh
-    if ("coords" %in% names(carry)) carry1$coords <- carry$coords
+    if ("vertices" %in% names(carry)) carry1$vertices <- carry$vertices
     carry <- carry1
     to_object <- list()
-    if ("lmks" %in% names(carry))   to_object$lmks   <- carry$lmks
-    if ("curves" %in% names(carry)) to_object$curves <- carry$curves
-    if ("mesh" %in% names(carry))   to_object$mesh   <- carry$mesh
-    if ("coords" %in% names(carry)) to_object$coords <- carry$coords
+    if ("landmarks" %in% names(carry)) to_object$landmarks <- carry$landmarks
+    if ("curves" %in% names(carry))    to_object$curves    <- carry$curves
+    if ("mesh" %in% names(carry))      to_object$mesh      <- carry$mesh
+    if ("vertices" %in% names(carry))  to_object$vertices  <- carry$vertices
   }
   
   if (is.list(carry)) to_object <- carry
@@ -70,8 +70,8 @@ warp.face3d <- function(from, to, carry = from) {
     
   }
   
-  if ("coords" %in% names(carry) & triples.present) {
-     to_object$triples <- trpls
+  if ("vertices" %in% names(carry) & triples.present) {
+     to_object$triangles <- matrix(trpls, ncol = 3, byrow = TRUE)
      class(to_object) <- "face3d"
   }
   if (!is.null(clr)) to_object$colour <- clr

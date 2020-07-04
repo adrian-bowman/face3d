@@ -9,7 +9,7 @@ dissect.face3d <- function(shape,  curve, endedge = F){
   
   shape <- index.face3d(shape)
   ##################check in-between edges###########################################
-  triangles <-  matrix(shape$triples,  ncol = 3,  byrow = TRUE)
+  triangles <-  shape$triangles
   inbetween <- FALSE
   for (i in 1:(nrow(curve)-1)) {
     if (check.edges(curve[i, ], curve[i+1,], triangles, shape)){
@@ -39,7 +39,7 @@ dissect.face3d <- function(shape,  curve, endedge = F){
   
   # plot(shape, colour="grey", display = "mesh")
   # spheres3d(curve, radius = 0.05)
-  # spheres3d(shape$coords[edge.mat[1, ], ], radius = 0.05, col=2:3)
+  # spheres3d(shape$vertices[edge.mat[1, ], ], radius = 0.05, col=2:3)
   # spheres3d(curve[cids, ], radius = 0.06, col=2)
   
   #####################account,  for each edge,  that how many path points lying on################################
@@ -75,7 +75,7 @@ dissect.face3d <- function(shape,  curve, endedge = F){
       nor.vec  <- (shape$normals[edge.mat[i, 1], ]+shape$normals[edge.mat[i, 2], ])/2
       axi.vec  <- crossproduct(nor.vec, dir.vec)
       proj.pts <- c(curve[cids[i], ]%*%t(axi.vec), curve[cids[edge.ts[i]], ]%*%t(axi.vec))
-      proj.vtc <- c(shape$coords[edge.mat[i,  1], ]%*%t(axi.vec), shape$coords[edge.mat[i,  2], ]%*%t(axi.vec))
+      proj.vtc <- c(shape$vertices[edge.mat[i,  1], ]%*%t(axi.vec), shape$vertices[edge.mat[i,  2], ]%*%t(axi.vec))
       ide      <- which.min(abs(proj.vtc-proj.pts[1]))
       if (which.min(abs(proj.pts-proj.vtc[ide]))==1) {
         if (proj.vtc[ide] < proj.pts[1]) {
@@ -116,8 +116,8 @@ dissect.face3d <- function(shape,  curve, endedge = F){
         norm.mat[i, ] <- (shape$normals[edge.mat[i, 1], ]+shape$normals[edge.mat[i, 2], ])/2
         dir.mat[i, ]  <- ecurve[cids[i]+1, ]-ecurve[cids[i], ]
         axi.vec       <- crossproduct(norm.mat[i, ], dir.mat[i, ])
-        pg1           <- shape$coords[edge.mat[i, 1], ]%*%t(axi.vec)
-        pg2           <- shape$coords[edge.mat[i, 2], ]%*%t(axi.vec)
+        pg1           <- shape$vertices[edge.mat[i, 1], ]%*%t(axi.vec)
+        pg2           <- shape$vertices[edge.mat[i, 2], ]%*%t(axi.vec)
         
         inn.ind[cids[i]]        <- edge.mat[i, which.max(c(pg1, pg2))]
         out.ind[cids[i]]        <- edge.mat[i, which.min(c(pg1, pg2))]
@@ -156,18 +156,18 @@ dissect.face3d <- function(shape,  curve, endedge = F){
                          ,which(triangles[,2]==pospts(nrow(curve),shape)$id),which(triangles[,3]==pospts(nrow(curve),shape)$id)))
     }
   }
-  s1$triples <- c(t(triangles[-idtri, ]))
+  s1$triangles <- triangles[-idtri, ]
   path.s     <- connected.face3d(s1)
   
   ##################################inner surface###################################################################
   
-  subshape <- subset.face3d(s1, (!path.s==(path.s[out.ind[which(names(out.ind)=="Edge")[1]]]))&(!1:(nrow(shape$coords))%in%out.ind[which(names(out.ind)=="Edge")]), remove.singles = F)
+  subshape <- subset.face3d(s1, (!path.s==(path.s[out.ind[which(names(out.ind)=="Edge")[1]]]))&(!1:(nrow(shape$vertices))%in%out.ind[which(names(out.ind)=="Edge")]), remove.singles = F)
   
   ##################################New triangulation#################################
-  orow       <- rownames(subshape$coords)
-  lrow       <- nrow(subshape$coords)
+  orow       <- rownames(subshape$vertices)
+  lrow       <- nrow(subshape$vertices)
   inn.ind3   <- sapply(inn.ind, function(x)if(!x==0){return(which(orow==x))}else{return(x)})
-  newcoords  <- rbind(subshape$coords, curve)
+  newvertices  <- rbind(subshape$vertices, curve)
   iid3       <- c(inn.ind3 ,inn.ind3[1])
   newtriples <- vector()
   for(i in 1:nrow(curve)){
@@ -269,23 +269,24 @@ dissect.face3d <- function(shape,  curve, endedge = F){
     #   print(i)
     # }
   }
-  newtriples[which(newtriples==(nrow(newcoords)+1))] <- nrow(subshape$coords)+1
-  newlist                                            <- list(coords=newcoords, triples=c(subshape$triples, newtriples))
-  shapeL                                             <- as.face3d(newlist)
+  newtriples[which(newtriples==(nrow(newvertices)+1))] <- nrow(subshape$vertices)+1
+  newlist  <- list(vertices=newvertices,
+                   triangles = matrix(c(c(t(subshape$triangles), newtriples)), ncol = 3, byrow = TRUE)
+  shapeL   <- as.face3d(newlist)
   
   
   
   ##################################outer surface###################################################################  
   
-  # subshape2 <- subset.face3d(s1, (!path.s==path.s[inn.ind[1]])&(!1:(nrow(shape$coords))%in%inn.ind), remove.singles = F)
-  subshape2 <- subset.face3d(s1, (!path.s==(path.s[inn.ind[which(names(inn.ind)=="Edge")[1]]]))&(!1:(nrow(shape$coords))%in%inn.ind[which(names(inn.ind)=="Edge")]), remove.singles = F)
-  # subshape2 <- subset.face3d(s1, (path.s==path.s[out.ind[1]])|(1:(nrow(shape$coords))%in%out.ind), remove.singles = F)
+  # subshape2 <- subset.face3d(s1, (!path.s==path.s[inn.ind[1]])&(!1:(nrow(shape$vertices))%in%inn.ind), remove.singles = F)
+  subshape2 <- subset.face3d(s1, (!path.s==(path.s[inn.ind[which(names(inn.ind)=="Edge")[1]]]))&(!1:(nrow(shape$vertices))%in%inn.ind[which(names(inn.ind)=="Edge")]), remove.singles = F)
+  # subshape2 <- subset.face3d(s1, (path.s==path.s[out.ind[1]])|(1:(nrow(shape$vertices))%in%out.ind), remove.singles = F)
   
   ##################################New triangulation#################################
-  orow        <- rownames(subshape2$coords)
-  lrow        <- nrow(subshape2$coords)
+  orow        <- rownames(subshape2$vertices)
+  lrow        <- nrow(subshape2$vertices)
   out.ind3    <- sapply(out.ind, function(x)if(!x==0){return(which(orow==x))}else{return(x)})
-  newcoords   <- rbind(subshape2$coords, curve)
+  newvertices   <- rbind(subshape2$vertices, curve)
   oid3        <- c(out.ind3 ,out.ind3[1])
   newtriples2 <- vector()
   for(i in 1:nrow(curve)){
@@ -367,9 +368,10 @@ dissect.face3d <- function(shape,  curve, endedge = F){
     # }
   }
   
-  newtriples2[which(newtriples2==(nrow(newcoords)+1))] <- nrow(subshape2$coords)+1
-  newlist2                                             <- list(coords=newcoords, triples=c(subshape2$triples, newtriples2))
-  shapeR                                               <- as.face3d(newlist2)
+  newtriples2[which(newtriples2==(nrow(newvertices)+1))] <- nrow(subshape2$vertices)+1
+  newlist2  <- list(vertices=newvertices,
+                    triangles = matrix(c(t(subshape2$triples), newtriples2), ncol = 3, byrow = TRUE)
+  shapeR    <- as.face3d(newlist2)
   
   return(list(shapeL=shapeL , shapeR=shapeR))
 }
@@ -383,11 +385,11 @@ shape.curve <- function(fish, b1, b2, lk1, lk2, dista=15){
   rng   <- sqrt(sum((lmk2 - lmk1)^2))
   bndry <- boundary * rng
   unit  <- (lmk2 - lmk1) / rng
-  prjn  <- c(sweep(fish$coords,  2,  lmk1) %*% unit)
+  prjn  <- c(sweep(fish$vertices,  2,  lmk1) %*% unit)
   near  <- function(x,  pts,  distance) sqrt(.rowSums((sweep(pts,  2,  x))^2,  nrow(pts),  3)) < distance
   ind1  <- (prjn > - bndry[1]) & (prjn < rng + bndry[1])
   prjn2 <- outer(prjn,  unit)
-  ind2  <- apply((sweep(fish$coords,  2,  lmk1) - prjn2)^2,  1,  function(x) sqrt(sum(x)) < bndry[2])
+  ind2  <- apply((sweep(fish$vertices,  2,  lmk1) - prjn2)^2,  1,  function(x) sqrt(sum(x)) < bndry[2])
   shape <- subset.face3d(fish,  ind1 & ind2,  remove.singles = TRUE)
   
   shape <- index.face3d(shape,  distance = dista,  overwrite = TRUE)
@@ -402,9 +404,9 @@ pospts <- function(x, shp){
   } else if(length(ind)==2){
     return(list(id=ind, pos="edge"))
   } else {
-    vec_1 <- shp$coords[ind[1], ]-x
-    vec_2 <- shp$coords[ind[2], ]-x
-    vec_3 <- shp$coords[ind[3], ]-x
+    vec_1 <- shp$vertices[ind[1], ]-x
+    vec_2 <- shp$vertices[ind[2], ]-x
+    vec_3 <- shp$vertices[ind[3], ]-x
     vec_1 <- vec_1/Eucdist(vec_1, c(0, 0, 0))
     vec_2 <- vec_2/Eucdist(vec_2, c(0, 0, 0))
     vec_3 <- vec_3/Eucdist(vec_3, c(0, 0, 0))

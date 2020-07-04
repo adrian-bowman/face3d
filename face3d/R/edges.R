@@ -1,7 +1,7 @@
 edges.face3d <- function(shape, plot = FALSE, ...) {
 
    # Find the pairs of points which define the edge pieces
-   edges <- matrix(shape$triples, ncol = 3, byrow = TRUE)
+   edges <- shape$triangles
    edges <- rbind(edges[ , 1:2], edges[ , 2:3], edges[ , c(1, 3)])
    edges <- cbind(pmin(edges[ , 1], edges[ , 2]),
                   pmax(edges[ , 1], edges[ , 2]))

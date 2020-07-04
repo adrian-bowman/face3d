@@ -1,10 +1,10 @@
-pcurve.face3d <- function (shape, df = rep(5, ncol(shape$coords)),
-                        weights = rep(1, nrow(shape$coords)),
+pcurve.face3d <- function (shape, df = rep(5, ncol(shape$vertices)),
+                        weights = rep(1, nrow(shape$vertices)),
                         fixed = rep(NA, 2), increasing = rep(FALSE, 2),
                         initial = NULL, start = 1, finish = 2,
                         thresh = 0.001, maxit = 10, stretch = 2, ...) {
 
-    if (class(shape) == "face3d") x <- shape$coords
+    if (class(shape) == "face3d") x <- shape$vertices
     else                          x <- shape
     if (all(!is.na(fixed))) {
        x <- rbind(x, fixed)

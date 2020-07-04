@@ -2,10 +2,10 @@ connected.face3d <- function(shape) {
    
    if (!is.face3d(shape)) stop("this is not a face3d object.")
    
-   triples       <- matrix(shape$triples, ncol = 3, byrow = TRUE)
+   triples       <- shape$triangles
    current       <- triples[1, ]
    prt           <- 1
-   part          <- rep(0, nrow(shape$coords))
+   part          <- rep(0, nrow(shape$vertices))
    part[current] <- prt
    
    while (length(current) > 0) {

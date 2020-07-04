@@ -2,7 +2,7 @@
 cutface.face3d <- function(face, monitor = FALSE){
 		
 #calculating proportion reference
-	reference.path <- rbind(face$lmks["enR", ], face$lmks["enL", ])
+	reference.path <- rbind(face$landmarks["enR", ], face$landmarks["enL", ])
 	lambda         <- cumsum(c(0, sqrt(apply((diff(reference.path))^2, 1, sum))))
 	Euc.dist       <- lambda[2]
  	 
@@ -74,7 +74,7 @@ cutface.face3d <- function(face, monitor = FALSE){
 
 
 #calculating cutpts mandible
-    pt              <-  face$lmks["gn", ]
+    pt              <-  face$landmarks["gn", ]
     Distance        <- rep(0)
     curve1          <- face$curves[grep("Mandible", rownames(face$curves)), ]
       for (a in 1:length(curve1[,1]))
@@ -128,7 +128,7 @@ cutface.face3d <- function(face, monitor = FALSE){
     # Test.r           <- closestcurve.face3d(face, Right.cut)
     # perp.dist.r      <- Test.r$closest.distance
     # ind.right        <- perp.dist.r > -30
-    # names(ind.right) <- paste(c(1: dim(face$coords)[1]))
+    # names(ind.right) <- paste(c(1: dim(face$vertices)[1]))
  
  #left side cut
     # a                <- planepath.face3d(face, Cutpt.L.brow, Cutpt.L.eye)$path
@@ -139,13 +139,13 @@ cutface.face3d <- function(face, monitor = FALSE){
     # Test.l           <- closestcurve.face3d(face, Left.cut)
     # perp.dist.l      <- Test.l$closest.distance
     # ind.left         <- perp.dist.l < 30
-    # names(ind.left)  <- paste(c(1: dim(face$coords)[1]))
+    # names(ind.left)  <- paste(c(1: dim(face$vertices)[1]))
  
  #1st subset   
      # crvs        <- face$curves
-     # lmks        <- face$lmks
+     # landmarks        <- face$landmarks
      # face        <- subset.face3d(face, (ind.left & ind.right))
-     # face$lmks   <- lmks
+     # face$landmarks   <- landmarks
      # face$curves <- crvs
   
  #neck cuts
@@ -154,7 +154,7 @@ cutface.face3d <- function(face, monitor = FALSE){
     # TEST            <- closestcurve.face3d(face, mandible)
     # perp.dist       <- TEST$closest.distance
     # ind.mand        <- perp.dist > -20
-    # names(ind.mand) <- paste(c(1: dim(face$coords)[1]))
+    # names(ind.mand) <- paste(c(1: dim(face$vertices)[1]))
     
  #brow cuts
      # ind.R           <- grep("brow ridge right", rownames(face$curves))
@@ -165,17 +165,17 @@ cutface.face3d <- function(face, monitor = FALSE){
      # TEST            <- closestcurve.face3d(face, brow.ridge)
      # perp.dist       <- TEST$closest.distance
      # ind.brow        <- perp.dist < 10
-     # names(ind.brow) <-  paste(c(1: dim(face$coords)[1]))
+     # names(ind.brow) <-  paste(c(1: dim(face$vertices)[1]))
   
   #2nd subset   
      # crvs        <- face$curves
-     # lmks        <- face$lmks
+     # landmarks        <- face$landmarks
      # face        <- subset.face3d(face, (ind.mand & ind.brow))
-     # face$lmks   <- lmks
+     # face$landmarks   <- landmarks
      # face$curves <- crvs
 
   #fixing gnathion curve
-     pt              <-  face$lmks["gn", ]
+     pt              <-  face$landmarks["gn", ]
      Distance        <- rep(0)
      curve1          <- face$curves[grep("Mandible", rownames(face$curves)), ]
        for (a in 1:length(curve1[,1]))
@@ -189,17 +189,17 @@ cutface.face3d <- function(face, monitor = FALSE){
       rng      <- sqrt(sum((lmks[2, ] - lmks[1, ])^2))
       bndry    <- boundary * rng
       unit     <- (lmks[2, ] - lmks[1, ]) / rng
-      prjn     <- c(sweep(face$coords, 2, lmks[1, ]) %*% unit)
+      prjn     <- c(sweep(face$vertices, 2, lmks[1, ]) %*% unit)
       ind1     <- (prjn > - bndry[1]) & (prjn < rng + bndry[1])
       prjn2    <- outer(prjn, unit)
-      ind2     <- apply((sweep(face$coords, 2, lmks[1, ]) - prjn2)^2, 1, function(x) sqrt(sum(x)) < bndry[2])
+      ind2     <- apply((sweep(face$vertices, 2, lmks[1, ]) - prjn2)^2, 1, function(x) sqrt(sum(x)) < bndry[2])
       shape    <- subset.face3d(face, ind1 & ind2, remove.singles = TRUE)	  
     #is pt above or below the new mand curve(pt.mand included)?
-	#which point on the shapecoords it is closest to
+	#which point on the shape vertices it is closest to
 	  Distance        <- rep(0)
-        for (a in 1:length(shape$coords[,1]))
-	        Distance[a]  <- sqrt(apply((diff(rbind(pt, shape$coords[a,])))^2, 1, sum))
-	    closest.pt.pt    <-   rownames(shape$coords )[which.min(Distance)]
+        for (a in 1:length(shape$vertices[,1]))
+	        Distance[a]  <- sqrt(apply((diff(rbind(pt, shape$vertices[a,])))^2, 1, sum))
+	    closest.pt.pt    <-   rownames(shape$vertices )[which.min(Distance)]
 	    cutt             <- closestcurve.face3d(shape, curve1)
 	    sign             <- sign(cutt$closest.distance[closest.pt.pt])
 	 
@@ -209,7 +209,7 @@ cutface.face3d <- function(face, monitor = FALSE){
         for (a in 1:length(midline[,1]))
 	        Distance[a]  <- sqrt(apply((diff(rbind(pt.mand, midline[a,])))^2, 1, sum))
       newpt.mand        <- midline[which.min(Distance),]
-      face$lmks["gn", ] <-  newpt.mand
+      face$landmarks["gn", ] <-  newpt.mand
       X                 <- midline[c(1:which.min(Distance)),]
       ind               <- (substr(rownames(face$curves), 1, nchar("mid-line chin")) == "mid-line chin")
       face$curves       <- face$curves[!ind, ]
@@ -219,7 +219,7 @@ cutface.face3d <- function(face, monitor = FALSE){
      }
 
      else  {
-      face$lmks["gn", ] <-  pt.mand
+      face$landmarks["gn", ] <-  pt.mand
       midline           <- face$curves[grep("mid-line chin", rownames(face$curves)), ]
   	  X                 <- rbind(midline, pt.mand)
       ind               <- (substr(rownames(face$curves), 1, nchar("mid-line chin")) == "mid-line chin")
@@ -252,7 +252,7 @@ cutface.face3d <- function(face, monitor = FALSE){
     
        #splitting mid-line 
              mid.line        <- face$curves[grep("mid-line lip", rownames(face$curves)),]	
-             pt              <- face$lmks["st", ]
+             pt              <- face$landmarks["st", ]
              Distance        <- rep(0)
                for (a in 1:length(mid.line[,1])) Distance[a]  <- sqrt(apply((diff(rbind(pt, mid.line[a,])))^2, 1, sum))
              names(Distance) <- paste(rownames(mid.line))
@@ -272,7 +272,7 @@ cutface.face3d <- function(face, monitor = FALSE){
 
 #splitting mandible
              Mandible  <- face$curves[grep("Mandible", rownames(face$curves)),]	
-             pt              <- face$lmks["gn", ]
+             pt              <- face$landmarks["gn", ]
              Distance        <- rep(0)
                for (a in 1:length(Mandible[,1])) Distance[a]  <- sqrt(apply((diff(rbind(pt, Mandible[a,])))^2, 1, sum))
              names(Distance) <- paste(rownames(Mandible))

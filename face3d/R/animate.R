@@ -18,7 +18,7 @@ animate.face3d <- function(shapes, ngrid = 4, image.folder, ...) {
       shape12 <- shapes[[k]]
       for (j in 1:ngrid) {
          beta <- j / ngrid
-         shape12$coords <- beta * shapes[[k + 1]]$coords + (1 - beta) * shapes[[k]]$coords
+         shape12$vertices <- beta * shapes[[k + 1]]$vertices + (1 - beta) * shapes[[k]]$vertices
          sv <- par3d(skipRedraw = TRUE)
          plot(shape12, ...)
          par3d(sv)

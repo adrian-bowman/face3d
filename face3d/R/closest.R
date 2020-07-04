@@ -3,10 +3,10 @@ closest.face3d    <- function(x, shape, nearest = 30, tol = 1e-8) {
    closestone <- function(x, shape, nearest, tol) {
 
       # Find the closest vertex
-      dst <- apply(shape$coords, 1, function(y) sqrt(sum((x - y)^2)))
+      dst <- apply(shape$vertices, 1, function(y) sqrt(sum((x - y)^2)))
       ind <- which.min(dst)
       id  <- c(ind, NA, NA)
-      pts <- shape$coords[ind, ]
+      pts <- shape$vertices[ind, ]
       if (dst[ind] < tol)
          return(invisible(c(pts, id, dst[ind])))
       
@@ -15,11 +15,11 @@ closest.face3d    <- function(x, shape, nearest = 30, tol = 1e-8) {
       sbst   <- subset.face3d(shape, ind, remove.singles = FALSE, retain.indices = TRUE)
    
       # Find the smallest of the perpendicular projections onto edges
-      edges0 <- matrix(sbst$triples, ncol = 3, byrow = TRUE)[ , c(1, 2, 2, 3, 3, 1)]
+      edges0 <- sbst$triangles[ , c(1, 2, 2, 3, 3, 1)]
       edges0 <- matrix(c(t(edges0)), ncol = 2, byrow = TRUE)
-      origin <- sbst$coords[edges0[ , 1], ]
+      origin <- sbst$vertices[edges0[ , 1], ]
       x1     <- -sweep(origin, 2, x)
-      edges  <- sbst$coords[edges0[ , 2], ] - sbst$coords[edges0[ , 1], ]
+      edges  <- sbst$vertices[edges0[ , 2], ] - sbst$vertices[edges0[ , 1], ]
       lngth  <- apply(edges, 1, function(x) sqrt(sum(x^2)))
       edges  <- edges / matrix(rep(lngth, 3), ncol = 3)
       prjn   <- apply(x1 * edges, 1, sum)
@@ -31,27 +31,27 @@ closest.face3d    <- function(x, shape, nearest = 30, tol = 1e-8) {
    	   pts  <- rbind(pts, x1)
    	   id   <- rbind(id, c(edges0[ind1, ], NA))
    	   dimnames(id) <- list(NULL, NULL)
-   	   # edg <- matrix(as.numeric(rownames(sbst$coords))[c(edges0[ind, ])], ncol = 2)
+   	   # edg <- matrix(as.numeric(rownames(sbst$vertices))[c(edges0[ind, ])], ncol = 2)
    	   # id  <- rbind(id, cbind(edg, rep(NA, nrow(edg))))
          if (dst[ind1] < tol) {
             # return(invisible(list(point = pts[2, ], id.sub = id[2, 1:2],
-            #                       id = as.numeric(rownames(sbst$coords))[id[2, 1:2]],
+            #                       id = as.numeric(rownames(sbst$vertices))[id[2, 1:2]],
             #                       distance = dst[ind1], subset = sbst)))
             return(invisible(c(pts[2, ], id = c(sbst$subset[id[2, 1:2]], NA), dst[ind1])))
          }
       }
    
       # Find the smallest of the perpendicular projections onto triangles
-      trpls <- matrix(sbst$triples, ncol = 3, byrow = TRUE)
-      PX    <- sbst$coords[trpls[ , 2], ] - sbst$coords[trpls[ , 1], ]
+      trpls <- sbst$triangles
+      PX    <- sbst$vertices[trpls[ , 2], ] - sbst$vertices[trpls[ , 1], ]
       if (!is.matrix(PX)) PX <- matrix(PX, ncol = 3)
       lngth <- apply(PX, 1, function(x) sqrt(sum(x^2)))
       PX    <- PX / matrix(rep(lngth, 3), ncol = 3)
-      PZ    <- crossproduct(PX, sbst$coords[trpls[ , 3], ] - sbst$coords[trpls[ , 1], ])
+      PZ    <- crossproduct(PX, sbst$vertices[trpls[ , 3], ] - sbst$vertices[trpls[ , 1], ])
       PY    <- crossproduct(PZ, PX)
-      sc1   <- matrix(c(sbst$coords[trpls[ , 1], ]), ncol = 3)
-      sc2   <- matrix(c(sbst$coords[trpls[ , 2], ]), ncol = 3)
-      sc3   <- matrix(c(sbst$coords[trpls[ , 3], ]), ncol = 3)
+      sc1   <- matrix(c(sbst$vertices[trpls[ , 1], ]), ncol = 3)
+      sc2   <- matrix(c(sbst$vertices[trpls[ , 2], ]), ncol = 3)
+      sc3   <- matrix(c(sbst$vertices[trpls[ , 3], ]), ncol = 3)
       X     <- -sweep(sc1, 2, x)
       XX    <- cbind(apply(PX * X, 1, sum), apply(PY * X, 1, sum))
       P1    <- matrix(0, ncol = 2, nrow = nrow(X))
@@ -70,10 +70,10 @@ closest.face3d    <- function(x, shape, nearest = 30, tol = 1e-8) {
       L3    <- (apply((XX - P3) * N, 1, sum) >= 0)
       ind   <- which(L1 & L2 & L3)
       if (length(ind) > 0) {
-         x1  <- XX[ind, 1] * PX[ind, ] + XX[ind, 2] * PY[ind, ] + matrix(c(sbst$coords[trpls[ind, 1], ]), ncol = 3)
+         x1  <- XX[ind, 1] * PX[ind, ] + XX[ind, 2] * PY[ind, ] + matrix(c(sbst$vertices[trpls[ind, 1], ]), ncol = 3)
    	   pts <- rbind(pts, x1)
    	   trp <- matrix(sbst$subset[c(trpls[ind, ])], ncol = 3)
-   	   # trp <- matrix(as.numeric(rownames(sbst$coords))[c(trpls[ind, ])], ncol = 3)
+   	   # trp <- matrix(as.numeric(rownames(sbst$vertices))[c(trpls[ind, ])], ncol = 3)
    	   id  <- rbind(id, trp)
       }
 
@@ -86,11 +86,11 @@ closest.face3d    <- function(x, shape, nearest = 30, tol = 1e-8) {
       id    <- id[ind, ]
       # id    <- id[!is.na(id)]
    
-      # trpls <- matrix(shape$triples, ncol = 3, byrow = TRUE)
+      # trpls <- shape$triangles
       # indtr <- which((trpls[ , 1] %in% id[ind, ]) | (trpls[ , 2] %in% id[ind, ]) |
       #                (trpls[ , 3] %in% id[ind, ]))
 
-      # dst <- apply(shape$coords, 1, function(y) sqrt(sum((x - y)^2)))
+      # dst <- apply(shape$vertices, 1, function(y) sqrt(sum((x - y)^2)))
       # ind <- which.min(dst)
       
       invisible(c(pts[ind, ], id, dst[ind]))

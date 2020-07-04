@@ -6,12 +6,12 @@ arclength.face3d <- function(curve)
 
 projectline.face3d <- function(shape, x1, x2, normal) {
    unit  <- (x2 - x1) / sqrt(sum((x2 - x1)^2))
-   proj  <- c(sweep(shape$coords, 2, x1) %*% unit)
-   dst   <- apply(outer(proj, unit) - sweep(shape$coords, 2, x1), 1,
+   proj  <- c(sweep(shape$vertices, 2, x1) %*% unit)
+   dst   <- apply(outer(proj, unit) - sweep(shape$vertices, 2, x1), 1,
                           function(x) sqrt(sum(x^2)))
    if (!missing(normal)) {
       unity <- crossproduct(unit, normal)
-      projy <- c(sweep(shape$coords, 2, x1) %*% unity)
+      projy <- c(sweep(shape$vertices, 2, x1) %*% unity)
       dst   <- dst * sign(projy)
    }
    invisible(list(x = proj, y = dst))
@@ -22,37 +22,37 @@ is.face3d <- function(object, report = FALSE) {
    if (!ind & report) cat("the object does not have class face3d.\n")
    ind <- ind && is.list(object)
    if (!ind & report) cat("the object is not a list.\n")
-   ind <- ind && ("coords" %in% names(object))
-   if (!ind & report) cat("the object does not have a coords component.\n")
-   ind <- ind && ("triples" %in% names(object))
-   if (!ind & report) cat("the object does not have a triples component.\n")
-   ind <- ind && is.matrix(object$coords)
-   if (!ind & report) cat("the coords component is not a matrix.\n")
-   ind <- ind && (dim(object$coords)[2] == 3)
-   if (!ind & report) cat("the coords component does not have three columns.\n")
+   ind <- ind && ("vertices" %in% names(object))
+   if (!ind & report) cat("the object does not have a vertices component.\n")
+   ind <- ind && ("triangles" %in% names(object))
+   if (!ind & report) cat("the object does not have a triangles component.\n")
+   ind <- ind && is.matrix(object$vertices)
+   if (!ind & report) cat("the vertices component is not a matrix.\n")
+   ind <- ind && (dim(object$vertices)[2] == 3)
+   if (!ind & report) cat("the vertices component does not have three columns.\n")
    ind
 }
 
 area.face3d <- function(shape) {
-   n              <- length(shape$triples) / 3
-   triangles      <- array(t(shape$coords[shape$triples, ]), c(3, 3, n))
+   n              <- nrow(shape$triangles)
+   triangles      <- array(t(shape$vertices[c(t(shape$triangles)), ]), c(3, 3, n))
    triangle.areas <- apply(triangles, 3, function(x) {
       1/2 * sqrt(sum((crossproduct(x[,2] - x[,1], x[,3] - x[,1], scale = FALSE))^2))})
-   triangles  <- matrix(shape$triples, ncol = 3, byrow = TRUE)
+   triangles  <- shape$triangles
    a.wts      <- tapply(rep(triangle.areas / 3, 3), c(triangles), sum)
-   wts        <- numeric(nrow(shape$coords))
+   wts        <- numeric(nrow(shape$vertices))
    ind.a      <- as.numeric(names(a.wts))
    wts[ind.a] <- a.wts
    isol       <- summary(shape, checks = TRUE, print = FALSE)$isolated
    if (!is.null(isol)) {
-      if (is.null(rownames(shape$coords))) stop("'shape' must have rownames.")
+      if (is.null(rownames(shape$vertices))) stop("'shape' must have rownames.")
       l.wts     <- numeric(0)
       crvs      <- c("mid-line columella", "upper face right", "upper face left")
       for (crv in crvs) {
-         ind        <- grep(crv, rownames(shape$coords))
+         ind        <- grep(crv, rownames(shape$vertices))
          if (grepl("upper face", crv)) ind <- isol[isol %in% ind]
          nind       <- length(ind)
-         del        <- apply(diff(shape$coords[ind, ]), 1, function(x) sqrt(sum(x^2)))
+         del        <- apply(diff(shape$vertices[ind, ]), 1, function(x) sqrt(sum(x^2)))
          ind1       <- rep(1:nind, each = 2)[-c(1, 2 * nind)]
          new        <- tapply(rep(del / 2, each = 2), ind1, sum)
          names(new) <- as.character(ind)
@@ -64,21 +64,21 @@ area.face3d <- function(shape) {
 }
 
 mode.face3d <- function(shape, values, threshold = 5) {
-   if (nrow(shape$coords) != length(values))
+   if (nrow(shape$vertices) != length(values))
       stop("the dimensions of 'shape' and 'values' do not match.")
-   rdst <- rdist(shape$coords)
+   rdst <- rdist(shape$vertices)
    vals <- values * area.face3d(shape)$points
    ints <- apply(rdst, 1, function(x) sum(vals[x < threshold]))
    ind  <- which.max(ints)
-   invisible(list(mode = shape$coords[ind, ], value = ints[ind]))
+   invisible(list(mode = shape$vertices[ind, ], value = ints[ind]))
 }
 
 centre.face3d <- function(shape) {
-   rdst <- rdist(shape$coords)
+   rdst <- rdist(shape$vertices)
    a    <- area.face3d(shape)$points
    rdst <- sweep(rdst, 2, a, "*")
    imin <- which.min(apply(rdst, 1, sum))
-   shape$coords[imin, ]
+   shape$vertices[imin, ]
 }
 
 center.face3d <- centre.face3d

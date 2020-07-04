@@ -38,7 +38,7 @@ rend.target             <- render.face3d(target)
 # creating painted face by normals +/-
 
 normals               <- normals.face3d(rend.reference)$normal
-difference            <- rend.reference$coords - rend.target$coords 
+difference            <- rend.reference$vertices - rend.target$vertices 
 euc.dist              <- sqrt(apply(difference^2, 1, sum))
 ind                   <- apply(difference * normals, 1, sum)
 pts                   <- (euc.dist * sign(ind))

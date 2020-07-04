@@ -10,13 +10,13 @@ smoothpath.ridge.face3d <- function(shape, shape.smooth, lmk1, lmk2, df = 5, dis
    if(pcrv.path) { 
    	if(missing(start.pc)) stop("Need to create a start for principal curve")
 		ind <- !(shape.smooth$kappa1 == 0 & shape.smooth$kappa2 ==0)
-		shape.smooth2 <- shape.smooth$coords[ind, ]
+		shape.smooth2 <- shape.smooth$vertices[ind, ]
 		shape.smooth2 <- subset.face3d(shape.smooth, ind, remove.singles = FALSE)
 
 		chR <- lmk1 
 		chL <- lmk2
 		u <- (chL-chR)/norm(chL-chR)
-		crds <- sweep(shape.smooth2$coords, 2, chL)
+		crds <- sweep(shape.smooth2$vertices, 2, chL)
 		v <- c(crds%*%u)
 		shape.smooth2 <- subset.face3d(shape.smooth2, v < 1, remove.singles = FALSE)
 		crds <- crds[v<1,]
@@ -133,9 +133,9 @@ smoothpath.ridge.face3d <- function(shape, shape.smooth, lmk1, lmk2, df = 5, dis
    X             <- cbind(full.xc, full.yc)
    # X             <- cbind(xc,yc)
    Xnew          <- cbind(arclength, new.pdist)
-   interp.x      <- interp.barycentric(X, f = c(lmk1[1], shape$coords[ , 1], lmk2[1]), Xnew)$fnew
-   interp.y      <- interp.barycentric(X, f = c(lmk1[2], shape$coords[ , 2], lmk2[2]), Xnew)$fnew
-   interp.z      <- interp.barycentric(X, f = c(lmk1[3], shape$coords[ , 3], lmk2[3]), Xnew)$fnew
+   interp.x      <- interp.barycentric(X, f = c(lmk1[1], shape$vertices[ , 1], lmk2[1]), Xnew)$fnew
+   interp.y      <- interp.barycentric(X, f = c(lmk1[2], shape$vertices[ , 2], lmk2[2]), Xnew)$fnew
+   interp.z      <- interp.barycentric(X, f = c(lmk1[3], shape$vertices[ , 3], lmk2[3]), Xnew)$fnew
    interp.values <- interp.barycentric(X, f = full.va1, Xnew)$fnew
    smooth.path   <- cbind(interp.x, interp.y, interp.z)
    aver.path     <- smooth.path
@@ -166,7 +166,7 @@ smoothpath.ridge.face3d <- function(shape, shape.smooth, lmk1, lmk2, df = 5, dis
    if(monitor){
 	   plot(shape, colour="grey")
    	 rgl::spheres3d(rbind(lmk1, lmk2), col = "red", radius = 1)
-       rgl::spheres3d(shape.smooth$coords, col = topo.colors(20)[cut(values, 20, labels = FALSE)], 
+       rgl::spheres3d(shape.smooth$vertices, col = topo.colors(20)[cut(values, 20, labels = FALSE)], 
                                  radius = 0.3, alpha = 0.6)
        rgl::spheres3d(aver.path, col="black", radius = .5 )
        }

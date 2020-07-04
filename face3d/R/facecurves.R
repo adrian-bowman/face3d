@@ -76,7 +76,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
    perp.dist.bound <- as.numeric(as.character(curves.df[ , 8]))
    distance        <- as.numeric(as.character(curves.df[ , 9]))
    rotation.range  <- as.numeric(as.character(curves.df[ , 10]))
-   ind             <- !(c(lmks.nms) %in% rownames(face$lmks))
+   ind             <- !(c(lmks.nms) %in% rownames(face$landmarks))
    if (any(ind))
       stop(paste("landmarks not found:", unique(c(lmks.nms)[ind]), collapse = " "))
    nms.crvs   <- character(0)
@@ -85,22 +85,22 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
       cat(paste(c("Target:   ", rep(".", length(curves))), collapse = ""), "\n")
       cat("Progress: ")
    }
-   # for (k in 1:nrow(face$lmks)) face$lmks[k, ] <- closest.face3d(face$lmks[k, ], face)$points
+   # for (k in 1:nrow(face$landmarks)) face$landmarks[k, ] <- closest.face3d(face$landmarks[k, ], face)$points
    
    for (i in 1:length(curves)) {
-      lmks <- face$lmks[lmks.nms[i, ], ]
+      lmks <- face$landmarks[lmks.nms[i, ], ]
       reference.path <- NA
       shape.smooth   <- NA
       #  Subset the object by a tube around x1 and the relevant direction
       rng   <- sqrt(sum((lmks[2, ] - lmks[1, ])^2))
       bndry <- boundary[i, ] * rng
       unit  <- (lmks[2, ] - lmks[1, ]) / rng
-      prjn  <- c(sweep(face$coords, 2, lmks[1, ]) %*% unit)
+      prjn  <- c(sweep(face$vertices, 2, lmks[1, ]) %*% unit)
       near  <- function(x, pts, distance)
                     sqrt(.rowSums((sweep(pts, 2, x))^2, nrow(pts), 3)) < distance
       ind1  <- (prjn > - bndry[1]) & (prjn < rng + bndry[1])
       prjn2 <- outer(prjn, unit)
-      ind2  <- apply((sweep(face$coords, 2, lmks[1, ]) - prjn2)^2, 1, function(x) sqrt(sum(x)) < bndry[2])
+      ind2  <- apply((sweep(face$vertices, 2, lmks[1, ]) - prjn2)^2, 1, function(x) sqrt(sum(x)) < bndry[2])
       shape <- subset.face3d(face, ind1 & ind2, remove.singles = TRUE)	  
  	  if (length(grep("OM upper lip", curves[i])) > 0) {
      	    path.ml                        <- planepath.face3d(shape, lmks[1,], lmks[2,])$path   
@@ -228,15 +228,15 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
        }  	 
 
    	if (length(grep("brow ridge left", curves[i])) > 0) {
-   	 		lmksa                          <- rbind(face$lmks["exL" , ], face$lmks[ "enL", ])
+   	 		lmksa                          <- rbind(face$landmarks["exL" , ], face$landmarks[ "enL", ])
    	 		boundaryy                      <- c(.2, .7)
    	 		rng2                            <- sqrt(sum((lmksa[2, ] - lmksa[1, ])^2))
             bndry                          <- boundaryy * rng2
             unit                           <- (lmksa[2, ] - lmksa[1, ]) / rng2
-            prjn                           <- c(sweep(face$coords, 2, lmksa[1, ]) %*% unit)
+            prjn                           <- c(sweep(face$vertices, 2, lmksa[1, ]) %*% unit)
             ind1                           <- (prjn > - bndry[1]) & (prjn < rng2 + bndry[1])
             prjn                           <- outer(prjn, unit)
-            ind2                           <- apply((sweep(face$coords, 2, lmksa[1, ]) - prjn)^2, 1, 
+            ind2                           <- apply((sweep(face$vertices, 2, lmksa[1, ]) - prjn)^2, 1, 
             	                                  function(x) sqrt(sum(x)) < bndry[2])
             shape.eye                      <- subset.face3d(face, ind1 & ind2, remove.singles = FALSE) 
             shape                          <- index.face3d(shape, distance=distance[i])
@@ -244,7 +244,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
             shape$shape.index[ind3]        <- 0
             shape$kappa1[ind3]             <- 0
             shape$kappa2[ind3]             <- 0
-            Match                          <- match(rownames(shape.eye$coords), rownames(shape$coords))
+            Match                          <- match(rownames(shape.eye$vertices), rownames(shape$vertices))
             shape$shape.index[Match]       <- 0
             shape$kappa1[Match]            <- 0
             shape$kappa2[Match]            <- 0  
@@ -271,15 +271,15 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
 
 
      if (length(grep("brow ridge right", curves[i])) > 0) {
-   	 		lmksa                          <- rbind(face$lmks["enR" , ], face$lmks[ "exR", ])
+   	 		lmksa                          <- rbind(face$landmarks["enR" , ], face$landmarks[ "exR", ])
    	 		boundaryy                      <- c(.20, .7)
    	 		rng2                            <- sqrt(sum((lmksa[2, ] - lmksa[1, ])^2))
             bndry                          <- boundaryy * rng2
             unit                           <- (lmksa[2, ] - lmksa[1, ]) / rng2
-            prjn                           <- c(sweep(face$coords, 2, lmksa[1, ]) %*% unit)
+            prjn                           <- c(sweep(face$vertices, 2, lmksa[1, ]) %*% unit)
             ind1                           <- (prjn > - bndry[1]) & (prjn < rng2 + bndry[1])
             prjn                           <- outer(prjn, unit)
-            ind2                           <- apply((sweep(face$coords, 2, lmksa[1, ]) - prjn)^2, 1, 
+            ind2                           <- apply((sweep(face$vertices, 2, lmksa[1, ]) - prjn)^2, 1, 
             	                                  function(x) sqrt(sum(x)) < bndry[2])
             shape.eye                      <- subset.face3d(face, ind1 & ind2, remove.singles = FALSE) 
             shape                          <- index.face3d(shape, distance=distance[i])
@@ -287,7 +287,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
             shape$shape.index[ind3]        <- 0
             shape$kappa1[ind3]             <- 0
             shape$kappa2[ind3]             <- 0
-            Match                          <- match(rownames(shape.eye$coords), rownames(shape$coords))
+            Match                          <- match(rownames(shape.eye$vertices), rownames(shape$vertices))
             shape$shape.index[Match]       <- 0
             shape$kappa1[Match]            <- 0
             shape$kappa2[Match]            <- 0  

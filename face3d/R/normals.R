@@ -19,8 +19,8 @@ normals.face3d <- function(shape) {
    }
   
    local.axes <- function(trngs) {
-   	  d21    <- shape$coords[triples[trngs, 2], ] - shape$coords[triples[trngs, 1], ]
-   	  d31    <- shape$coords[triples[trngs, 3], ] - shape$coords[triples[trngs, 1], ]
+   	  d21    <- shape$vertices[triples[trngs, 2], ] - shape$vertices[triples[trngs, 1], ]
+   	  d31    <- shape$vertices[triples[trngs, 3], ] - shape$vertices[triples[trngs, 1], ]
    	  normal <- apply(crossproduct(d21, d31), 2, mean)
    	  normal <- normal / sqrt(sum(normal^2))
    	  x1     <- crossproduct(normal, c(t(d21))[1:3])
@@ -28,14 +28,14 @@ normals.face3d <- function(shape) {
    	  cbind(normal, c(x1), c(x2))
    }
 
-   triples       <- matrix(shape$triples, ncol = 3, byrow = TRUE)
+   triples       <- shape$triangles
    triangles     <- 1:nrow(triples)
    trngs         <-              tapply(triangles, triples[ , 1], c)
    trngs         <- clist(trngs, tapply(triangles, triples[ , 2], c))
    trngs         <- clist(trngs, tapply(triangles, triples[ , 3], c))
    axes          <- lapply(trngs, local.axes)
    shape$axes    <- axes
-   axes          <- array(unlist(axes), dim = c(3, 3, nrow(shape$coords)))
+   axes          <- array(unlist(axes), dim = c(3, 3, nrow(shape$vertices)))
    shape$normals <- t(axes[ , 1, ])
 
    class(shape) <- "face3d"

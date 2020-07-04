@@ -1,4 +1,4 @@
-editlandmarks.face3d <- function(shape, lmk.names = rownames(shape$lmks), panel = TRUE,
+editlandmarks.face3d <- function(shape, lmk.names = rownames(shape$landmarks), panel = TRUE,
                                     lmk.name = "none", directions = FALSE) {
    
    if (!requireNamespace("rpanel", quitely = TRUE)) stop("the rpanel package is not available.")
@@ -21,7 +21,7 @@ editlandmarks.face3d <- function(shape, lmk.names = rownames(shape$lmks), panel 
          # drns[ ,   3, ]   <- t(shape$normals)
          # shape$directions <- drns
    	  # }
-      path  <- planepath.face3d(shape, panel$shape$lmks[panel$lmk.name, ],
+      path  <- planepath.face3d(shape, panel$shape$landmarks[panel$lmk.name, ],
                                 direction = c(sin(panel$angle), cos(panel$angle), 0),
                                 rotation = 0, monitor = FALSE, boundary = c(Inf, Inf),
                                 directions = panel$drns.showing)
@@ -48,7 +48,7 @@ editlandmarks.face3d <- function(shape, lmk.names = rownames(shape$lmks), panel 
                                    approx(panel$arclength, panel$path[ , 2], panel$x1.arclength)$y,
                                    approx(panel$arclength, panel$path[ , 3], panel$x1.arclength)$y)
       ind                     <- panel$lmk.name
-      panel$shape$lmks[ind, ] <- lmk
+      panel$shape$landmarks[ind, ] <- lmk
       old                     <- panel$id.lmks[ind]
       panel$id.lmks[ind]      <- rgl::spheres3d(t(lmk), radius = panel$radius, col = "red")
       rgl::pop3d(id = old)
@@ -71,7 +71,7 @@ editlandmarks.face3d <- function(shape, lmk.names = rownames(shape$lmks), panel 
       id.drn1.old   <- panel$id.drn1
       id.drn2.old   <- panel$id.drn2
       id.drn3.old   <- panel$id.drn3
-      x             <- panel$shape$lmks[panel$lmk.name, ]
+      x             <- panel$shape$landmarks[panel$lmk.name, ]
       xgrid         <- seq(-panel$shape$si.distance, panel$shape$si.distance, length = 20)
       zgrid         <- sweep(xgrid %o% drn1 + kappa1 * xgrid^2 %o% drn3, 2, x, "+")
       panel$id.drn1 <- rgl::lines3d(zgrid, col = "blue")
@@ -89,22 +89,22 @@ editlandmarks.face3d <- function(shape, lmk.names = rownames(shape$lmks), panel 
    new.lmk <- function(panel) {
       if (panel$lmk.name.old != "none") {
          rgl::pop3d(id = panel$id.lmks[panel$lmk.name.old])
-         panel$id.lmks[panel$lmk.name.old] <- rgl::spheres3d(t(panel$shape$lmks[panel$lmk.name.old, ]),
+         panel$id.lmks[panel$lmk.name.old] <- rgl::spheres3d(t(panel$shape$landmarks[panel$lmk.name.old, ]),
                                                         radius = panel$radius, col = "green")
       }
       if (panel$lmk.name != "none") {
-      	 if (!(panel$lmk.name %in% rownames(panel$shape$lmks))) {
+      	 if (!(panel$lmk.name %in% rownames(panel$shape$landmarks))) {
       	 	origin <- apply(summary.face3d(panel$shape, print = FALSE)$ranges, 2, mean)
       	   umat   <- solve(rgl::par3d("userMatrix")[1:3, 1:3])
-            crds   <- sweep(panel$shape$coords, 2, origin) %*% umat
+            crds   <- sweep(panel$shape$vertices, 2, origin) %*% umat
             ind    <- order(edist.face3d(crds[ , 1:2], rep(0, 2)))[1:10]
             ind1   <- which.max(crds[ind, 3])
-            panel$shape$lmks <- rbind(panel$shape$lmks, panel$shape$coords[ind[ind1], ])
-            rownames(panel$shape$lmks)[nrow(panel$shape$lmks)] <- panel$lmk.name
+            panel$shape$landmarks <- rbind(panel$shape$landmarks, panel$shape$vertices[ind[ind1], ])
+            rownames(panel$shape$landmarks)[nrow(panel$shape$landmarks)] <- panel$lmk.name
       	 }
          else
             rgl::pop3d(id = panel$id.lmks[panel$lmk.name])
-         panel$id.lmks[panel$lmk.name] <- rgl::spheres3d(t(panel$shape$lmks[panel$lmk.name, ]),
+         panel$id.lmks[panel$lmk.name] <- rgl::spheres3d(t(panel$shape$landmarks[panel$lmk.name, ]),
                                                     radius = panel$radius, col = "red")
          panel <- rotate(panel)
       }
@@ -126,14 +126,14 @@ editlandmarks.face3d <- function(shape, lmk.names = rownames(shape$lmks), panel 
    	  if (panel$colour == "shape index") shape <- index.face3d(shape)
       plot(shape, colour = panel$colour, display = panel$type, new = panel$first)
       panel$first <- FALSE
-      if (("lmks" %in% names(panel$shape)) & !panel$zoom)  {
-         for (i in 1:nrow(panel$shape$lmks))
-            if (all(!is.na(panel$shape$lmks[i, ])))
-               panel$id.lmks[i] <- rgl::spheres3d(t(panel$shape$lmks[i, ]), col = "green", radius = panel$radius)
+      if (("landmarks" %in% names(panel$shape)) & !panel$zoom)  {
+         for (i in 1:nrow(panel$shape$landmarks))
+            if (all(!is.na(panel$shape$landmarks[i, ])))
+               panel$id.lmks[i] <- rgl::spheres3d(t(panel$shape$landmarks[i, ]), col = "green", radius = panel$radius)
          if (!(panel$lmk.name == "none")) rgl::pop3d(id = panel$id.lmks[panel$lmk.name])
       }
       if (!(panel$lmk.name == "none")) {
-         panel$id.lmks[panel$lmk.name] <- rgl::spheres3d(t(panel$shape$lmks[panel$lmk.name, ]),
+         panel$id.lmks[panel$lmk.name] <- rgl::spheres3d(t(panel$shape$landmarks[panel$lmk.name, ]),
                                                     radius = panel$radius, col = "red")
          panel <- rotate(panel)
       }
@@ -147,8 +147,8 @@ editlandmarks.face3d <- function(shape, lmk.names = rownames(shape$lmks), panel 
    	  }
    	  panel$zoom <- !panel$zoom
    	  if (panel$zoom) {
-   	     lmk <- panel$shape$lmks[panel$lmk.name, ]
-         panel$sbst <- subset(panel$shape, edist.face3d(shape$coords, lmk) < 20)
+   	     lmk <- panel$shape$landmarks[panel$lmk.name, ]
+         panel$sbst <- subset(panel$shape, edist.face3d(shape$vertices, lmk) < 20)
       }
       panel$id.line <- NA
       panel <- display.shape(panel)

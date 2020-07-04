@@ -1,10 +1,10 @@
-"procrustes.face3d" <- function(lmks, scale = TRUE, threshold = 0.03,
-                         rotation = "coronal", rotation.lmks = c("sn", "n", "exR", "exL"), subset) {
+"procrustes.face3d" <- function(landmarks, scale = TRUE, threshold = 0.03,
+                         rotation = "coronal", rotation.landmarks = c("sn", "n", "exR", "exL"), subset) {
 
   if (!requireNamespace("rgl", quietly = TRUE)) stop("procrustes.face3d requires the rgl package.")
 
-  LNDMS    <- lmks
-  id.lndms <- rotation.lmks
+  LNDMS    <- landmarks
+  id.lndms <- rotation.landmarks
   scaling  <- scale
   
   if (missing(subset))

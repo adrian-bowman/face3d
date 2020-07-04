@@ -7,7 +7,7 @@
     lndms.two.lat <- id.lndms[3:4]
     shape1 <- shape
     if (class(shape1) == "face3d") {
-                  shape <- shape$lmks
+                  shape <- shape$landmarks
                   }
     if (rotation == "coronal" | rotation == "sagittal sinister" | rotation == "sagittal dexter" | rotation == "transversal"){
        angles <- numeric(3)
@@ -34,10 +34,10 @@
        names(angles) <- c("coronal z","coronal x","coronal y")
        ROT <- list(ROT.shape = ROT.shape, angles = angles)
            if (class(shape1) == "face3d") {
-               shape1$coords <- rgl::rotate3d(shape1$coords,angles[1],0,0,1)
-               shape1$coords <- rgl::rotate3d(shape1$coords,angles[2],1,0,0)
-               shape1$coords <- rgl::rotate3d(shape1$coords,angles[3],0,1,0)
-               shape1$lmks <- ROT.shape
+               shape1$vertices <- rgl::rotate3d(shape1$vertices,angles[1],0,0,1)
+               shape1$vertices <- rgl::rotate3d(shape1$vertices,angles[2],1,0,0)
+               shape1$vertices <- rgl::rotate3d(shape1$vertices,angles[3],0,1,0)
+               shape1$landmarks <- ROT.shape
                if ("curves" %in% names(shape1)) {
                shape1$curves <- rgl::rotate3d(shape1$curves,angles[1],0,0,1)
                shape1$curves <- rgl::rotate3d(shape1$curves,angles[2],1,0,0)
@@ -53,8 +53,8 @@
        ROT.shape <- rgl::rotate3d(ROT.shape,pi/2,0,1,0)
        ROT <- list(ROT.shape = ROT.shape, angles = angles)
          if (class(shape1) == "face3d") {
-               shape1$coords <- rgl::rotate3d(shape1$coords,pi/2,0,1,0)
-               shape1$lmks <- ROT.shape
+               shape1$vertices <- rgl::rotate3d(shape1$vertices,pi/2,0,1,0)
+               shape1$landmarks <- ROT.shape
                if ("curves" %in% names(shape1)){
                shape1$curves <- rgl::rotate3d(shape1$curves,pi/2,0,1,0)
                }
@@ -67,8 +67,8 @@
        ROT.shape <- rgl::rotate3d(ROT.shape,-pi/2,0,1,0)
        ROT <- list(ROT.shape = ROT.shape, angles = angles)
          if (class(shape1) == "face3d") {
-               shape1$coords <- rgl::rotate3d(shape1$coords,-pi/2,0,1,0)
-               shape1$lmks <- ROT.shape
+               shape1$vertices <- rgl::rotate3d(shape1$vertices,-pi/2,0,1,0)
+               shape1$landmarks <- ROT.shape
                if ("curves" %in% names(shape1)){
                shape1$curves <- rgl::rotate3d(shape1$curves,-pi/2,0,1,0)
                }
@@ -82,8 +82,8 @@
        ROT.shape <- rgl::rotate3d(ROT.shape,pi/2,1,0,0)
        ROT <- list(ROT.shape = ROT.shape, angles = angles)
         if (class(shape1) == "face3d") {
-               shape1$coords <- rgl::rotate3d(shape1$coords,-pi/2,1,0,0)
-               shape1$lmks <- ROT.shape
+               shape1$vertices <- rgl::rotate3d(shape1$vertices,-pi/2,1,0,0)
+               shape1$landmarks <- ROT.shape
                if ("curves" %in% names(shape1)){
                shape1$curves <- rgl::rotate3d(shape1$curves,-pi/2,1,0,0)
                }

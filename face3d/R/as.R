@@ -166,8 +166,9 @@ else {
       }
       
    }  
-   
-   result        <- list(coords = object,  triples = c(triples.left, triples.right, triples.ij, triples.ijij))                       
+   triangles <- matrix(c(triples.left, triples.right, triples.ij, triples.ijij),
+                       ncol = 3, byrow = TRUE)
+   result        <- list(vertices = object,  triangles = triangles)                       
    class(result) <- "face3d"
    invisible(result)
 }

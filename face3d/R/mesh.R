@@ -117,7 +117,7 @@ mesh.face3d <- function(face, mesh, template, graphics=FALSE, monitor=FALSE) {
               curve1            <- face$curves[ind1,]    # brow ridge
               ind2              <- grep(curve.nms[i,2],  rownames(face$curves))
               curve2            <- face$curves[ind2,]    # cheek eye
-              pt                <- face$lmks["exR", ]
+              pt                <- face$landmarks["exR", ]
               Distance          <- rep(0)
               for (a in 1:length(curve1[,1]))
 	          Distance[a]       <- sqrt(apply((diff(rbind(pt, curve1[a,])))^2, 1, sum))
@@ -132,13 +132,13 @@ mesh.face3d <- function(face, mesh, template, graphics=FALSE, monitor=FALSE) {
 #               curve1            <- face$curves[ind1,]    
 #               ind2              <- grep(curve.nms[i,2],  rownames(face$curves))
 #               curve2            <- face$curves[ind2,]   
-#               pt                <- face$lmks["exR", ]
+#               pt                <- face$landmarks["exR", ]
 #               Distance          <- rep(0)
 #               for (a in 1:length(curve1[,1]))
 # 	          Distance[a]       <- sqrt(apply((diff(rbind(pt, curve1[a,])))^2, 1, sum))
 #               names(Distance)   <- paste(rownames(curve1))
 #               pt.brow.right     <- which.min(Distance)     #pt closest to exocanthion
-#               reference.path.r  <- rbind(face$lmks["se", ], face$lmks["exR", ])
+#               reference.path.r  <- rbind(face$landmarks["se", ], face$landmarks["exR", ])
 #               lambda.r          <- cumsum(c(0, sqrt(apply((diff(reference.path.r))^2, 1, sum))))
 #               Euc.dist.r        <- .25*(lambda.r[2])
 #               arc.length.R      <- cumsum(sqrt(apply((curve1 - rbind(curve1[1, ],
@@ -155,7 +155,7 @@ mesh.face3d <- function(face, mesh, template, graphics=FALSE, monitor=FALSE) {
               curve1            <- face$curves[ind1,]    #brow ridge
               ind2              <- grep(curve.nms[i,2],  rownames(face$curves))
               curve2            <- face$curves[ind2,]   
-              reference.path.r  <- rbind(face$lmks["se", ], face$lmks["exR", ])
+              reference.path.r  <- rbind(face$landmarks["se", ], face$landmarks["exR", ])
               lambda.r          <- cumsum(c(0, sqrt(apply((diff(reference.path.r))^2, 1, sum))))
               Euc.dist.r        <- .25*(lambda.r[2])
               arc.length.R      <- cumsum(sqrt(apply((curve1 - rbind(curve1[1, ],
@@ -172,7 +172,7 @@ mesh.face3d <- function(face, mesh, template, graphics=FALSE, monitor=FALSE) {
               curve1            <- face$curves[ind1,]    # brow ridge
               ind2              <- grep(curve.nms[i,2],  rownames(face$curves))
               curve2            <- face$curves[ind2,]    # cheek eye
-              pt                <- face$lmks["exL", ]
+              pt                <- face$landmarks["exL", ]
               Distance          <- rep(0)
               for (a in 1:length(curve1[,1]))
 	          Distance[a]       <- sqrt(apply((diff(rbind(pt, curve1[a,])))^2, 1, sum))
@@ -187,13 +187,13 @@ mesh.face3d <- function(face, mesh, template, graphics=FALSE, monitor=FALSE) {
 #               curve1            <- face$curves[rev(ind1),]    # brow ridge
 #               ind2              <- grep(curve.nms[i,2],  rownames(face$curves))
 #               curve2            <- face$curves[ind2,]   
-#               pt                <- face$lmks["exL", ]
+#               pt                <- face$landmarks["exL", ]
 #               Distance          <- rep(0)
 #               for (a in 1:length(curve1[,1]))
 # 	          Distance[a]       <- sqrt(apply((diff(rbind(pt, curve1[a,])))^2, 1, sum))
 #               names(Distance)   <- paste(rownames(curve1))
 #               pt.brow.left      <- which.min(Distance)     #pt closest to exocanthion
-#               reference.path.l  <- rbind(face$lmks["se", ], face$lmks["exL", ])
+#               reference.path.l  <- rbind(face$landmarks["se", ], face$landmarks["exL", ])
 #               lambda.l          <- cumsum(c(0, sqrt(apply((diff(reference.path.l))^2, 1, sum))))
 #               Euc.dist.l        <- .25*(lambda.l[2])
 #               arc.length.L      <- cumsum(sqrt(apply((curve1 - rbind(curve1[1, ],
@@ -210,7 +210,7 @@ mesh.face3d <- function(face, mesh, template, graphics=FALSE, monitor=FALSE) {
               curve1            <- face$curves[rev(ind1),]    #brow ridge
               ind2              <- grep(curve.nms[i,2],  rownames(face$curves))
               curve2            <- face$curves[ind2,]   #nasalroot left
-              reference.path.l  <- rbind(face$lmks["se", ], face$lmks["exL", ])
+              reference.path.l  <- rbind(face$landmarks["se", ], face$landmarks["exL", ])
               lambda.l          <- cumsum(c(0, sqrt(apply((diff(reference.path.l))^2, 1, sum))))
               Euc.dist.l        <- .25*(lambda.l[2])
               arc.length.L      <- cumsum(sqrt(apply((curve1 - rbind(curve1[1, ],
@@ -296,13 +296,13 @@ else {
   #upper face right 2
                 ind1              <- grep("brow ridge right",  rownames(face$curves))
                 curve1            <- face$curves[ind1,]
-                pt                <- face$lmks["exR", ]
+                pt                <- face$landmarks["exR", ]
                 Distance          <- rep(0)
                 for (a in 1:length(curve1[,1]))
   	            Distance[a]       <- sqrt(apply((diff(rbind(pt, curve1[a,])))^2, 1, sum))
                  names(Distance)   <- paste(rownames(curve1))
                 pt.brow.right     <- which.min(Distance)     #pt closest to exocanthion
-                reference.path.r  <- rbind(face$lmks["se", ], face$lmks["exR", ])
+                reference.path.r  <- rbind(face$landmarks["se", ], face$landmarks["exR", ])
                 lambda.r          <- cumsum(c(0, sqrt(apply((diff(reference.path.r))^2, 1, sum))))
                 Euc.dist.r        <- .25*(lambda.r[2])
                 arc.length.R      <- cumsum(sqrt(apply((curve1 - rbind(curve1[1, ], 
@@ -316,13 +316,13 @@ else {
     #upper face left 2   
                 ind1              <- grep("brow ridge left",  rownames(face$curves))
                 curve1            <- face$curves[rev(ind1),]    # brow ridge
-                pt                <- face$lmks["exL", ]
+                pt                <- face$landmarks["exL", ]
                 Distance          <- rep(0)
                 for (a in 1:length(curve1[,1]))
                 Distance[a]       <- sqrt(apply((diff(rbind(pt, curve1[a,])))^2, 1, sum))
                 names(Distance)   <- paste(rownames(curve1))
                 pt.brow.left      <- which.min(Distance)     #pt closest to exocanthion
-                reference.path.l  <- rbind(face$lmks["se", ], face$lmks["exL", ])
+                reference.path.l  <- rbind(face$landmarks["se", ], face$landmarks["exL", ])
                 lambda.l          <- cumsum(c(0, sqrt(apply((diff(reference.path.l))^2, 1, sum))))
                 Euc.dist.l        <- .25*(lambda.l[2])
                 arc.length.L      <- cumsum(sqrt(apply((curve1 - rbind(curve1[1, ],

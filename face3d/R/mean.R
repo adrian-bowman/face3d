@@ -1,6 +1,6 @@
 mean.face3d <- function(shape, values){
 	
-mesh.m    <- shape$coords - mean(shape$coords)
+mesh.m    <- shape$vertices - mean(shape$vertices)
 mesh.pc   <- prcomp(mesh.m)
 mesh.pcf  <- mesh.pc$rotation
 mesh.r    <- mesh.m %*% mesh.pcf
@@ -17,9 +17,9 @@ mean.y <-(sum(mesh.2d[,2]*values))  / sum(values)
 
 X             <- mesh.2d
 Xnew          <- matrix(c(mean.x,mesh.2d[4,1],mean.y,mesh.2d[4,2]), ncol=2)
-interp.x      <- interp.barycentric(X, f = shape$coords[ ,1], Xnew)$fnew
-interp.y      <- interp.barycentric(X, f = shape$coords[ ,2], Xnew)$fnew
-interp.z      <- interp.barycentric(X, f = shape$coords[ ,3], Xnew)$fnew
+interp.x      <- interp.barycentric(X, f = shape$vertices[ ,1], Xnew)$fnew
+interp.y      <- interp.barycentric(X, f = shape$vertices[ ,2], Xnew)$fnew
+interp.z      <- interp.barycentric(X, f = shape$vertices[ ,3], Xnew)$fnew
 mean          <- cbind(interp.x[1], interp.y[1], interp.z[1])
             
 	invisible(mean)

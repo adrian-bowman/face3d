@@ -1,7 +1,7 @@
 subset.face3d <- function(shape, subset, remove.singles = TRUE, retain.indices = FALSE, ...) {
 
    ind   <- subset
-   nvert <- nrow(shape$coords)
+   nvert <- nrow(shape$vertices)
    if (is.logical(ind)) ind <- which(ind)
    if (any(ind < 0)) {
       if (any(ind >= 0))
@@ -10,13 +10,13 @@ subset.face3d <- function(shape, subset, remove.singles = TRUE, retain.indices =
    }
    if (length(ind) == 0) stop("the subset is empty.")
    
-   dnms        <- dimnames(shape$coords)
+   dnms        <- dimnames(shape$vertices)
    rnms        <- if (is.null(dnms[[1]])) as.character(1:nvert) else dnms[[1]]
    sbst        <- shape
-   sbst$coords <- matrix(c(shape$coords[ind, ]), ncol = 3, dimnames = list(rnms[ind], dnms[[2]]))
+   sbst$vertices <- matrix(c(shape$vertices[ind, ]), ncol = 3, dimnames = list(rnms[ind], dnms[[2]]))
    
-   if ("triples" %in% names(shape)) {
-      trpls        <- matrix(shape$triples, ncol = 3, byrow = TRUE)
+   if ("triangles" %in% names(shape)) {
+      trpls        <- shape$triangles
       indt         <- (trpls[ , 1] %in% ind) & (trpls[ , 2] %in% ind) & (trpls[ , 3] %in% ind)
       trpls        <- c(t(trpls[indt, ]))
       vec          <- 1:length(ind)
@@ -25,22 +25,22 @@ subset.face3d <- function(shape, subset, remove.singles = TRUE, retain.indices =
       names(vec)   <- nms
       nms1         <- format(trpls, scientific = FALSE)
       nms1         <- sub("^ +", "", nms1)
-      sbst$triples <- vec[nms1]
+      sbst$triangles <- matrix(vec[nms1], ncol = 3, byrow = TRUE)
    }
 
    if ("colour" %in% names(shape))
       sbst$colour <- shape$colour[ind]
       
-   if (remove.singles & ("triples" %in% names(shape))) {
-      ind1         <- (vec %in% unique(sbst$triples))
+   if (remove.singles & ("triangles" %in% names(shape))) {
+      ind1         <- (vec %in% unique(c(t(sbst$triangles))))
       vec1         <- 1:length(ind1)
       nms          <- format((1:length(ind))[ind1], scientific = FALSE)
       nms          <- sub("^ +", "", nms)
       names(vec1)  <- nms
-      nms1         <- format(sbst$triples, scientific = FALSE)
+      nms1         <- format(c(t(sbst$triangles)), scientific = FALSE)
       nms1         <- sub("^ +", "", nms1)
-      sbst$triples <- vec1[nms1]
-      sbst$coords  <- sbst$coords[ind1, ]
+      sbst$triangles <- matrix(vec1[nms1], ncol = 3, byrow = TRUE)
+      sbst$vertices  <- sbst$vertices[ind1, ]
       if ("colour" %in% names(shape))
          sbst$colour <- sbst$colour[ind1]
       ind <- ind[ind1]
@@ -48,7 +48,7 @@ subset.face3d <- function(shape, subset, remove.singles = TRUE, retain.indices =
 
    # Subset information which has a dimension matching length of ind
    inms <- 1:length(shape)
-   inms <- inms[-match(c("coords", "triples"), names(shape))]
+   inms <- inms[-match(c("vertices", "triangles"), names(shape))]
    if ("colour" %in% names(shape)) inms <- inms[inms != match("colour", names(shape))]
    for (i in inms) {
       if (is.vector(shape[[i]]) & length(shape[[i]]) == nvert)

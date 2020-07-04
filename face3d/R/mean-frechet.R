@@ -1,7 +1,7 @@
 mean_frechet.face3d <- function(shape, values){
 
-  xis           <- shape$coords
-  p             <- shape$coords
+  xis           <- shape$vertices
+  p             <- shape$vertices
   weights       <- values
   edges <- edges.face3d(shape)
   xis           <-     xis[-unique(c(edges)), ]
@@ -29,6 +29,6 @@ mean_frechet.face3d <- function(shape, values){
 
 
 min             <- which.min(final.sums.ps)
-mean.frechet    <- shape$coords[min, ]
+mean.frechet    <- shape$vertices[min, ]
 invisible(mean)
 }

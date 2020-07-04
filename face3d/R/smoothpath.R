@@ -41,9 +41,9 @@ smoothpath <- function(shape, x1, x2, direction, bothways = FALSE, ppath,
   X             <- cbind(full.xc, full.yc)
   # X             <- cbind(xc,yc)
   Xnew          <- cbind(arclength, new.pdist)
-  interp.x      <- interp.barycentric(X, f = c(lmk1[1], shape$coords[ , 1], lmk2[1]), Xnew)$fnew
-  interp.y      <- interp.barycentric(X, f = c(lmk1[2], shape$coords[ , 2], lmk2[2]), Xnew)$fnew
-  interp.z      <- interp.barycentric(X, f = c(lmk1[3], shape$coords[ , 3], lmk2[3]), Xnew)$fnew
+  interp.x      <- interp.barycentric(X, f = c(lmk1[1], shape$vertices[ , 1], lmk2[1]), Xnew)$fnew
+  interp.y      <- interp.barycentric(X, f = c(lmk1[2], shape$vertices[ , 2], lmk2[2]), Xnew)$fnew
+  interp.z      <- interp.barycentric(X, f = c(lmk1[3], shape$vertices[ , 3], lmk2[3]), Xnew)$fnew
   interp.values <- interp.barycentric(X, f = full.va1, Xnew)$fnew
   smooth.path   <- cbind(interp.x, interp.y, interp.z)
   aver.path     <- smooth.path

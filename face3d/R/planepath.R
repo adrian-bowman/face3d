@@ -28,7 +28,7 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
    
    if (all(!is.na(boundary))) {
       if (any(is.na(x2)))
-      	ind1 <- (apply(sweep(shape$coords, 2, x1), 1, function(x) sqrt(sum(x^2))) < boundary[1])
+      	ind1 <- (apply(sweep(shape$vertices, 2, x1), 1, function(x) sqrt(sum(x^2))) < boundary[1])
       else {
          rng      <- sqrt(sum((x2 - x1)^2))
      	   unit     <- (x2 - x1) / rng
@@ -37,8 +37,8 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
      	   j <- 1
      	   while(length(which(ind1)) < 12 & j < 6) {
       	   boundary <- boundary * 2
-     	      prjn     <- c(sweep(shape$coords, 2, x1) %*% unit)
-            ind1     <- (apply(outer(prjn, unit) - sweep(shape$coords, 2, x1), 1, function(x) sqrt(sum(x^2))) < boundary[2]) &
+     	      prjn     <- c(sweep(shape$vertices, 2, x1) %*% unit)
+            ind1     <- (apply(outer(prjn, unit) - sweep(shape$vertices, 2, x1), 1, function(x) sqrt(sum(x^2))) < boundary[2]) &
                         (prjn > - boundary[1]) & (prjn < rng + boundary[1])
             j        <- j + 1
      	   }
@@ -53,7 +53,7 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
    if (!any(is.na(x2)) & !bridge.gaps) {
       parts <- connected.face3d(shape)
       nparts <- length(unique(parts))
-      # spheres3d(shape$coords[parts ==2, ], col = "red")
+      # spheres3d(shape$vertices[parts ==2, ], col = "red")
       if (nparts > 1) {
          d1 <- numeric(nparts)
          d2 <- numeric(nparts)
@@ -69,7 +69,7 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
          }
       }
    }
-   gspheres <- max(apply(shape$coords, 2, function(x) diff(range(x)))) / 64
+   gspheres <- max(apply(shape$vertices, 2, function(x) diff(range(x)))) / 64
 
    # Calculate the surface curvatures
    
@@ -110,7 +110,7 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
      rgl::spheres3d(rbind(x1, x2), radius = gspheres, alpha = 0)
    }
    
-   triangles <- matrix(shape$triples, ncol = 3, byrow = TRUE)
+   triangles <- shape$triangles
    
    if (any(is.na(pts1)))                         pts1 <- closest.face3d(x1, shape)$ids
    if (any(is.na(direction)) & any(is.na(pts2))) pts2 <- closest.face3d(x2, shape)$ids
@@ -142,10 +142,10 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
          if ("normals" %in% names(shape))
             normals <- shape$normals[unique(c(pts1, pts2)), ]
          else
-            normals <- rbind(crossproduct(shape$coords[pts1[, 2], ] - shape$coords[pts1[, 1], ],
-                                          shape$coords[pts1[, 3], ] - shape$coords[pts1[, 1], ]),
-                             crossproduct(shape$coords[pts2[, 2], ] - shape$coords[pts2[, 1], ],
-                                          shape$coords[pts2[, 3], ] - shape$coords[pts2[, 1], ]))
+            normals <- rbind(crossproduct(shape$vertices[pts1[, 2], ] - shape$vertices[pts1[, 1], ],
+                                          shape$vertices[pts1[, 3], ] - shape$vertices[pts1[, 1], ]),
+                             crossproduct(shape$vertices[pts2[, 2], ] - shape$vertices[pts2[, 1], ],
+                                          shape$vertices[pts2[, 3], ] - shape$vertices[pts2[, 1], ]))
          normal <- apply(normals, 2, mean)
          if (sum(normal^2) < sqrt(.Machine$double.eps))
             normal <- apply(matrix(normals[1:length(pts1), ], ncol = 3), 2, mean)
@@ -154,8 +154,8 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
          if ("normals" %in% names(shape))
             normals <- shape$normals[unique(c(pts1)), ]
          else
-            normals <- matrix(crossproduct(shape$coords[pts1[, 2], ] - shape$coords[pts1[, 1], ],
-                                          (shape$coords[pts1[, 3], ] - shape$coords[pts1[, 1], ])),
+            normals <- matrix(crossproduct(shape$vertices[pts1[, 2], ] - shape$vertices[pts1[, 1], ],
+                                          (shape$vertices[pts1[, 3], ] - shape$vertices[pts1[, 1], ])),
                                ncol = 3)
          normal <- apply(normals, 2, mean)
       }
@@ -181,7 +181,7 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
    # segments3d(rbind(x1, x1 + 10*rnormal, x1, x1 + 10*rcross, x1, x1 + 10*rdirection), col = "blue")
 
    ind       <- t(apply(triangles, 1,
-                      function(a) as.numeric(c(shape$coords[a, ] %*% rcross <= sum(x1 * rcross)))))
+                      function(a) as.numeric(c(shape$vertices[a, ] %*% rcross <= sum(x1 * rcross)))))
    indsum    <- apply(ind, 1, sum)
    indtrng   <- which(indsum > 0 & indsum < 3)
    trngls    <- triangles[indtrng, ]
@@ -197,11 +197,11 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
    j         <- 1:nind1
    edges     <- rbind(cbind(trngls[cbind(j, ind1)], trngls[cbind(j, indnot1[ , 1])]),
                       cbind(trngls[cbind(j, ind1)], trngls[cbind(j, indnot1[ , 2])]))
-   e1        <- c(shape$coords[edges[, 1], ] %*% rcross)
-   e2        <- c(shape$coords[edges[, 2], ] %*% rcross)
+   e1        <- c(shape$vertices[edges[, 1], ] %*% rcross)
+   e2        <- c(shape$vertices[edges[, 2], ] %*% rcross)
    wts       <- (sum(x1 * rcross) - e1) / (e2 - e1)
-   crossings <- (1 - wts) * shape$coords[edges[ , 1], ] +
-                     wts  * shape$coords[edges[ , 2], ]
+   crossings <- (1 - wts) * shape$vertices[edges[ , 1], ] +
+                     wts  * shape$vertices[edges[ , 2], ]
    if (si.target.present)
       cvals <- (1 - wts) * values[edges[ , 1]] + wts  * values[edges[ , 2]]
    if ("directions" %in% names(shape)) {
@@ -235,7 +235,7 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
       idx     <- if (idx1 <= nind1) idx1 + nind1 else idx1 - nind1
       trngnew <- if (idx  <= nind1) idx else idx - nind1
       trng    <- c(trng, trngnew)
-      # spheres3d(shape$coords[c(triangles[indtrng[trngnew], ]), ], radius = 0.5)
+      # spheres3d(shape$vertices[c(triangles[indtrng[trngnew], ]), ], radius = 0.5)
       if (!any(e == e[idx])) stop("e problem.")
       idx1    <- which(e == e[idx])
       idx1    <- idx1[idx1 != idx]
@@ -263,7 +263,7 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
       # if no points have been found.  Give up if one point has been found.
       if (length(idx1) == 0) {
          if (flag == 1 & bridge.gaps) {
-            # segments3d(shape$coords[c(t(edges[ends, ])), ], col = "blue", lwd = 3)
+            # segments3d(shape$vertices[c(t(edges[ends, ])), ], col = "blue", lwd = 3)
             # spheres3d(crossings[ends, ], col = "green", radius = 1, alpha = 1)
             ends <- ends[ends != idx]
             # Find the end point which is closer to the missing one of x1 or x2
@@ -495,7 +495,7 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
    if (!any(is.na(x2))) {
       result$pts2      <- c(pts2)
       sb.ind           <- shape$subset
-      # sb.ind           <- as.numeric(rownames(shape$coords))
+      # sb.ind           <- as.numeric(rownames(shape$vertices))
       result$triangles <- matrix(sb.ind[c(triangles[trngs.min, ])], ncol = 3)
    }
    else

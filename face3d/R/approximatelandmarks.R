@@ -26,19 +26,19 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       
       if (monitor > 0) cat("Sampling ... ")
    
-      ncoord   <- nrow(face$coords)
+      ncoord   <- nrow(face$vertices)
       selected <- 1
-      mindist  <- c(rdist(t(face$coords[selected, ]), face$coords))
+      mindist  <- c(rdist(t(face$vertices[selected, ]), face$vertices))
       while(max(mindist) > sample.spacing & length(selected) < ncoord) {
          iselected <- which.max(mindist)
          selected  <- c(selected, iselected)
-         idist     <- rdist(t(face$coords[iselected, ]), face$coords)
+         idist     <- rdist(t(face$vertices[iselected, ]), face$vertices)
          mindist   <- pmin(idist, mindist)
       }
       if (monitor > 0) cat(length(selected), "points ... ")
       if (monitor > 1) {
          plot(face)
-         spheres3d(face$coords[selected, ], radius = sample.spacing / 5)
+         spheres3d(face$vertices[selected, ], radius = sample.spacing / 5)
       }
 
       if (monitor > 0) cat("interpolating curvature ... ")
@@ -47,7 +47,7 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       ind      <- !is.na(face$shape.index[selected])
       selected <- selected[ind]
       to       <- cbind(face$shape.index, face$kappa1, face$kappa2)[selected, ]
-      wp       <- warp.face3d(face$coords[selected, ], to, face$coords)
+      wp       <- warp.face3d(face$vertices[selected, ], to, face$vertices)
       face$shape.index <- pmax(pmin(wp[ , 1], 1), -1)
       face$kappa1      <- wp[ , 2]
       face$kappa2      <- wp[ , 3]
@@ -82,7 +82,7 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       parts.neg <- connected.face3d(sbst.neg)
       sbst.pos  <- subset(sbst.pos, parts.pos == 1)
       edges.pos <- edges.face3d(sbst.pos)
-      edge.ind  <- which.max(sapply(edges.pos, function(x) max(rdist(sbst.pos$coords[x, ]))))
+      edge.ind  <- which.max(sapply(edges.pos, function(x) max(rdist(sbst.pos$vertices[x, ]))))
       
       if (monitor > 1) {
          plot(sbst.pos, col = "shape index")
@@ -103,16 +103,16 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       
       # Remove those which are close to the largest edge
       p1       <- connected.face3d(sbst1)
-      edge.pts <- sbst.pos$coords[edges.pos[[edge.ind]], ]
+      edge.pts <- sbst.pos$vertices[edges.pos[[edge.ind]], ]
       ind      <- which(tapply(1:length(p1), p1, function(x) 
-                               min(rdist(sbst1$coords[x, ], edge.pts)) > trim))
+                               min(rdist(sbst1$vertices[x, ], edge.pts)) > trim))
       if (length(ind) > 0) sbst1 <- subset(sbst1, p1 %in% ind)
       p1       <- p1[p1 %in% ind]
       
       # Ensure there is a patch of negative curvature (the eyes) very close
       ind      <- logical(length = length(unique(p1)))
       for (j in 1:length(unique(p1)))
-         ind[j] <- (min(rdist(subset(sbst1, p1 == unique(p1)[j])$coords, sbst.neg$coords)) < 20)
+         ind[j] <- (min(rdist(subset(sbst1, p1 == unique(p1)[j])$vertices, sbst.neg$vertices)) < 20)
       sbst.nose <- subset(sbst1, p1 %in% unique(p1)[ind])
       p1 <- p1[p1 %in% unique(p1)[ind]]
       
@@ -143,7 +143,7 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       
       # Refine the estimate by computing shape index with a smaller value of distance
       face$shape.index <- NULL
-      dst  <- c(rdist(t(lmks["pn", ]), face$coords))
+      dst  <- c(rdist(t(lmks["pn", ]), face$vertices))
       face <- index.face3d(face, subset = dst < 30, distance = distance)
       sbst <- subset(face, dst < 30)
       
@@ -154,7 +154,7 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       lmks["pn", ] <- mode.face3d(sbst, crv, 10)$mode
 
       if (monitor > 1) {
-         dst  <- c(rdist(t(lmks["pn", ]), sbst.pos$coords))
+         dst  <- c(rdist(t(lmks["pn", ]), sbst.pos$vertices))
          plot(subset(sbst.pos, dst > 30))
          plot(sbst, col = crv, add = TRUE)
          spheres3d(lmks["pn", ], radius = 3, col = "red")
@@ -178,7 +178,7 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       if (monitor == 2) cat("\n")
       if (monitor >  1) cat("  en: main area of negative shape index ...")
       
-      dst         <- c(rdist(t(pn), face$coords))
+      dst         <- c(rdist(t(pn), face$vertices))
       
       # Calculate the ind.neg for large distance if "pn" has not been estimated.
       # This is not the same as the earlier calculation because that one interpolated.
@@ -202,7 +202,7 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
          sbst.neg   <- subset(face, ind.neg & (dst < 70))
       else
          sbst.neg    <- subset(sbst.neg, ind.neg)
-      dst            <- c(rdist(t(pn), sbst.neg$coords))
+      dst            <- c(rdist(t(pn), sbst.neg$vertices))
       
       # Use the new shape index to define the areas with positive Gaussian curvature
       sbst.neg$gc    <- sbst.neg$kappa1 * sbst.neg$kappa2
@@ -213,7 +213,7 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       
       mode           <- mode.face3d(sbst.neg, sbst.neg$gc, 5)
       lmks["enL", ]  <- mode$mode
-      dst            <- rdist(t(lmks["enL", ]), sbst.neg$coords)
+      dst            <- rdist(t(lmks["enL", ]), sbst.neg$vertices)
       ind            <- which.min(dst)
       sbst.neg1      <- subset(sbst.neg, sbst.neg$parts != sbst.neg$parts[ind])
       mode           <- mode.face3d(sbst.neg1, sbst.neg1$gc, 5)
@@ -253,7 +253,7 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       gcrv   <- gcurvature.face3d(curve, 3)
       se     <- gcrv$pos.max
       
-      dst   <- rdist(t(se), face$coords)
+      dst   <- rdist(t(se), face$vertices)
       sbst  <- subset(face, dst < 10)
       ppath <- planepath.face3d(sbst, se, direction = se - pn, rotation = 0,
                                 bothways = TRUE, distance = distance)$path
@@ -261,7 +261,7 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       se    <- gcrv$pos.max
       
       # Searching for the mode of -gc does not seem to work very well
-      # dst          <- c(rdist(t(se), face$coords))
+      # dst          <- c(rdist(t(se), face$vertices))
       # face         <- index.face3d(face, subset = dst < 30)
       # sbst         <- subset(face, dst < 30)
       # crv          <- -sbst$kappa1 * sbst$kappa2
@@ -289,7 +289,7 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       if (is.null(se))
          cat("se is required to find L and R for en.")
       else {
-         dst <- c(rdist(face$coords, t(se)))
+         dst <- c(rdist(face$vertices, t(se)))
          nrm <- face$normals[which.min(dst), ]
          axs <- c(crossproduct(lmks["pn", ] - se, nrm))
          en  <- c("enL", "enR")
@@ -308,7 +308,7 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
          if ("pn" %in% rownames(face$landmarks)) face$landmarks["pn", ] else
             stop("pn is needed to find acL/R.")
       
-      dst       <- c(rdist(face$coords, t(pn)))
+      dst       <- c(rdist(face$vertices, t(pn)))
       ind       <- which(dst < 50)
       overwrite <- (face$si.distance != distance)
       face      <- index.face3d(face, subset = ind, distance = distance, overwrite = overwrite)

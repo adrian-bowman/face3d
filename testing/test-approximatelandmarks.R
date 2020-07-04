@@ -16,6 +16,7 @@ fls <- list.files("~/Desktop/Glasgow-controls", recursive = TRUE, full.names = T
 fls <- fls[-grep("details", fls)]
 fls <- fls[-grep("lmks", fls)]
 fls <- fls[-182]      # main area of positive curvature is the clothing
+fls <- fls[-61]       # eye ridge instead of pn
 
 landmark.names <- c("pn", "enL", "enR", "se")
 # landmark.names <- "none"
@@ -104,6 +105,38 @@ for (j in 1:n.lmks) {
    plot3d(ellipse3d(covt.r, centre = mn[j, ]),
           col = "lightblue", alpha = 0.5, add = TRUE)
 }
+
+# Check the curvature characteristics of each point (gc?)
+
+dst  <- c(rdist(t(face$landmarks["pn", ]), face$coords))
+sbst <- subset(face, dst < 60)
+sbst$gc <- sbst$kappa1 * sbst$kappa2
+plot(sbst, col = "shape index")
+spheres3d(face$landmarks[c("pn", "se"), ], radius = 3, col = "yellow")
+plot(sbst, col = sbst$kappa1)
+spheres3d(face$landmarks[c("pn", "se"), ], radius = 3, col = "yellow")
+plot(sbst, col = sbst$kappa2)
+spheres3d(face$landmarks[c("pn", "se"), ], radius = 3, col = "yellow")
+plot(sbst, col = sbst$kappa1 * sbst$kappa2)
+spheres3d(face$landmarks[c("pn", "se"), ], radius = 3, col = "yellow")
+
+# se
+
+for (i in 1:length(fls)) {
+   load(fls[i])
+   dst   <- c(rdist(t(face$landmarks["se", ]), face$coords))
+   face1 <- index.face3d(face, distance = 5, subset = dst < 10, overwrite = TRUE)
+   sbst <- subset(face1, dst < 10)
+   sbst$gc <- sbst$kappa1 * sbst$kappa2
+   plot(sbst, col = sbst$gc)
+   spheres3d(face$landmarks["se", ], col = "yellow")
+   mode <- mode.face3d(sbst, -sbst$gc, threshold = 8)$mode
+   spheres3d(mode, col = "red")
+   scan()
+}
+
+
+
 
 # Optimise over location and orientation - no likelihood yet
 dst  <- c(rdist(t(face$landmarks["pn", ]), face$coords))

@@ -30,7 +30,7 @@
             coordsf <- t(matrix(unlist(coordsf), nrow = 4))
             coordsf <- cbind(as.numeric(coordsf[ , 2]), as.numeric(coordsf[ , 3]), as.numeric(coordsf[ , 4]))
             coordsf <- c(t(coordsf))
-            result  <- list(coords = coordsv, triples = coordsf)
+            result  <- list(vertices = coordsv, triangles = matrix(coordsf, ncol = 3, byrow = TRUE))
             #return(invisible(result))
         }
         else {
@@ -50,7 +50,7 @@
             coordsfv <- as.numeric(coordsfv)
             if (length(coordsf[[1]]) > 1)
                coordsft <- as.numeric(sapply(coordsf, function(x) x[2]))
-            result <- list(coords = coordsv, triples = coordsfv)
+            result <- list(vertices = coordsv, triangles = matrix(coordsfv, ncol = 3, byrow = TRUE))
         }
         if (length(table(n.edges)) == 2) {
             coordsf <- coords[substr(coords, 1, 2) == "f "]
@@ -82,7 +82,7 @@
             coordsft.four <- c(c(t(coordsft.four[, 1:3])), c(t(coordsft.four[ , c(1, 3, 4)])))
             coordsft <- c(coordsft.three, coordsft.four)
             coordsft <- as.numeric(coordsft)
-            result <- list(coords = coordsv, triples = coordsfv)
+            result <- list(vertices = coordsv, triangles = matrix(coordsfv, ncol = 3, byrow = TRUE))
         }
         if (length(table(n.edges)) == 3) {
             coordsf <- coords[substr(coords, 1, 2) == "f "]
@@ -140,7 +140,7 @@
                 c(1, 3, 4)])),c(t(coordsft.five[,c(1, 4, 5)])))
             coordsft <- c(coordsft.three, coordsft.four, coordsft.five)
             coordsft <- as.numeric(coordsft)
-            result <- list(coords = coordsv, triples = coordsfv)
+            result <- list(vertices = coordsv, triangles = matrix(coordsfv, ncol = 3, byrow = TRUE))
         }
         }
         colour.present <- any(substr(coords, 1, 3) == "vt ")
@@ -255,13 +255,13 @@
              colour <- coords[, c("red", "green", "blue")]
           if (!all(c("x", "y", "z") %in% props$vertex))
              stop("x, y, z not all present.")
-          result$coords <- coords[, c("x", "y", "z")]
+          result$vertices <- coords[, c("x", "y", "z")]
           triples <- strsplit(triples, " ")
           triples <- lapply(triples, function(x) x[x != ""])
           nvals   <- sapply(triples, function(x) x[1])
           if (!(all(nvals == "3"))) stop("not all faces are triangles.")
           triples <- t(matrix(as.numeric(unlist(triples)), nrow = 4))
-          result$triples <- c(t(triples[ , 2:4])) + 1
+          result$triangles <- matrix(c(t(triples[ , 2:4])) + 1, ncol = 3, byrow = TRUE)
           if (monitor) cat(" completed.\n")
        }
        else {
@@ -303,8 +303,8 @@
              }
           }
           if (monitor) cat("completed.\n")
-          result$coords  <- coords
-          result$triples <- triples + 1
+          result$vertices  <- coords
+          result$triangles <- matrix(triples + 1, ncol = 3, byrow = TRUE)
        }
        
        if (all(c("red", "green", "blue") %in% props$vertex)) {
@@ -331,7 +331,7 @@
             ""][-1]
         lmks <- matrix(as.numeric(unlist(coordssnew)), k1, 3, 
             byrow = TRUE)
-        result <- list(lmks = lmks)
+        result <- list(landmarks = lmks)
         curves.present <- any(substr(coords, 1, 1) == "C")
         if (curves.present) {
             coordss <- coords[substr(coords, 1, 1) == "C"]
@@ -369,7 +369,7 @@
             lmks[j, 1] <- as.numeric(strsplit(coordssnew[[j]][9], 
                 "\"")[[1]][2])
         }
-        result <- list(lmks = lmks)
+        result <- list(landmarks = lmks)
     }
     
 
@@ -397,7 +397,7 @@
         coords <- array(coords, c(2, k, n))
         coords <- aperm(coords, c(2, 1, 3))
         result <- list()
-        result$coords <- coords
+        result$vertices <- coords
         result$images <- images
         result$index <- index
         cat("Number of landmarks:", k, "\n")
@@ -418,7 +418,7 @@
             coords <- matrix(as.numeric(apply(coords,1,split.string)),k1,3, byrow=TRUE)
             cat("Number of landmarks:", k1, "\n")
             result <- list()
-            result$coords <- coords
+            result$vertices <- coords
     }
 
     #-----------------------------------------------------------------
