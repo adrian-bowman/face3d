@@ -56,12 +56,7 @@ plot.face3d <- function (shape, display = "surface", plot.isolated = TRUE,
    if (all(colour == "shape.index")) colour <- "shape index"
    if (length(colour) == 1 && is.character(colour) &&
        !(substr(colour, 1, 7) %in% c("texture", "normal-", "shape i"))) {
-      if (colour %in% names(shape))
-         colour <- shape[[colour]]
-      else {
-         colour <- "grey"
-         cat("Information on ", colour, " is not present - reverting to grey.\n")
-      }
+      if (colour %in% names(shape)) colour <- shape[[colour]]
    }
   
    if ("normals" %in% display) {

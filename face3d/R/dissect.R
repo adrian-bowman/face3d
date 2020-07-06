@@ -271,7 +271,7 @@ dissect.face3d <- function(shape,  curve, endedge = F){
   }
   newtriples[which(newtriples==(nrow(newvertices)+1))] <- nrow(subshape$vertices)+1
   newlist  <- list(vertices=newvertices,
-                   triangles = matrix(c(c(t(subshape$triangles), newtriples)), ncol = 3, byrow = TRUE)
+                   triangles = matrix(c(c(t(subshape$triangles), newtriples)), ncol = 3, byrow = TRUE))
   shapeL   <- as.face3d(newlist)
   
   
@@ -370,7 +370,7 @@ dissect.face3d <- function(shape,  curve, endedge = F){
   
   newtriples2[which(newtriples2==(nrow(newvertices)+1))] <- nrow(subshape2$vertices)+1
   newlist2  <- list(vertices=newvertices,
-                    triangles = matrix(c(t(subshape2$triples), newtriples2), ncol = 3, byrow = TRUE)
+                    triangles = matrix(c(t(subshape2$triples), newtriples2), ncol = 3, byrow = TRUE))
   shapeR    <- as.face3d(newlist2)
   
   return(list(shapeL=shapeL , shapeR=shapeR))

@@ -27,20 +27,20 @@ warp.face3d <- function(from, to, carry = from) {
     trpls  <- c(t(carry$triangles))
     clr    <- if ("colour" %in% names(carry)) carry$colour else NULL
     carry1 <- list()
-    if ("landmarks" %in% names(carry))   carry1$landmarks   <- carry$landmarks
-    if ("curves" %in% names(carry)) carry1$curves <- carry$curves
-    if ("mesh" %in% names(carry))   carry1$mesh   <- carry$mesh
-    if ("vertices" %in% names(carry)) carry1$vertices <- carry$vertices
+    if ("landmarks" %in% names(carry)) carry1$landmarks <- carry$landmarks
+    if ("curves"    %in% names(carry)) carry1$curves    <- carry$curves
+    if ("mesh"      %in% names(carry)) carry1$mesh      <- carry$mesh
+    if ("vertices"  %in% names(carry)) carry1$vertices  <- carry$vertices
     carry <- carry1
     to_object <- list()
     if ("landmarks" %in% names(carry)) to_object$landmarks <- carry$landmarks
-    if ("curves" %in% names(carry))    to_object$curves    <- carry$curves
-    if ("mesh" %in% names(carry))      to_object$mesh      <- carry$mesh
-    if ("vertices" %in% names(carry))  to_object$vertices  <- carry$vertices
+    if ("curves"    %in% names(carry)) to_object$curves    <- carry$curves
+    if ("mesh"      %in% names(carry)) to_object$mesh      <- carry$mesh
+    if ("vertices"  %in% names(carry)) to_object$vertices  <- carry$vertices
   }
   
   if (is.list(carry)) to_object <- carry
-  
+
   Gi <- ginvtps.face3d(from)
   tps.coeffs <- Gi %*% rbind(to, matrix(0, 4, ncol(to))) 
   k  <- length(carry)
@@ -72,7 +72,7 @@ warp.face3d <- function(from, to, carry = from) {
   
   if ("vertices" %in% names(carry) & triples.present) {
      to_object$triangles <- matrix(trpls, ncol = 3, byrow = TRUE)
-     class(to_object) <- "face3d"
+     class(to_object)    <- "face3d"
   }
   if (!is.null(clr)) to_object$colour <- clr
   

@@ -1,13 +1,16 @@
 #     Create a template face
 
-setwd("~/OneDrive - University of Glasgow/research/face3d/template")
-
+setwd("~/OneDrive - University of Glasgow/research/face3d")
+install.packages("face3d", repos = NULL, type = "source")
+library(face3d)
 library(face3d)
 library(rgl)
 library(MASS)
 
+setwd("~/OneDrive - University of Glasgow/research/face3d/template")
+
 # Choose male or female
-sex <- "male"
+sex <- "female"
 
 # Load Artec version of Liberty's face
 load("pretemplate.Rda")
@@ -35,28 +38,28 @@ to    <- mn
 carry <- template
 Temp  <- warp.face3d(from, to, carry)
 
-plot(Temp, new = FALSE)
+plot(Temp)
 spheres3d(Temp$landmarks, col = "blue", radius = 2)
 spheres3d(Temp$mesh)
 spheres3d(Temp$curves, col = "red")
 
 # Rotate to the standard x-y-z axes
 rotation.landmarks <- c("sn", "n", "exR", "exL")                               
-angles        <- rotate.face3d(gpa$mshape, id.lndms = c(4, 6, 8, 7), rotation = "coronal")$angles
-Temp$vertices   <- rotate3d(Temp$vertices, angles[1], 0, 0, 1)
-Temp$vertices   <- rotate3d(Temp$vertices, angles[2], 1, 0, 0)
-Temp$vertices   <- rotate3d(Temp$vertices, angles[3], 0, 1, 0)
-Temp$mesh     <- rotate3d(Temp$mesh,   angles[1], 0, 0, 1)
-Temp$mesh     <- rotate3d(Temp$mesh,   angles[2], 1, 0, 0)
-Temp$mesh     <- rotate3d(Temp$mesh,   angles[3], 0, 1, 0)
-Temp$landmarks     <- rotate3d(Temp$landmarks,   angles[1], 0, 0, 1)
-Temp$landmarks     <- rotate3d(Temp$landmarks,   angles[2], 1, 0, 0)
-Temp$landmarks     <- rotate3d(Temp$landmarks,   angles[3], 0, 1, 0)
-Temp$curves   <- rotate3d(Temp$curves, angles[1], 0, 0, 1)
-Temp$curves   <- rotate3d(Temp$curves, angles[2], 1, 0, 0)
-Temp$curves   <- rotate3d(Temp$curves, angles[3], 0, 1, 0)
+angles         <- rotate.face3d(gpa$mshape, id.lndms = c(4, 6, 8, 7), rotation = "coronal")$angles
+Temp$vertices  <- rotate3d(Temp$vertices,  angles[1], 0, 0, 1)
+Temp$vertices  <- rotate3d(Temp$vertices,  angles[2], 1, 0, 0)
+Temp$vertices  <- rotate3d(Temp$vertices,  angles[3], 0, 1, 0)
+Temp$mesh      <- rotate3d(Temp$mesh,      angles[1], 0, 0, 1)
+Temp$mesh      <- rotate3d(Temp$mesh,      angles[2], 1, 0, 0)
+Temp$mesh      <- rotate3d(Temp$mesh,      angles[3], 0, 1, 0)
+Temp$landmarks <- rotate3d(Temp$landmarks, angles[1], 0, 0, 1)
+Temp$landmarks <- rotate3d(Temp$landmarks, angles[2], 1, 0, 0)
+Temp$landmarks <- rotate3d(Temp$landmarks, angles[3], 0, 1, 0)
+Temp$curves    <- rotate3d(Temp$curves,    angles[1], 0, 0, 1)
+Temp$curves    <- rotate3d(Temp$curves,    angles[2], 1, 0, 0)
+Temp$curves    <- rotate3d(Temp$curves,    angles[3], 0, 1, 0)
 
-plot(Temp, new = FALSE)
+plot(Temp)
 
 # Cut the face in half to create the right hand side
 ind                <- which(Temp$vertices[,1] < 0) 
@@ -85,12 +88,12 @@ right.face <- subset(right.face, right.face$vertices[ , 3] >= min.z)
 plot(right.face, new = FALSE)
 
 #  Create the left side by reflection
-left.face              <- right.face
+left.face                <- right.face
 left.face$vertices[ , 1] <- -left.face$vertices[ , 1]
 left.face$triangles      <- matrix(rev(c(t(left.face$triangles))), ncol = 3, byrow = TRUE)
-left.face$colour       <- right.face$colour
+left.face$colour         <- right.face$colour
 
-plot(right.face, display = "mesh",    new = FALSE)
+plot(right.face, display = "mesh")
 plot(right.face, display = "normals", add = TRUE)
 plot( left.face, display = "mesh",    add = TRUE)
 plot( left.face, display = "normals", add = TRUE)
@@ -154,13 +157,16 @@ crds <- rbind(right.face$vertices, left.face$vertices, mid.pts[mid.ind, ])
 rownames(crds) <- c(paste("right", 1:nrow(right.face$vertices)),
                     paste("left",  1:nrow(left.face$vertices)),
                     paste("mid",   1:nrow(mid.pts)))
+r.triples <- c(t(right.face$triangles))
+l.triples <- c(t(left.face$triangles))
 template <- as.face3d(list(vertices  = crds,
-                           triangles = matrix(c(right.face$triples, left.face$triples + ncoords, trp.new), ncol = 3, byrow = TRUE),
+                           triangles = matrix(c(r.triples, l.triples + ncoords, trp.new), ncol = 3, byrow = TRUE),
                            landmarks = Temp$landmarks, curves = Temp$curves, mesh = Temp$mesh,
                            colour = c(right.face$colour, left.face$colour,  mid.col[mid.ind])))
 
 # Check that the mid-line triangles are correct
 # plot(template, display = "mesh", new = FALSE)
+# Error here after changing to triangles rather than triples
 # trpls <- template$triples[2 * length(right.face$triples) + 1:length(trp.new)]
 # trpls <- matrix(trpls, ncol = 3, byrow = TRUE)
 # for (i in 1:nrow(trpls)) {
@@ -175,12 +181,12 @@ template <- as.face3d(list(vertices  = crds,
 #    pop3d()
 # }
 
-# plot(template, new = FALSE, display = "mesh")
-# plot(template, new = FALSE)
-# plot(template, new = FALSE, col = "grey")
+# plot(template, display = "mesh")
+# plot(template)
+# plot(template, col = "grey")
 
-if (sex == "male") template.male <- template else template.female <- template
+if (sex == "male") template_male <- template else template_female <- template
 
-# save(template.male,   file = "../face3d/data/templateMale.Rda")
-# save(template.female, file = "../face3d/data/templateFemale.Rda")
+# save(template_male,   file = "../face3d/data/template_male.Rda")
+# save(template_female, file = "../face3d/data/template_female.Rda")
 
