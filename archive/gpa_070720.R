@@ -1,4 +1,4 @@
-gpa.face3d <- function(x, triangles, match.ids, scale = TRUE, tol = 1e-5, monitor = 0) {
+gpaold.face3d <- function(x, match.ids, scale = TRUE, model.mesh = FALSE, tol = 1e-5, monitor = 0) {
    
    if (missing(match.ids))    match.ids <- 1:dim(x)[1]
    if (is.logical(match.ids)) match.ids <- which(match.ids)
@@ -18,16 +18,15 @@ gpa.face3d <- function(x, triangles, match.ids, scale = TRUE, tol = 1e-5, monito
    }
    dimnames(y) <- dimnames(x)
 
-   if (missing(triangles))
+   if (!model.mesh)
       return(invisible(list(aligned = y, mean = apply(y, 1:2, mean))))
    
    x         <- y
    xp        <- x
    mshape    <- gpa$mshape
    rownames(mshape) <- rownames(y)
-   wts       <- area.face3d(as.face3d(list(vertices = mshape, triangles = triangles)))$points
-   size.x    <- mean(apply(x, 3, function(x)
-                       area.face3d(as.face3d(list(vertices = x, triangles = triangles)))$area))
+   wts       <- area.face3d(as.face3d(mshape, model.mesh = TRUE))$points
+   size.x    <- mean(apply(x, 3, function(x) area.face3d(as.face3d(x, model.mesh = TRUE))$area))
    mn        <- apply(mshape,   2, function(x) sum(wts  * x) / sum(wts ))
    mshape    <- sweep(mshape,   2, mn,   "-")
    dst       <- mean(apply(xp, 3, function(x) mean(sweep((x - mshape)^2, 1, wts, "*"))))
@@ -37,13 +36,12 @@ gpa.face3d <- function(x, triangles, match.ids, scale = TRUE, tol = 1e-5, monito
    dst  <- 100
    iter <- 0
    while (abs(dst - dst0) / dst0 > tol) {
-      wts    <- area.face3d(as.face3d(list(vertices = mshape, triangles = triangles)))$points
+      wts    <- area.face3d(as.face3d(mshape, model.mesh = TRUE))$points
       mn     <- apply(mshape,   2, function(x) sum(wts  * x) / sum(wts ))
       mshape <- sweep(mshape,   2, mn,   "-")
       for (i in 1:n)
-         xp[ , , i] <- opa.face3d(x[ , , i], mshape, weights = wts, triangles = triangles)
-      size.xp <- mean(apply(xp, 3,
-                            function(x) area.face3d(as.face3d(list(vertices = x, triangles = triangles)))$area))
+         xp[ , , i] <- opa.face3d(x[ , , i], mshape, weights = wts, model.mesh = TRUE)
+      size.xp <- mean(apply(xp, 3, function(x) area.face3d(as.face3d(x, model.mesh = TRUE))$area))
       xp <- sweep(xp, 3, size.x / size.xp, "*")
       
       mshape <- apply(xp, 1:2, mean)

@@ -89,7 +89,9 @@ asymmetry.face3d <- function(X, sides = c("left", "right"), reference.size,
             areas.R[ind.r]   <- areas.reg[ind.l[ind.rl]]
             areas.reg        <- (areas.reg + areas.R) / 2
             XR               <- opa.face3d(XR[mtch.sbst, ], Xreg[mtch.sbst, ], scale = FALSE,
-                                           weights = areas.reg, model.mesh = TRUE)
+                                           weights = areas.reg)
+            # XR               <- opa.face3d(XR[mtch.sbst, ], Xreg[mtch.sbst, ], scale = FALSE,
+            #                                weights = areas.reg, model.mesh = TRUE)
          }
          else
             XR <- opa.face3d(XR[mtch.sbst, ], Xreg[mtch.sbst, ], XR, scale = FALSE)

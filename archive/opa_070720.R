@@ -1,14 +1,12 @@
-opa.face3d <- function(from, to, carry = from, scale = TRUE, weights, triangles,
+opaold.face3d <- function(from, to, carry = from, scale = TRUE, weights, model.mesh = FALSE,
                        return.parameters = FALSE) {
    
    if (!all(dim(from) == dim(to)))
       stop("the dimensions of 'from' and 'to' do not match.")
    
    if (missing(weights)) {
-      if (!missing(triangles))
-         weights <- area.face3d(as.face3d(list(vertices = to, triangles = triangles)))$points
-      else
-         weights <- rep(1, nrow(from))
+      if (model.mesh) weights <- area.face3d(as.face3d(to, model.mesh = TRUE))$points
+      else            weights <- rep(1, nrow(from))
    }
 
    mn.from <- apply(from,   2, function(x) sum(weights  * x) / sum(weights ))

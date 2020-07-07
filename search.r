@@ -1,10 +1,10 @@
 #     Search for text in all files
 
-target <- "display.face3d"
+target <- "opa"
 diry   <- "."
-diry   <- "~/OneDrive - University of Glasgow/research/face3d_0.1-1/"
-diry   <- "~/OneDrive - University of Glasgow/research/face3d_0.1-1/face3d/R"
-diry   <- "~/OneDrive - University of Glasgow/research/face3d_0.1-1/face3d/man"
+diry   <- "~/OneDrive - University of Glasgow/research/face3d/"
+diry   <- "~/OneDrive - University of Glasgow/research/face3d/face3d/R"
+diry   <- "~/OneDrive - University of Glasgow/research/face3d/face3d/man"
 recursive <- FALSE
 recursive <- TRUE
 

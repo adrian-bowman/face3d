@@ -40,7 +40,9 @@ closestcontrol.face3d <- function(cases, gpa, pca, npc, pc.proportion = 0.8,
    cases.proc <- cases
    for (i in 1:n.cases)
       cases.proc[ , , i] <- opa.face3d(cases[ , , i], gpa$mean,
-                                       weights = gpa$weights, model.mesh = TRUE)
+                                       weights = gpa$weights)
+      # cases.proc[ , , i] <- opa.face3d(cases[ , , i], gpa$mean,
+      #                                  weights = gpa$weights, model.mesh = TRUE)
    X            <- t(apply(cases.proc, 3, c))
    X            <- sweep(X, 2, c(gpa$mean))
    X            <- sweep(X, 2, rep(sqrt(gpa$weights), 3), "*")
