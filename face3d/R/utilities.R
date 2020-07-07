@@ -23,13 +23,31 @@ is.face3d <- function(object, report = FALSE) {
    ind <- ind && is.list(object)
    if (!ind & report) cat("the object is not a list.\n")
    ind <- ind && ("vertices" %in% names(object))
-   if (!ind & report) cat("the object does not have a vertices component.\n")
+   if (!ind & report)
+      cat("the object does not have a vertices component.\n")
+   else {
+      ind <- ind && is.matrix(object$vertices)
+      if (!ind & report)
+         cat("the vertices component is not a matrix.\n")
+      else {
+         ind <- ind && (dim(object$vertices)[2] == 3)
+         if (!ind & report)
+            cat("the vertices component does not have three columns.\n")
+      }
+   }
    ind <- ind && ("triangles" %in% names(object))
-   if (!ind & report) cat("the object does not have a triangles component.\n")
-   ind <- ind && is.matrix(object$vertices)
-   if (!ind & report) cat("the vertices component is not a matrix.\n")
-   ind <- ind && (dim(object$vertices)[2] == 3)
-   if (!ind & report) cat("the vertices component does not have three columns.\n")
+   if (!ind & report)
+      cat("the object does not have a triangles component.\n")
+   else {
+      ind <- ind && is.matrix(object$triangles)
+      if (!ind & report)
+         cat("the triangles component is not a matrix.\n")
+      else {
+         ind <- ind && (dim(object$triangles)[2] == 3)
+         if (!ind & report)
+            cat("the triangles component does not have three columns.\n")
+      }
+   }
    ind
 }
 

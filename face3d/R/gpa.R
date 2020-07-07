@@ -15,14 +15,16 @@ gpa.face3d <- function(x, match.ids, scale = TRUE, model.mesh = FALSE, tol = 1e-
    }
    else {
       y <- gpa$rotated
-      dimnames(y) <- dimnames(x)
    }
+   dimnames(y) <- dimnames(x)
+
    if (!model.mesh)
       return(invisible(list(aligned = y, mean = apply(y, 1:2, mean))))
    
-   x         <- gpa$rotated
+   x         <- y
    xp        <- x
    mshape    <- gpa$mshape
+   rownames(mshape) <- rownames(y)
    wts       <- area.face3d(as.face3d(mshape, model.mesh = TRUE))$points
    size.x    <- mean(apply(x, 3, function(x) area.face3d(as.face3d(x, model.mesh = TRUE))$area))
    mn        <- apply(mshape,   2, function(x) sum(wts  * x) / sum(wts ))
