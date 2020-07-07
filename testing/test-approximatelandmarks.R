@@ -31,9 +31,10 @@ for (i in 1:length(fls)) {
    s.spacing  <- 10
    s.distance <- 45
    trim       <- 30
-   face <- approximatelandmarks.face3d(face, landmark.names, sample.spacing = s.spacing,
-                                       sample.distance = s.distance, trim = trim,
-                                       distance = 10, monitor = 3)
+   face <- approximatelandmarks.face3d(face, landmark.names,
+                                       sample.spacing = s.spacing, trim = trim,
+                                       distance = 10, sample.distance = s.distance,
+                                       monitor = 3)
    plot(face)
    clr <- rep("blue", nrow(face$landmarks))
    clr[grep("R", rownames(face$landmarks))] <- "green"
