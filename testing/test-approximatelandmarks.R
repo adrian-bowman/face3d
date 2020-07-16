@@ -51,14 +51,18 @@ for (i in 1:length(fls)) {
 }
 save(dst, file = "~/Desktop/discrepancies.Rda")
 
-i <- 1
+i <- 5
 load(fls[i])
+face$vertices  <- face$coords
+face$coords    <- NULL
+face$triangles <- matrix(face$triples, ncol = 3, byrow = TRUE)
+face$triples   <- NULL
 
 plot(face)
 clr <- rep("blue", nrow(face$landmarks))
 clr[grep("R", rownames(face$landmarks))] <- "green"
 clr[grep("L", rownames(face$landmarks))] <- "orange"
-spheres3d(face$landmarks, radius = 3, col = clr)
+spheres3d(face$landmarks, radius = 2, col = clr)
 
 # load("lmks-liberty.rda")
 # load(fls[81])
@@ -82,22 +86,21 @@ covt   <- cov(t(tan))
 mn1 <- apply(face$landmarks[c("pn", "se"), ], 2, mean)
 mn2 <- apply(mn[c("pn", "se"), ], 2, mean)
 mn  <- sweep(mn, 2, mn2 - mn1)
-spheres3d(mn, col = "yellow", radius = 3)
+spheres3d(mn, col = "yellow", radius = 2)
 
-a1    <- face$landmarks["se", ] - mn1
-a2    <- mn["se", ] - mn1
-raxis <- c(crossproduct(a1, a2))
-angle <- acos(sum((a1 * a2)) / sqrt(sum(a1^2) * sum(a2^23)))
-angle <- angle * 2 * pi * angle / 360
-mn    <- sweep(mn, 2, mn1)
-mn    <- rotate3d(mn, angle, raxis[1] , raxis[2], raxis[3])
-mn    <- sweep(mn, 2, mn1, "+")
+a1     <- face$landmarks["se", ] - mn1
+a2     <- mn["se", ] - mn1
+raxis  <- c(crossproduct(a1, a2))
+angle  <- acos(sum(a1 * a2) / sqrt(sum(a1^2) * sum(a2^2)))
+mn     <- sweep(mn, 2, mn1)
+mn     <- rotate3d(mn, angle, raxis[1] , raxis[2], raxis[3])
+mn     <- sweep(mn, 2, mn1, "+")
 rotmat <- rotationMatrix(angle, raxis[1] , raxis[2], raxis[3])[1:3, 1:3]
 pop3d()
-spheres3d(mn, col = "yellow", radius = 3)
+spheres3d(mn, col = "yellow", radius = 2)
 
 plot(face)
-spheres3d(face$landmarks[c("pn", "se"), ], radius = 3, col = "blue")
+spheres3d(face$landmarks[c("pn", "se"), ], radius = 2, col = "blue")
 # spheres3d(mn, col = "yellow", radius = 3)
 for (j in 1:n.lmks) {
    ind    <- c(j, j + n.lmks, j + 2 * n.lmks)
@@ -106,6 +109,32 @@ for (j in 1:n.lmks) {
    plot3d(ellipse3d(covt.r, centre = mn[j, ]),
           col = "lightblue", alpha = 0.5, add = TRUE)
 }
+
+# Rotate around the pn-se axis to maximise thre density at acL/R
+mn2    <- apply(mn[c("pn", "se"), ], 2, mean)
+plot(face)
+spheres3d(mn, col = "yellow", radius = 2)
+for (angle in seq(0, 2 * pi, length = 50)) {
+   mn3    <- sweep(mn,  2, mn2)
+   mn3    <- rotate3d(mn3, angle, a1[1] , a1[2], a1[3])
+   mn3    <- sweep(mn3, 2, mn2, "+")
+   # spheres3d(mn3, col = "yellow", radius = 2)
+   for (j in 1:n.lmks) {
+      ind    <- c(j, j + n.lmks, j + 2 * n.lmks)
+      covt.r <- rotate3d(covt[ind, ind], angle, raxis[1] , raxis[2], raxis[3])
+      rotmat <- rotationMatrix(angle, raxis[1] , raxis[2], raxis[3])[1:3, 1:3]
+      covt.r <- rotmat %*% covt[ind, ind] %*% t(rotmat)
+      plot3d(ellipse3d(covt.r, centre = mn3[j, ]),
+             col = "lightblue", alpha = 0.5, add = TRUE)
+   }
+   scan()
+   for (j in 1:n.lmks) pop3d()
+}
+
+
+# Find the points on the face with largest prior density for acL/R
+dst <- rdist()
+
 
 # Check the curvature characteristics of each point (gc?)
 
