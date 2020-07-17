@@ -51,6 +51,19 @@ for (i in 1:length(fls)) {
 }
 save(dst, file = "~/Desktop/discrepancies.Rda")
 
+
+load("lmks-liberty.rda")
+lmks.liberty <- lmks.liberty[-match(c("tL", "tR", "oiL", "oiR"), rownames(lmks.liberty)), , ]
+landmark.names <- c("pn", "se", "acL", "acR")
+lmks   <- lmks.liberty[landmark.names, , ]
+
+gpa     <- gpa.face3d(lmks, scale = FALSE)
+mn.popn <- gpa$mean
+n.lmks  <- nrow(lmks)
+tan     <- apply(sweep(gpa$aligned, 1:2, gpa$mean), 3, c)
+mnt     <- apply(tan, 1, mean)
+covt    <- cov(t(tan))
+
 i <- 5
 load(fls[i])
 face$vertices  <- face$coords
@@ -69,48 +82,48 @@ spheres3d(face$landmarks, radius = 2, col = clr)
 # rownames(lmks.liberty) <- rownames(face$lmks)
 # save(lmks.liberty, file = "lmks-liberty.rda")
 
-load("lmks-liberty.rda")
-lmks.liberty <- lmks.liberty[-match(c("tL", "tR", "oiL", "oiR"), rownames(lmks.liberty)), , ]
-landmark.names <- c("pn", "se", "acL", "acR")
-lmks   <- lmks.liberty[landmark.names, , ]
+# Subset to area around the nose
+mn2.image <- apply(face$landmarks[c("pn", "se"), ], 2, mean)
+dst       <- c(rdist(t(mn2.image), face$vertices))
+sbst      <- subset(face, dst < 50)
 
-gpa    <- gpa.face3d(lmks, scale = FALSE)
-mn     <- gpa$mean
-n.lmks <- nrow(lmks)
-tan    <- apply(sweep(gpa$aligned, 1:2, gpa$mean), 3, c)
-mnt    <- apply(tan, 1, mean)
-covt   <- cov(t(tan))
+plot(sbst)
+spheres3d(face$landmarks, col = "blue",   radius = 2)
 
-# Move the mean to match the mid-point of pn and se.
-# mn <- sweep(mn, 2, apply(face$landmarks[c("pn", "se"), ] - mn[c("pn", "se"), ], 2, mean))
-mn1 <- apply(face$landmarks[c("pn", "se"), ], 2, mean)
-mn2 <- apply(mn[c("pn", "se"), ], 2, mean)
-mn  <- sweep(mn, 2, mn2 - mn1)
-spheres3d(mn, col = "yellow", radius = 2)
+# Move the image to match the mid-point of pn and se and the direction to se.
+mn2.popn        <- apply(mn.popn[c("pn", "se"), ], 2, mean)
+sbst$landmarks <- sweep(sbst$landmarks, 2, mn2.image - mn2.popn)
+sbst$vertices  <- sweep(sbst$vertices,  2, mn2.image - mn2.popn)
 
-a1     <- face$landmarks["se", ] - mn1
-a2     <- mn["se", ] - mn1
+plot(sbst)
+spheres3d(mn.popn,        col = "yellow", radius = 2)
+spheres3d(sbst$landmarks, col = "blue",   radius = 2)
+
+a1     <- mn.popn["se", ] - mn2.popn
+a2     <- face$landmarks["se", ] - mn2.image
 raxis  <- c(crossproduct(a1, a2))
 angle  <- acos(sum(a1 * a2) / sqrt(sum(a1^2) * sum(a2^2)))
-mn     <- sweep(mn, 2, mn1)
-mn     <- rotate3d(mn, angle, raxis[1] , raxis[2], raxis[3])
-mn     <- sweep(mn, 2, mn1, "+")
-rotmat <- rotationMatrix(angle, raxis[1] , raxis[2], raxis[3])[1:3, 1:3]
-pop3d()
-spheres3d(mn, col = "yellow", radius = 2)
+sbst$vertices  <- sweep(sbst$vertices,  2, mn2.popn)
+sbst$landmarks <- sweep(sbst$landmarks, 2, mn2.popn)
+sbst$vertices  <- rotate3d(sbst$vertices,  angle, raxis[1] , raxis[2], raxis[3])
+sbst$landmarks <- rotate3d(sbst$landmarks, angle, raxis[1] , raxis[2], raxis[3])
+sbst$vertices  <- sweep(sbst$vertices,  2, mn2.popn, "+")
+sbst$landmarks <- sweep(sbst$landmarks, 2, mn2.popn, "+")
 
-plot(face)
-spheres3d(face$landmarks[c("pn", "se"), ], radius = 2, col = "blue")
-# spheres3d(mn, col = "yellow", radius = 3)
+plot(sbst)
+spheres3d(mn.popn,        col = "yellow", radius = 2)
+spheres3d(sbst$landmarks, col = "blue",   radius = 2)
+
+plot(sbst)
+spheres3d(sbst$landmarks[c("pn", "se"), ], col = "blue", radius = 2)
+spheres3d(mn.popn, col = "yellow", radius = 2)
 for (j in 1:n.lmks) {
    ind    <- c(j, j + n.lmks, j + 2 * n.lmks)
-   covt.r <- rotate3d(covt[ind, ind], angle, raxis[1] , raxis[2], raxis[3])
-   covt.r <- rotmat %*% covt[ind, ind] %*% t(rotmat)
-   plot3d(ellipse3d(covt.r, centre = mn[j, ]),
+   plot3d(ellipse3d(covt[ind, ind], centre = mn.popn[j, ]),
           col = "lightblue", alpha = 0.5, add = TRUE)
 }
 
-# Rotate around the pn-se axis to maximise thre density at acL/R
+# Rotate around the pn-se axis to maximise the density at acL/R
 mn2    <- apply(mn[c("pn", "se"), ], 2, mean)
 plot(face)
 spheres3d(mn, col = "yellow", radius = 2)
