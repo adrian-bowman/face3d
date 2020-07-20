@@ -51,6 +51,10 @@ for (i in 1:length(fls)) {
 }
 save(dst, file = "~/Desktop/discrepancies.Rda")
 
+# load("lmks-liberty.rda")
+# load(fls[81])
+# rownames(lmks.liberty) <- rownames(face$lmks)
+# save(lmks.liberty, file = "lmks-liberty.rda")
 
 load("lmks-liberty.rda")
 lmks.liberty <- lmks.liberty[-match(c("tL", "tR", "oiL", "oiR"), rownames(lmks.liberty)), , ]
@@ -64,64 +68,49 @@ tan     <- apply(sweep(gpa$aligned, 1:2, gpa$mean), 3, c)
 mnt     <- apply(tan, 1, mean)
 covt    <- cov(t(tan))
 
-i <- 5
-load(fls[i])
-face$vertices  <- face$coords
-face$coords    <- NULL
-face$triangles <- matrix(face$triples, ncol = 3, byrow = TRUE)
-face$triples   <- NULL
-
-plot(face)
-clr <- rep("blue", nrow(face$landmarks))
-clr[grep("R", rownames(face$landmarks))] <- "green"
-clr[grep("L", rownames(face$landmarks))] <- "orange"
-spheres3d(face$landmarks, radius = 2, col = clr)
-
-# load("lmks-liberty.rda")
-# load(fls[81])
-# rownames(lmks.liberty) <- rownames(face$lmks)
-# save(lmks.liberty, file = "lmks-liberty.rda")
-
-# Subset to area around the nose
-mn2.image <- apply(face$landmarks[c("pn", "se"), ], 2, mean)
-dst       <- c(rdist(t(mn2.image), face$vertices))
-sbst      <- subset(face, dst < 50)
-
-plot(sbst)
-spheres3d(face$landmarks, col = "blue",   radius = 2)
-
-# Move the image to match the mid-point of pn and se and the direction to se.
-mn2.popn        <- apply(mn.popn[c("pn", "se"), ], 2, mean)
-sbst$landmarks <- sweep(sbst$landmarks, 2, mn2.image - mn2.popn)
-sbst$vertices  <- sweep(sbst$vertices,  2, mn2.image - mn2.popn)
-
-plot(sbst)
-spheres3d(mn.popn,        col = "yellow", radius = 2)
-spheres3d(sbst$landmarks, col = "blue",   radius = 2)
-
-a1     <- mn.popn["se", ] - mn2.popn
-a2     <- face$landmarks["se", ] - mn2.image
-raxis  <- c(crossproduct(a1, a2))
-angle  <- acos(sum(a1 * a2) / sqrt(sum(a1^2) * sum(a2^2)))
-sbst$vertices  <- sweep(sbst$vertices,  2, mn2.popn)
-sbst$landmarks <- sweep(sbst$landmarks, 2, mn2.popn)
-sbst$vertices  <- rotate3d(sbst$vertices,  angle, raxis[1] , raxis[2], raxis[3])
-sbst$landmarks <- rotate3d(sbst$landmarks, angle, raxis[1] , raxis[2], raxis[3])
-sbst$vertices  <- sweep(sbst$vertices,  2, mn2.popn, "+")
-sbst$landmarks <- sweep(sbst$landmarks, 2, mn2.popn, "+")
-
-plot(sbst)
-spheres3d(mn.popn,        col = "yellow", radius = 2)
-spheres3d(sbst$landmarks, col = "blue",   radius = 2)
-
-plot(sbst)
-spheres3d(sbst$landmarks[c("pn", "se"), ], col = "blue", radius = 2)
-spheres3d(mn.popn, col = "yellow", radius = 2)
-for (j in 1:n.lmks) {
-   ind    <- c(j, j + n.lmks, j + 2 * n.lmks)
-   plot3d(ellipse3d(covt[ind, ind], centre = mn.popn[j, ]),
-          col = "lightblue", alpha = 0.5, add = TRUE)
+# Check the position of se in manual and approximate landmarks
+for (i in 81:length(fls)) {
+   load(fls[i])
+   face$vertices  <- face$coords
+   face$coords    <- NULL
+   face$triangles <- matrix(face$triples, ncol = 3, byrow = TRUE)
+   face$triples   <- NULL
+   plot(face)
+   spheres3d(face$landmarks, radius = 2, col = clr)
+   spheres3d(face$lmks, col = "yellow")
+   scan()
 }
+
+i <- 81
+i <- 93
+
+# Look at the curvature characteristics at acL and acR
+for (i in 81:length(fls)) {
+   load(fls[i])
+   face$vertices  <- face$coords
+   face$coords    <- NULL
+   face$triangles <- matrix(face$triples, ncol = 3, byrow = TRUE)
+   face$triples   <- NULL
+   mn2.image      <- apply(face$landmarks[c("pn", "se"), ], 2, mean)
+   dst            <- c(rdist(t(mn2.image), face$vertices))
+   sbst           <- subset(face, dst < 50)
+   
+   # sbst           <- index.face3d(sbst, distance = 10, overwrite = TRUE)
+   
+   plot(sbst, col = sbst$kappa1)
+   # plot(sbst, col = pmax(sbst$kappa1, 0))
+   # sbst1 <- subset(sbst, sbst$kappa1 > 0)
+   # plot(sbst1, col = sbst1$kappa1)
+   plot(sbst, col = sbst$kappa2)
+   # plot(sbst, col = pmin(sbst$kappa2, 0))
+   # plot(sbst, col = sbst$kappa1 * sbst$kappa2)
+   spheres3d(face$landmarks, col = "blue", radius = 2)
+   spheres3d(face$lmks[landmark.names, ], col = "red", radius = 2)
+   scan()
+}
+
+findac(face)
+
 
 # Rotate around the pn-se axis to maximise the density at acL/R
 mn2    <- apply(mn[c("pn", "se"), ], 2, mean)

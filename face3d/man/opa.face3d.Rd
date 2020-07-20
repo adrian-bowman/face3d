@@ -20,7 +20,7 @@ opa.face3d(from, to, carry = from, scale = TRUE, weights, model.mesh = FALSE,
 \item{scale}{a logical value which determines whether a scale factor is applied to \code{from} as part of the registration process.}
 \item{weights}{a set of weights which will be used for each point when the registration is computed.  When the points constitute a discrete representation of a surface an area weighting is appropriate and previously computed weights can be passed to this argument.}
 \item{model.mesh}{a logical value which determines whether the points constitute a discrete representation of a surface.  If the \code{weights} argument is missing and \code{model.mesh} is set to \code{TRUE} then the \code{as.face3d} and \code{area.face3d} functions are used to compute weights.  If the \code{weights} argument is not missing then the \code{model.mesh} argument is ignored.}
-\item{return.parameters}{a logical value which the parameters of the registration are returned.}
+\item{return.parameters}{a logical value which controls whether the parameters of the registration are returned.}
 }
 
 \details{
