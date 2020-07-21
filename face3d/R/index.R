@@ -93,6 +93,7 @@ index.face3d <- function(shape, extent = 2, distance = 10, type = "euclidean",
    # if (length(sbst) == 1 && sbst <= 1) sbst <- round(nrow(shape$vertices) * sbst)
    pts <- shape$vertices[sbst, ]
    
+   # Deal with extension
    if (extension.missing) {
       if (length(sbst) < 10) extensn <- TRUE
       else {
@@ -100,6 +101,8 @@ index.face3d <- function(shape, extent = 2, distance = 10, type = "euclidean",
         extensn <- FALSE
       }
    }
+   else
+      extensn <- extension
    if (is.logical(extensn) && extensn) {
       dst     <- rdist(shape$vertices[sbst, ], shape$vertices)
       ind.ext <- apply(dst, 1, function(x) which(x <= distance))
@@ -129,11 +132,16 @@ index.face3d <- function(shape, extent = 2, distance = 10, type = "euclidean",
    if (directions & (overwrite | !("directions" %in% names(shape)))) {
       axes       <- array(unlist(axes), dim = c(3, 3, length(axes)))
       axes       <- axes[ , , sbst]
-      shape$directions <- array(NA, dim = c(2, 2, nrow(shape$vertices)))
-      shape$directions[ , , sbst] <- array(c(t(index[ , 5:8])), dim = c(2, 2, length(sbst)))
-      a <- shape$directions[1, 1, sbst]
-      b <- shape$directions[2, 1, sbst]
-      shape$directions <- array(NA, dim = c(3, 2, nrow(shape$vertices)))
+      # shape$directions <- array(NA, dim = c(2, 2, nrow(shape$vertices)))
+      # shape$directions[ , , sbst] <- array(c(t(index[ , 5:8])), dim = c(2, 2, length(sbst)))
+      # a <- shape$directions[1, 1, sbst]
+      # b <- shape$directions[2, 1, sbst]
+      dirns <- array(NA, dim = c(2, 2, nrow(shape$vertices)))
+      dirns[ , , sbst] <- array(c(t(index[ , 5:8])), dim = c(2, 2, length(sbst)))
+      a <- dirns[1, 1, sbst]
+      b <- dirns[2, 1, sbst]
+      if (!("directions" %in% names(shape)))
+         shape$directions <- array(NA, dim = c(3, 2, nrow(shape$vertices)))
       shape$directions[ , 1, sbst] <- t(a * t(axes[ , 2, ]) + b * t(axes[ , 3, ]))
       shape$directions[ , 2, sbst] <- t(b * t(axes[ , 2, ]) - a * t(axes[ , 3, ]))
       # print(a * t(shape$axes[ , 2, ]) + b * t(shape$axes[ , 3, ]))

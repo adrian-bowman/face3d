@@ -5,7 +5,8 @@ findac <- function(face) {
    # Subset to area around the nose
    mn2.image <- apply(face$landmarks[c("pn", "se"), ], 2, mean)
    dst       <- c(rdist(t(mn2.image), face$vertices))
-   sbst      <- subset(face, dst < 50)
+   # sbst      <- subset(face, dst < 50)
+   sbst      <- face
    
    plot(sbst)
    spheres3d(face$landmarks, col = "blue",   radius = 2)
@@ -45,9 +46,9 @@ findac <- function(face) {
    # fixed landmarks and the highest values at the other two locations
    
    ind   <- c(3, 3 + n.lmks, 3 + 2 * n.lmks)
-   imax3 <- which.max(dmvnorm(sbst$vertices, c(mn.popn)[ind], covt[ind, ind], log = TRUE))
+   imax3 <- which.max(mvtnorm::dmvnorm(sbst$vertices, c(mn.popn)[ind], covt[ind, ind], log = TRUE))
    ind   <- c(4, 4 + n.lmks, 4 + 2 * n.lmks)
-   imax4 <- which.max(dmvnorm(sbst$vertices, c(mn.popn)[ind], covt[ind, ind], log = TRUE))
+   imax4 <- which.max(mvtnorm::dmvnorm(sbst$vertices, c(mn.popn)[ind], covt[ind, ind], log = TRUE))
    lmks  <- sbst$vertices[c(imax3, imax4), ]
    lmks           <- rbind(sbst$landmarks[c("pn", "se"), ], lmks)
    sbst$vertices  <- opa.face3d(lmks, mn.popn, sbst$vertices,  scale = FALSE)
@@ -66,7 +67,7 @@ findac <- function(face) {
    inv <- ginv(covt)
    x   <- c(lmks) - c(mn.popn)
    mhd <- c(t(x) %*% inv %*% x)
-   print(mhd)
+   # print(mhd)
    
    # Try neighbouring positions for acL/R
    threshold <- 3
@@ -75,5 +76,7 @@ findac <- function(face) {
    dst       <- c(rdist(t(sbst$lmks["acR", ]), sbst$vertices))
    nhd.R     <- which(dst < 3)
    
-   
+   sbst$landmarks <- rbind(sbst$landmarks, lmks[3:4, ])
+   rownames(sbst$landmarks)[5:6] <- c("acL", "acR")
+   return(invisible(sbst))
 }
