@@ -18,7 +18,7 @@ projectline.face3d <- function(shape, x1, x2, normal) {
 }
 
 is.face3d <- function(object, report = FALSE) {
-   ind <- (class(object) == "face3d")
+   ind <- ("face3d" %in% class(object))
    if (!ind & report) cat("the object does not have class face3d.\n")
    ind <- ind && is.list(object)
    if (!ind & report) cat("the object is not a list.\n")

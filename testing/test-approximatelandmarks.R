@@ -68,19 +68,6 @@ tan     <- apply(sweep(gpa$aligned, 1:2, gpa$mean), 3, c)
 mnt     <- apply(tan, 1, mean)
 covt    <- cov(t(tan))
 
-# Check the position of se in manual and approximate landmarks
-for (i in 81:length(fls)) {
-   load(fls[i])
-   face$vertices  <- face$coords
-   face$coords    <- NULL
-   face$triangles <- matrix(face$triples, ncol = 3, byrow = TRUE)
-   face$triples   <- NULL
-   plot(face)
-   spheres3d(face$landmarks, radius = 2, col = clr)
-   spheres3d(face$lmks, col = "yellow")
-   scan()
-}
-
 i <- 81
 i <- 93
 
@@ -93,6 +80,11 @@ for (i in 81:length(fls)) {
    face$triples   <- NULL
    face           <- findac(face)
    face$landmarks
+   
+   dst  <- c(rdist(t(face$landmarks["pn", ]), face$vertices))
+   sbst <- subset(face, dst < 60)
+   plot(sbst, col = "kappa2")
+   plot(sbst, display = "direction 1")
    
    mn2.image      <- apply(face$landmarks[c("pn", "se"), ], 2, mean)
    dst            <- c(rdist(t(mn2.image), face$vertices))
@@ -228,6 +220,19 @@ plot(sbst, col = sbst$kappa1 * sbst$kappa2)
 spheres3d(face$landmarks[c("pn", "se"), ], radius = 3, col = "yellow")
 
 # se
+
+# Check the position of se in manual and approximate landmarks
+for (i in 81:length(fls)) {
+   load(fls[i])
+   face$vertices  <- face$coords
+   face$coords    <- NULL
+   face$triangles <- matrix(face$triples, ncol = 3, byrow = TRUE)
+   face$triples   <- NULL
+   plot(face)
+   spheres3d(face$landmarks, radius = 2, col = clr)
+   spheres3d(face$lmks, col = "yellow")
+   scan()
+}
 
 for (i in 1:length(fls)) {
    load(fls[i])

@@ -75,8 +75,9 @@ index.face3d <- function(shape, extent = 2, distance = 10, type = "euclidean",
       invisible(results)
    }
    
-   if (overwrite | !("axes" %in% names(shape))) shape <- normals.face3d(shape)
+   if (!("axes" %in% names(shape))) shape <- normals.face3d(shape)
    axes <- shape$axes
+   
 #    vec      <- apply(shape$normals, 1, function(x) which.min(x)[1])
 #    mat      <- matrix(0, nrow = length(vec), ncol = 3)
 #    ind      <- cbind(1:length(vec), vec)
@@ -144,6 +145,7 @@ index.face3d <- function(shape, extent = 2, distance = 10, type = "euclidean",
          shape$directions <- array(NA, dim = c(3, 2, nrow(shape$vertices)))
       shape$directions[ , 1, sbst] <- t(a * t(axes[ , 2, ]) + b * t(axes[ , 3, ]))
       shape$directions[ , 2, sbst] <- t(b * t(axes[ , 2, ]) - a * t(axes[ , 3, ]))
+      dimnames(shape$directions) <- list(NULL, paste("principal", 1:2), NULL)
       # print(a * t(shape$axes[ , 2, ]) + b * t(shape$axes[ , 3, ]))
       # print(shape$directions[ , 1, ])
       # print(a^2 + b^2)

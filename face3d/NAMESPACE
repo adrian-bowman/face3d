@@ -59,6 +59,7 @@ export(
   subset.face3d,
   subspaces.face3d,
   summary.face3d,
+  translate.face,
   trimimage.face3d,
   warp.face3d,
   write.face3d

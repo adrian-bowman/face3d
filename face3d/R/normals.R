@@ -1,4 +1,6 @@
 normals.face3d <- function(shape) {
+   
+   if (!("face3d" %in% class(shape))) stop("shape is not a face3d object.")
 
    clist <- function(list1, list2) {
       nms1         <- sapply(list1, length)
@@ -35,9 +37,10 @@ normals.face3d <- function(shape) {
    trngs         <- clist(trngs, tapply(triangles, triples[ , 3], c))
    axes          <- lapply(trngs, local.axes)
    shape$axes    <- axes
-   axes          <- array(unlist(axes), dim = c(3, 3, nrow(shape$vertices)))
-   shape$normals <- t(axes[ , 1, ])
+   axes          <- array(unlist(axes), dim = c(3, 3, length(axes)),
+                          dimnames = list(c("x", "y", "z"), c("normal", "axis 1", "axis 2"), NULL))
+   axes          <- aperm(axes, c(3, 1, 2))
+   shape$normals <- axes[ , , 1]
 
-   class(shape) <- "face3d"
    invisible(shape)
 }

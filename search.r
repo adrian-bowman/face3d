@@ -1,6 +1,6 @@
 #     Search for text in all files
 
-target <- "opa"
+target <- "directions"
 diry   <- "."
 diry   <- "~/OneDrive - University of Glasgow/research/face3d/"
 diry   <- "~/OneDrive - University of Glasgow/research/face3d/face3d/R"

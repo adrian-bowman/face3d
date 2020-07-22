@@ -1,5 +1,5 @@
 opa.face3d <- function(from, to, carry = from, scale = TRUE, weights, triangles,
-                       return.parameters = FALSE) {
+                       return.parameters = FALSE, exclude = NULL) {
    
    if (!all(dim(from) == dim(to)))
       stop("the dimensions of 'from' and 'to' do not match.")
@@ -29,12 +29,25 @@ opa.face3d <- function(from, to, carry = from, scale = TRUE, weights, triangles,
    # opa     <- beta * x.from %*% Gamma
    # opa     <- sweep(opa, 2, mn.to, "+")
 
-   result  <- sweep(carry, 2, mn.from)
-   result  <- result %*% Gamma
-   if (scale) result  <- beta * result
-   opa     <- sweep(result, 2, mn.to, "+")
-   rownames(opa) <- rownames(carry)
-   
+   # Apply the transformation to the carry object
+   opa.fn <- function(x) {
+      x <- sweep(x, 2, mn.from)
+      if (scale) x <- beta * x
+      x <- x %*% Gamma
+      x <- sweep(x, 2, mn.to, "+")
+   }
+   if (is.face3d(carry)) {
+      ind     <- sapply(carry, function(x) is.matrix(x) && ncol(x) == 3)
+      ind     <- which(ind)
+      exclude <- c("triangles", exclude)
+      ind     <- ind[-match(exclude, names(ind))]
+      opa      <- carry
+      opa[ind] <- lapply(opa[ind], opa.fn) 
+   }
+   else
+      opa  <- opa.fn(carry)
+
+   # Return
    if (return.parameters)
       result <- list(opa = opa, mean.from = mn.from, mean.to = mn.to,
                      rotation = Gamma, scale = beta)
