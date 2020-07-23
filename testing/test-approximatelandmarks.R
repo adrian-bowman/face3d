@@ -46,7 +46,7 @@ for (i in 1:length(fls)) {
                               function(x) sqrt(sum(x^2)))
    save(face, file = fls[i])
    
-   snapshot3d(paste("~/Desktop/temp/temp_", i, ".png", sep = ""))
+   # snapshot3d(paste("~/Desktop/temp/temp_", i, ".png", sep = ""))
    # snapshot3d(paste("~/Desktop/temp/temp_crv", i, ".png", sep = ""))
 }
 save(dst, file = "~/Desktop/discrepancies.Rda")
@@ -72,112 +72,25 @@ i <- 81
 i <- 93
 
 # Look at the curvature characteristics at acL and acR
-for (i in 81:length(fls)) {
+for (i in 1:length(fls)) {
+   cat(i, "")
    load(fls[i])
-   face$vertices  <- face$coords
-   face$coords    <- NULL
-   face$triangles <- matrix(face$triples, ncol = 3, byrow = TRUE)
-   face$triples   <- NULL
+   if ("coords" %in% names(face)) {
+      face$vertices  <- face$coords
+      face$coords    <- NULL
+   }
+   if ("triples" %in% names(face)) {
+      face$triangles <- matrix(face$triples, ncol = 3, byrow = TRUE)
+      face$triples   <- NULL
+   }
+   rnms <- rownames(face$landmarks)
+   if (all(c("acL", "acR") %in% rnms))
+      face$landmarks <- face$landmarks[-match(c("acL", "acR"), rnms), ]
    face           <- findac(face)
    face$landmarks
-   plot(face)
+   plot(face, new = TRUE)
    spheres3d(face$landmarks, col = "yellow")
-   
-   dst  <- c(rdist(t(face$landmarks["pn", ]), face$vertices))
-   sbst <- subset(face, dst < 60)
-   plot(sbst, col = "kappa2")
-   plot(sbst, display = "direction 1")
-   
-   mn2.image      <- apply(face$landmarks[c("pn", "se"), ], 2, mean)
-   dst            <- c(rdist(t(mn2.image), face$vertices))
-   sbst           <- subset(face, dst < 50)
-   
-   # plot(sbst, col = sbst$kappa2)
-   # spheres3d(sbst$lmks["acR", ], col = "red")
-
-   sbst <- index.face3d(sbst, distance = 10, overwrite = TRUE, directions = TRUE)
-   
-   # plot(sbst, col = sbst$kappa1)
-   # plot(sbst, col = pmax(sbst$kappa1, 0))
-   # sbst1 <- subset(sbst, sbst$kappa1 > 0)
-   # plot(sbst1, col = sbst1$kappa1)
-   # plot(sbst, col = sbst$kappa2)
-   # plot(sbst, col = pmin(sbst$kappa2, 0))
-   # plot(sbst, col = sbst$kappa1 * sbst$kappa2)
-   spheres3d(face$landmarks, col = "yellow", radius = 2)
-   # spheres3d(face$lmks[landmark.names, ], col = "red", radius = 2)
-   
-   plot(subset(sbst, sbst$kappa2 <= 0))
-   sbst <- index.face3d(sbst, overwrite = TRUE, distance = 4,
-                        subset = sbst$kappa2 > 0, extension = TRUE, directions = TRUE)
-   # sbst <- index.face3d(sbst, overwrite = TRUE, distance = 10, subset = sbst$kappa1 < 0)
-   plot(sbst, col = "kappa1")
-   plot(sbst, col = "kappa2")
-   
-   # dst  <- c(rdist(t(sbst$lmks["acR", ]), sbst$vertices))
-   dst  <- c(rdist(t(sbst$landmarks["acR", ]), sbst$vertices))
-   ind  <- which.min(dst)
-   acR  <- sbst$vertices[ind, ]
-   # spheres3d(acR, col = "red", radius = 2)
-   drn  <- sbst$directions[ , 1, ind]
-   # dst1 <- rdist(t(sbst$lmks["pn", ]), rbind(acR, acR + drn))
-   dst1 <- rdist(t(sbst$landmarks["pn", ]), rbind(acR, acR + drn))
-   if (dst1[2] > dst1[1]) drn <- -drn
-   # lines3d(rbind(acR, acR + 5 * drn))
-   # plot(sbst, col = sbst$kappa2)
-   # spheres3d(acR, col = "red", radius = 2)
-   sbst1 <- subset(sbst, dst < 10)
-   # plot(sbst1, col = sbst1$kappa2)
-   # spheres3d(acR, col = "red", radius = 2)
-
-   plot(sbst, col = "kappa1")
-   plot(sbst, col = "kappa2")
-   plot(sbst1, col = "kappa1")
-   plot(sbst1, col = "kappa2")
-   
-   jlst <- which(sbst1$kappa1 > quantile(sbst1$kappa1, 0.5))
-   crv  <- numeric(0)
-   for (j in jlst) {
-      acR   <- sbst1$vertices[j, ]
-      dst   <- c(rdist(t(acR), sbst$vertices))
-      sbst2 <- subset(sbst, dst < 10)
-      drn   <- sbst1$directions[ , 1, j]
-      # dst1  <- rdist(t(sbst1$lmks["pn", ]), rbind(acR, acR + drn))
-      dst1  <- rdist(t(sbst1$landmarks["pn", ]), rbind(acR, acR + drn))
-      if (dst1[2] > dst1[1]) drn <- -drn
-      pnac  <- (sbst1$landmarks["pn", ] - acR)
-      pnse  <- (sbst1$landmarks["se", ] - sbst1$landmarks["pn", ])
-      nrm   <- sbst1$normals[j, ]
-      if ((acos(sum(drn * pnac) / sqrt(sum(pnac^2))) < pi / 4) &
-          (abs(acos(sum(nrm * pnac) / sqrt(sum(pnac^2))) - pi / 2) < pi / 4)) { 
-         path  <- planepath.face3d(sbst2, acR, direction = drn, si.target = 1, rotation = 0)$path
-         cdst   <- closestcurve.face3d(sbst2, path)
-         area   <- area.face3d(sbst2)$points
-         ind    <- (cdst$closest.curvept != 1) & (abs(cdst$closest.distance) < 4) 
-         rdg    <- -sum(area[ind] * sbst2$kappa2[ind])
-      }
-      else
-         rdg <- NA
-      # ind1   <- ind & (cdst$closest.distance > 0)
-      # ind2   <- ind & (cdst$closest.distance < 0)
-      # rdg    <- sum(area[ind1] * sbst2$kappa2[ind1]) - sum(area[ind2] * sbst2$kappa2[ind2])
-      
-      # plot(sbst1, col = sbst1$kappa1)
-      # plot(sbst1, col = sbst1$kappa2)
-      # spheres3d(acR,  col = "red", radius = 2)
-      # spheres3d(path, col = "yellow")
-      # spheres3d(sbst1$vertices[ind, ])
-
-      crv  <- c(crv, sbst1$kappa1[j] * rdg)
-   }
-   
-   plot(sbst1, col = "kappa2")
-   plot(sbst1, col = "kappa1")
-   ind   <- which(!is.na(crv))
-   sbstj <- subset(sbst1, jlst[ind], remove.singles = FALSE)
-   plot(sbstj, col = crv[ind], display = "spheres", add = TRUE)
-   acR <- sbstj$vertices[which.max(crv[ind]), ]
-   spheres3d(acR, radius = 3)
+   save(face, file = fls[i])
 }
 
 
