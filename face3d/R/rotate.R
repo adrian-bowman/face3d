@@ -12,8 +12,8 @@ translate.face3d <- function(shape, shift, exclude = NULL) {
     if (is.face3d(shape)) {
         ind        <- sapply(shape, function(x) is.matrix(x) && ncol(x) == 3)
         ind        <- which(ind)
-        exclude    <- c("triangles", exclude)
-        ind        <- ind[-match(exclude, names(ind))]
+        exclude    <- c("triangles", "normals", "directions", exclude)
+        ind        <- ind[-which(names(ind) %in% exclude)]
         shape[ind] <- lapply(shape[ind], translate.fn) 
     }
     else
@@ -24,36 +24,43 @@ translate.face3d <- function(shape, shift, exclude = NULL) {
 
 rotate.face3d <- function(shape, angle, raxis, centre = rep(0, 3), center,
                               landmarks = c("sn", "n", "exR", "exL"), rotation = "coronal",
-                              exclude = NULL) {
+                              exclude = NULL, exclude.centre = NULL, exclude.center) {
         
     if (!any(c("face3d", "matrix") %in% class(shape)))
         stop("shape must be a matrix or a face3d object.")
     if (!missing(center)) centre <- center
+    if (!missing(exclude.center)) exclude.centre <- exclude.center
     if (!is.null(exclude) && !is.character(exclude))
         stop("exclude must be a character vector")
-
+    if (!is.null(exclude.centre) && !is.character(exclude.centre))
+        stop("exclude.centre must be a character vector")
+    
     # Nominated angle
     if (!missing(angle)) {
         if (missing(raxis))
             stop("raxis must be specified when an angle is specified.")
         else if (is.face3d(shape)) {
-            ind     <- sapply(shape, function(x) is.matrix(x) && ncol(x) == 3)
-            ind     <- which(ind)
-            exclude <- c("triangles", exclude)
-            ind     <- ind[-match(exclude, names(ind))]
-            fn      <- function(x) {
-                x <- sweep(x, 2, centre)
+            ind       <- sapply(shape, function(x) is.matrix(x) && ncol(x) == 3)
+            ind       <- which(ind)
+            exclude   <- c("triangles", exclude)
+            ind       <- ind[-which(names(ind) %in% exclude)]
+            ex.centre <- c("normals", "directions", exclude.centre)
+            ex.centre <- (names(ind) %in% ex.centre)
+            fn <- function(x, flag) {
+                if (!flag) x <- sweep(x, 2, centre)
                 x <- rgl::rotate3d(x, angle, raxis[1] , raxis[2], raxis[3])
-                x <- sweep(x, 2, centre, "+")
+                if (!flag) x <- sweep(x, 2, centre, "+")
+                x
             }
-            shape[ind] <- lapply(shape[ind], fn) 
-        }
+            shape[ind[!ex.centre]] <- lapply(shape[ind[!ex.centre]], fn, FALSE)
+            shape[ind[ ex.centre]] <- lapply(shape[ind[ ex.centre]], fn, TRUE)
+         }
         else {
             shape <- sweep(shape, 2, centre)
             shape <- rgl::rotate3d(shape, angle, raxis[1], raxis[2], raxis[3])
             shape <- sweep(shape, 2, centre, "+")
         }
-        return(shape)
+        return(invisible(shape))
     }
     
     # Rotation to landmarks

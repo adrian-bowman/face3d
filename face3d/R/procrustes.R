@@ -267,7 +267,7 @@
   k      <- dim(LNDMS)[1]
   d      <- dim(LNDMS)[2]
   n      <- dim(LNDMS)[3]
-  ROT    <- rotate.face3d(MEAN.i, id.lndms, rotation = "coronal")
+  ROT    <- rotate.face3d(MEAN.i, landmarks = id.lndms, rotation = "coronal")
   MEAN.i <- ROT$ROT.shape
   angles <- as.numeric(ROT$angles)
   PSC.i.all.rot <- apply(PSC.i.all.rot, 3,  function(x){

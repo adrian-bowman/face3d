@@ -6,7 +6,7 @@ trimimage.face3d <- function(shape, lmks.vertical = c("sn", "n"),
    if (!all(c("lmks", "mesh") %in% names(shape)))
       stop("both lmks and a mesh are required in shape.")
    
-   shape <- rotate.face3d(shape, id.lndms = c(lmks.vertical, lmks.horizontal),
+   shape <- rotate.face3d(shape, landmarks = c(lmks.vertical, lmks.horizontal),
                          rotation = "coronal")
    ind <- shape$vertices[ , 3] > min(shape$mesh[ , 3])
    ind <- ind & (shape$vertices[ , 1] >= min(shape$mesh[ , 1]))

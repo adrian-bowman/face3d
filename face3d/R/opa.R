@@ -37,10 +37,10 @@ opa.face3d <- function(from, to, carry = from, scale = TRUE, weights, triangles,
       x <- sweep(x, 2, mn.to, "+")
    }
    if (is.face3d(carry)) {
-      ind     <- sapply(carry, function(x) is.matrix(x) && ncol(x) == 3)
-      ind     <- which(ind)
-      exclude <- c("triangles", exclude)
-      ind     <- ind[-match(exclude, names(ind))]
+      ind      <- sapply(carry, function(x) is.matrix(x) && ncol(x) == 3)
+      ind      <- which(ind)
+      exclude  <- c("triangles", "normals", "directions", exclude)
+      ind      <- ind[-which(names(ind) %in% exclude)]
       opa      <- carry
       opa[ind] <- lapply(opa[ind], opa.fn) 
    }

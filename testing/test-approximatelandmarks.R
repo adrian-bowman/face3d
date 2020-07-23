@@ -80,6 +80,8 @@ for (i in 81:length(fls)) {
    face$triples   <- NULL
    face           <- findac(face)
    face$landmarks
+   plot(face)
+   spheres3d(face$landmarks, col = "yellow")
    
    dst  <- c(rdist(t(face$landmarks["pn", ]), face$vertices))
    sbst <- subset(face, dst < 60)
