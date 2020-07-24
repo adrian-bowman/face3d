@@ -64,6 +64,7 @@ When the \code{directions} argument is set to \code{TRUE}, the following additio
 \item{directions}{the two principal directions and the normal direction at the points along the path.}
 \item{kappa1, kappa2, shape.index}{the value of \code{kappa1},\code{kappa2} ad \code{shape.index} at the points along the path.}
 \item{triangles}{when \code{x1} and \code{x2} are both specified, the triangles which lie along the path are returned.  Specifically, \code{triangles} is a matrix with 3 columns, with each row giving the indices of the points in \code{shape} which form the vertices of a particular triangle.  Note that these indices refer to points in the shape which was originally passed to the function, not in the subset shape returned by the function.}
+If, for any reason, a path cannot be identified, a message is printed to that effect and the returned value is \code{NULL}.
 }
 
 \examples{

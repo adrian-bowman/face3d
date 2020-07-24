@@ -21,8 +21,10 @@ fls <- fls[-61]       # eye ridge instead of pn
 landmark.names <- c("pn", "enL", "enR", "se")
 # landmark.names <- "none"
 # landmark.names <- "pn"
-dst <- matrix(NA, nrow = length(fls), ncol = 4, dimnames = list(NULL, landmark.names))
 
+# Find pn, se (and enL/R)
+
+dst <- matrix(NA, nrow = length(fls), ncol = 4, dimnames = list(NULL, landmark.names))
 for (i in 1:length(fls)) {
    cat(i, "")
    load(fls[i])
@@ -56,6 +58,8 @@ save(dst, file = "~/Desktop/discrepancies.Rda")
 # rownames(lmks.liberty) <- rownames(face$lmks)
 # save(lmks.liberty, file = "lmks-liberty.rda")
 
+# Find acL/R
+
 load("lmks-liberty.rda")
 lmks.liberty <- lmks.liberty[-match(c("tL", "tR", "oiL", "oiR"), rownames(lmks.liberty)), , ]
 landmark.names <- c("pn", "se", "acL", "acR")
@@ -68,11 +72,10 @@ tan     <- apply(sweep(gpa$aligned, 1:2, gpa$mean), 3, c)
 mnt     <- apply(tan, 1, mean)
 covt    <- cov(t(tan))
 
-i <- 81
-i <- 93
+i <- 36
 
 # Look at the curvature characteristics at acL and acR
-for (i in 1:length(fls)) {
+for (i in 37:length(fls)) {
    cat(i, "")
    load(fls[i])
    if ("coords" %in% names(face)) {
@@ -88,36 +91,25 @@ for (i in 1:length(fls)) {
       face$landmarks <- face$landmarks[-match(c("acL", "acR"), rnms), ]
    face           <- findac(face)
    face$landmarks
-   plot(face, new = TRUE)
-   spheres3d(face$landmarks, col = "yellow")
+   plot(face)
+   spheres3d(face$landmarks, col = "yellow", radius = 2)
    save(face, file = fls[i])
 }
 
-
-# Rotate around the pn-se axis to maximise the density at acL/R
-mn2    <- apply(mn[c("pn", "se"), ], 2, mean)
-plot(face)
-spheres3d(mn, col = "yellow", radius = 2)
-for (angle in seq(0, 2 * pi, length = 50)) {
-   mn3    <- sweep(mn,  2, mn2)
-   mn3    <- rotate3d(mn3, angle, a1[1] , a1[2], a1[3])
-   mn3    <- sweep(mn3, 2, mn2, "+")
-   # spheres3d(mn3, col = "yellow", radius = 2)
-   for (j in 1:n.lmks) {
-      ind    <- c(j, j + n.lmks, j + 2 * n.lmks)
-      covt.r <- rotate3d(covt[ind, ind], angle, raxis[1] , raxis[2], raxis[3])
-      rotmat <- rotationMatrix(angle, raxis[1] , raxis[2], raxis[3])[1:3, 1:3]
-      covt.r <- rotmat %*% covt[ind, ind] %*% t(rotmat)
-      plot3d(ellipse3d(covt.r, centre = mn3[j, ]),
-             col = "lightblue", alpha = 0.5, add = TRUE)
-   }
+# Inspect the results
+for (i in 1:length(fls)) {
+   cat(i, "")
+   load(fls[i])
+   plot(face)
+   spheres3d(face$landmarks, col = "yellow", radius = 2)
    scan()
-   for (j in 1:n.lmks) pop3d()
 }
+
 
 
 # Find the points on the face with largest prior density for acL/R
 dst <- rdist()
+
 
 
 # Check the curvature characteristics of each point (gc?)

@@ -488,7 +488,7 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
    if (criterion.min == Inf) {
       path.min <- NULL
       cat("A path cannot be identified.")
-      # return()
+      return(invisible(NULL))
    }
    result <- list(path = path.min, arclength = arclength, criterion = criterion.min,
                   pts1 = c(pts1), shape = shape, angle = angle.min, normal = normal)

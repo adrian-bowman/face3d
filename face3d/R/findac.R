@@ -7,10 +7,6 @@ findac <- function(face) {
    dst       <- c(rdist(t(mn2.image), face$vertices))
    sbst      <- subset(face, dst < 50)
    
-   plot(sbst)
-   spheres3d(face$landmarks, col = "blue",   radius = 2)
-   # spheres3d(sbst$lmks[landmark.names, ], col = "yellow", radius = 2)
-   
    # Move the image to match the mid-point of pn and se and the direction to se.
    mn2.popn       <- apply(mn.popn[c("pn", "se"), ], 2, mean)
    sbst           <- translate.face3d(sbst, mn2.popn - mn2.image)
@@ -40,15 +36,6 @@ findac <- function(face) {
    lmks <- sbst$vertices[ind.mat[ind, ], ]
    rownames(lmks) <- c("acL", "acR")
    sbst <- rotate.face3d(sbst, ang.vec[ind], raxis, mn2.popn)
-
-   plot(sbst)
-   spheres3d(sbst$landmarks[c("pn", "se"), ], col = "blue", radius = 2)
-   for (j in 1:n.lmks) {
-      ind    <- c(j, j + n.lmks, j + 2 * n.lmks)
-      plot3d(ellipse3d(covt[ind, ind], centre = mn.popn[j, ]),
-             col = "lightblue", alpha = 0.5, add = TRUE)
-   }
-   spheres3d(lmks, col = "yellow", radius = 2)
 
    # Find starting points for acL and acR.
    # Move the distribution to locate the highest density at the two (currently)
@@ -80,7 +67,6 @@ findac <- function(face) {
    sbst <- index.face3d(sbst, overwrite = TRUE, distance = 4,
                         subset = sbst$kappa2 > 0, extension = TRUE, directions = TRUE)
 
-   plot(sbst, col = "kappa1")
    plot(sbst, col = "kappa2")
    spheres3d(lmks, col = "yellow", radius = 2)
 
@@ -120,12 +106,16 @@ findac <- function(face) {
          pnse  <- (sbst1$landmarks["se", ] - sbst1$landmarks["pn", ])
          nrm   <- sbst1$normals[j, ]
          if ((acos(sum(drn * pnac) / sqrt(sum(pnac^2))) < pi / 4) &
-             (abs(acos(sum(nrm * pnac) / sqrt(sum(pnac^2))) - pi / 2) < pi / 4)) { 
+             (abs(acos(sum(nrm * pnac) / sqrt(sum(pnac^2))) - pi / 2) < pi / 4)) {
             path <- planepath.face3d(sbst2, ac, direction = drn, si.target = 1, rotation = 0)$path
-            cdst <- closestcurve.face3d(sbst2, path)
-            area <- area.face3d(sbst2)$points
-            ind  <- (cdst$closest.curvept != 1) & (abs(cdst$closest.distance) < 4) 
-            rdg  <- -sum(area[ind] * sbst2$kappa2[ind])
+            if (is.null(path)) 
+               rdg <- NA
+            else {
+               cdst <- closestcurve.face3d(sbst2, path)
+               area <- area.face3d(sbst2)$points
+               ind  <- (cdst$closest.curvept != 1) & (abs(cdst$closest.distance) < 4) 
+               rdg  <- -sum(area[ind] * sbst2$kappa2[ind])
+            }
          }
          else
             rdg <- NA
