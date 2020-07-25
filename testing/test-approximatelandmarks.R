@@ -72,10 +72,10 @@ tan     <- apply(sweep(gpa$aligned, 1:2, gpa$mean), 3, c)
 mnt     <- apply(tan, 1, mean)
 covt    <- cov(t(tan))
 
-i <- 36
+i <- 106
 
 # Look at the curvature characteristics at acL and acR
-for (i in 37:length(fls)) {
+for (i in 107:length(fls)) {
    cat(i, "")
    load(fls[i])
    if ("coords" %in% names(face)) {
