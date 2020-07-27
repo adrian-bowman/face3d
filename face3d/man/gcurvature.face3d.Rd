@@ -27,10 +27,10 @@ The points in \code{curve} are assumed to lie on the lines defining the triangul
 The function returns a list with the following components.
 \item{resampled.curve}{a matrix with three columns giving the co-ordinate positions of the points on the resampled curve.}
 \item{gcurvature}{a vector of estimated curvatures at each point on the resampled curve.}
-\item{arc.length}{a vector of arc length locations of each point on the resampled curve.}
+\item{arclength}{a vector of arc length locations of each point on the resampled curve.}
 \item{pos.localmax}{the 3-d positions of points which sit at local maxima of the curvature.}
 \item{ind.localmax}{a vector of the indices of the local maxima of the curvature.}
 \item{pos.max}{the 3-d position of the point on the curve where the curvature is largest.}
-\item{ind.localmax}{the index of the 3-d position of the point on the curve where the curvature is largest.}
+\item{ind.max}{the index of the 3-d position of the point on the curve where the curvature is largest.}
 \item{d2.x, d2.y, d2.z}{the second derivatives with respect to x, y and z along the curve.}
 }

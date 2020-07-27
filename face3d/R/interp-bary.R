@@ -1,4 +1,3 @@
-
 interp.barycentric <- function(X, f, Xnew) {
    # 2D barycentric interpolation at points Xnew of values f measured at locations X.
    # For each point in Xnew, tsearch identifies the surrounding triangle.

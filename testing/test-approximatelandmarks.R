@@ -107,39 +107,81 @@ for (i in 1:length(fls)) {
 
 
 
-# Find the points on the face with largest prior density for acL/R
-dst <- rdist()
-
-
-
-# Check the curvature characteristics of each point (gc?)
-
-dst  <- c(rdist(t(face$landmarks["pn", ]), face$coords))
-sbst <- subset(face, dst < 60)
-sbst$gc <- sbst$kappa1 * sbst$kappa2
-plot(sbst, col = "shape index")
-spheres3d(face$landmarks[c("pn", "se"), ], radius = 3, col = "yellow")
-plot(sbst, col = sbst$kappa1)
-spheres3d(face$landmarks[c("pn", "se"), ], radius = 3, col = "yellow")
-plot(sbst, col = sbst$kappa2)
-spheres3d(face$landmarks[c("pn", "se"), ], radius = 3, col = "yellow")
-plot(sbst, col = sbst$kappa1 * sbst$kappa2)
-spheres3d(face$landmarks[c("pn", "se"), ], radius = 3, col = "yellow")
-
-# se
-
 # Check the position of se in manual and approximate landmarks
-for (i in 81:length(fls)) {
+for (i in 114:length(fls)) {
+   cat(i, "")
    load(fls[i])
-   face$vertices  <- face$coords
-   face$coords    <- NULL
-   face$triangles <- matrix(face$triples, ncol = 3, byrow = TRUE)
-   face$triples   <- NULL
    plot(face)
-   spheres3d(face$landmarks, radius = 2, col = clr)
-   spheres3d(face$lmks, col = "yellow")
-   scan()
+   dst   <- c(rdist(t(face$landmarks["se", ]), face$vertices))
+   face  <- index.face3d(face, subset = dst < 20, distance = 10,
+                         directions = TRUE, overwrite = TRUE)
+   sbst0 <- subset(face, dst < 20)
+   sbst  <- subset(face, dst < 10)
+   
+   # plot(sbst, col = "shape index")
+   # plot(sbst, col = sbst$kappa1)
+   # plot(sbst, col = sbst$kappa2)
+   # plot(sbst, col = sbst$kappa1 * sbst$kappa2)
+   # plot(sbst, display = "direction 1", add = TRUE)
+   # plot(sbst, display = "direction 2", add = TRUE)
+   
+   nvert <- nrow(sbst$vertices)
+   crv1  <- numeric(0)
+   crv2  <- numeric(0)
+   pmax  <- matrix(nrow = 0, ncol = 3)
+   # edge  <- edges.face3d(sbst)
+   # dst   <- rdist(sbst$vertices, sbst$vertices[edge[[1]], ])
+   # dst   <- apply(dst, 1, min)
+   sbst0$directions <- NULL
+   for (j in 1:nvert) {
+      sbst1 <- sbst0
+      ppath <- planepath.face3d(sbst1, sbst$vertices[j, ], direction = sbst$directions[ , 1, j],
+                                rotation = 0, bothways = TRUE)
+      gcrv  <- gcurvature.face3d(ppath$path, 3)
+      jdst  <- c(rdist(t(sbst$vertices[j, ]), gcrv$resampled.curve))
+      jarc  <- which.min(jdst)
+      gcrvj <- gcrv$gcurvature[jarc]
+      # plot(gcrv$arclength, gcrv$gcurvature)
+      pmax  <- rbind(pmax, gcrv$pos.max)
+      crv1  <- c(crv1, gcrvj / gcrv$gcurvature[gcrv$ind.max])
+      ppath <- planepath.face3d(sbst1, sbst$vertices[j, ], direction = sbst$directions[ , 2, j],
+                                rotation = 0, bothways = TRUE)
+      gcrv  <- gcurvature.face3d(ppath$path, 3)
+      jdst  <- c(rdist(t(sbst$vertices[j, ]), gcrv$resampled.curve))
+      jarc  <- which.min(jdst)
+      gcrvj <- gcrv$gcurvature[jarc]
+      # plot(gcrv$arclength, gcrv$gcurvature)
+      pmax  <- rbind(pmax, gcrv$pos.max)
+      # crv2  <- c(crv2, gcrvj / gcrv$gcurvature[gcrv$ind.max])
+      crv2  <- c(crv2, gcrvj)
+   }
+   crv <- crv1 * crv2
+   dst <- c(rdist(t(face$landmarks["se", ]), sbst0$vertices))
+   plot(subset(sbst0, dst > 10))
+   plot(sbst, col = crv2, add = TRUE)
+   plot(sbst, display = "principal 1", add = TRUE)
+   spheres3d(face$landmarks["se", ], col = "red")
+   mode <- mode.face3d(sbst, crv, 5)$mode
+   # mode <- sbst$vertices[which.max(crv), ]
+   spheres3d(mode, col = "blue")
+   
+   ppath <- planepath.face3d(face, face$landmarks["pn", ], face$landmarks["se", ], si.target = 1)
+   plot(face)
+   spheres3d(ppath$path)
+   spath <- smoothpath.face3d(face, face$landmarks["pn", ], face$landmarks["se", ],
+                              penalty = 0.02, ppath = ppath, si.target = 1)
+   plot(face)
+   spheres3d(face$landmarks[c("se", "pn"), ], col = "red", radius = 2)
+   spheres3d(spath)
+    
+   plot(sbst, col = "kappa2")
+   plot(sbst, display = "principal 2", add = TRUE)
+   
+   snapshot3d(paste("~/Desktop/temp/temp_", i, ".png", sep = ""))
 }
+
+
+
 
 for (i in 1:length(fls)) {
    load(fls[i])

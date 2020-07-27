@@ -253,6 +253,7 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       gcrv   <- gcurvature.face3d(curve, 3)
       se     <- gcrv$pos.max
       
+      # Adjust to the point of maximum curvature on the ridge curve
       dst   <- rdist(t(se), face$vertices)
       sbst  <- subset(face, dst < 10)
       ppath <- planepath.face3d(sbst, se, direction = se - pn, rotation = 0,

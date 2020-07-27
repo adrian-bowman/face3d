@@ -59,7 +59,7 @@ plot.face3d <- function (shape, display = "surface", plot.isolated = TRUE,
       if (colour %in% names(shape)) colour <- shape[[colour]]
    }
   
-   if ("normals" %in% display) {
+   if ("normal" %in% display) {
       if (!("normals" %in% names(shape))) shape <- normals.face3d(shape)
       clr  <- if (length(colour) == 1 && is.character(colour) &&
                   !(substr(colour, 1, 7) %in% c("texture", "normal-"))) colour else "black"
@@ -68,12 +68,12 @@ plot.face3d <- function (shape, display = "surface", plot.isolated = TRUE,
       rgl::segments3d(crds, col = clr)
    }
   
-   if ("direction" %in% substr(display, 1, 9)) {
+   if ("principal" %in% substr(display, 1, 9)) {
       if (!("directions" %in% names(shape)))
-         stop("directions not present.  These can be computed by index.face3d with the argument 'directions = TRUE'.")
+         stop("principal directions not present.  These can be computed by index.face3d with the argument 'directions = TRUE'.")
       clr  <- if (length(colour) == 1 && is.character(colour) &&
                   !(substr(colour, 1, 7) %in% c("texture", "normal-"))) colour else "black"
-      display1 <- display[match("direction", substr(display, 1, 9))]
+      display1 <- display[match("principal", substr(display, 1, 9))]
       drn  <- substr(display1, nchar(display1), nchar(display1))
       if (!(drn %in% c("1", "2"))) stop("the final character of display should be '1' or '2'.")
       drn  <- as.numeric(drn)
