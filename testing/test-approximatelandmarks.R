@@ -106,6 +106,18 @@ for (i in 1:length(fls)) {
 }
 
 
+# Construct a likelihood function for se
+
+for (i in 1:length(fls)) {
+   cat(i, "")
+   load(fls[i])
+   lmk.initial <- face$landmarks["se", ]
+   face <- lmklik(face, "se", "pn", monitor = 0)
+   plot(face)
+   spheres3d(lmk.initial, radius = 2)
+   spheres3d(face$landmarks, col = "yellow", radius = 2)
+   snapshot3d(paste("~/Desktop/temp/temp_", i, ".png", sep = ""))
+}
 
 # Check the position of se in manual and approximate landmarks
 for (i in 114:length(fls)) {
