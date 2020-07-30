@@ -112,10 +112,14 @@ for (i in 1:length(fls)) {
    cat(i, "")
    load(fls[i])
    lmk.initial <- face$landmarks["se", ]
-   face <- lmklik(face, "se", "pn", monitor = 0)
+   patch <- lmklik(face, "se", "pn", monitor = 0)
+   face$landmarks["se", ] <- patch$landmark
    plot(face)
+   plot(patch$subset, display = "spheres", col = patch$subset$pattern, add = TRUE)
    spheres3d(lmk.initial, radius = 2)
-   spheres3d(face$landmarks, col = "yellow", radius = 2)
+   spheres3d(face$lmks["se", ], col = "blue", radius = 2)
+   spheres3d(face$landmarks["se", ], col = "red", radius = 2)
+   spheres3d(face$landmarks, col = "yellow", radius = 1.5)
    snapshot3d(paste("~/Desktop/temp/temp_", i, ".png", sep = ""))
 }
 
