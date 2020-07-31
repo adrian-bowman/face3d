@@ -89,7 +89,7 @@ for (i in 107:length(fls)) {
    rnms <- rownames(face$landmarks)
    if (all(c("acL", "acR") %in% rnms))
       face$landmarks <- face$landmarks[-match(c("acL", "acR"), rnms), ]
-   face           <- findac(face)
+   face <- findac(face)
    face$landmarks
    plot(face)
    spheres3d(face$landmarks, col = "yellow", radius = 2)
@@ -108,7 +108,7 @@ for (i in 1:length(fls)) {
 
 # Construct a likelihood function for se
 
-for (i in 1:length(fls)) {
+for (i in 62:length(fls)) {
    cat(i, "")
    load(fls[i])
    lmk.initial <- face$landmarks["se", ]

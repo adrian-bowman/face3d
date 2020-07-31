@@ -35,26 +35,29 @@ lmklik <- function(face, lmk.name, reflmk.name, monitor = 0) {
       sbst2$directions <- NULL
       path1   <- planepath.face3d(sbst2, lmk, direction = drn1, bothways = TRUE, rotation = 0)
       path2   <- planepath.face3d(sbst2, lmk, direction = drn2, bothways = TRUE, rotation = 0)
-      lmkarc  <- path1$arclength[which.min(c(rdist(t(lmk), path1$path)))]
-      gcrv    <- gcurvature.face3d(path1$path, 3)
-      gcrvlmk <- approx(gcrv$arclength, gcrv$gcurvature, lmkarc)$y
-      crv1    <- gcrvlmk / gcrv$gcurvature[gcrv$ind.max]
-      lmkarc  <- path2$arclength[which.min(c(rdist(t(lmk), path2$path)))]
-      gcrv    <- gcurvature.face3d(path2$path, 3)
-      gcrvlmk <- approx(gcrv$arclength, gcrv$gcurvature, lmkarc)$y
-      crv2    <- gcrvlmk / gcrv$gcurvature[gcrv$ind.max]
-      # if (!is.null(path)) {
-      #    cdst <- closestcurve.face3d(sbst1, path)
-      #    area <- sbst1$area
-      #    ind  <- (cdst$closest.curvept != 1) & (abs(cdst$closest.distance) < 4) 
-      #    rdg  <- -sum(area[ind] * sbst1$kappa2[ind])
-      # }
-      # else
-      #    rdg <- NA
-      # crv  <- c(crv, sbst$kappa1[j] * rdg)
-      # crv   <- c(crv, -sbst$kappa1[j] * sbst$kappa2[j])
-      
-      crv   <- c(crv, crv1 * crv2)
+      if (!is.null(path1) & !is.null(path2)) {
+         lmkarc  <- path1$arclength[which.min(c(rdist(t(lmk), path1$path)))]
+         gcrv    <- gcurvature.face3d(path1$path, 3)
+         gcrvlmk <- approx(gcrv$arclength, gcrv$gcurvature, lmkarc, ties = median)$y
+         crv1    <- gcrvlmk / gcrv$gcurvature[gcrv$ind.max]
+         lmkarc  <- path2$arclength[which.min(c(rdist(t(lmk), path2$path)))]
+         gcrv    <- gcurvature.face3d(path2$path, 3)
+         gcrvlmk <- approx(gcrv$arclength, gcrv$gcurvature, lmkarc, ties = median)$y
+         crv2    <- gcrvlmk / gcrv$gcurvature[gcrv$ind.max]
+         # if (!is.null(path)) {
+         #    cdst <- closestcurve.face3d(sbst1, path)
+         #    area <- sbst1$area
+         #    ind  <- (cdst$closest.curvept != 1) & (abs(cdst$closest.distance) < 4) 
+         #    rdg  <- -sum(area[ind] * sbst1$kappa2[ind])
+         # }
+         # else
+         #    rdg <- NA
+         # crv  <- c(crv, sbst$kappa1[j] * rdg)
+         # crv   <- c(crv, -sbst$kappa1[j] * sbst$kappa2[j])
+         crv   <- c(crv, crv1 * crv2)
+      }
+      else
+         crv <- c(crv, NA)
       
       if (monitor > 1) {
          spheres3d(path1$path)

@@ -1,6 +1,6 @@
 #     Search for text in all files
 
-target <- "rotate.face3d"
+target <- "splinefun"
 diry   <- "."
 diry   <- "~/OneDrive - University of Glasgow/research/face3d/"
 diry   <- "~/OneDrive - University of Glasgow/research/face3d/face3d/R"
