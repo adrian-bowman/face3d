@@ -100,7 +100,7 @@ for (i in 107:length(fls)) {
 for (i in 1:length(fls)) {
    cat(i, "")
    load(fls[i])
-   plot(face)
+   plot(face, col = "kappa2")
    spheres3d(face$landmarks, col = "yellow", radius = 2)
    scan()
 }

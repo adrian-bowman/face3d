@@ -66,7 +66,7 @@ findac <- function(face) {
    sbst <- index.face3d(sbst, distance = 10, overwrite = TRUE, directions = TRUE)
    sbst <- index.face3d(sbst, overwrite = TRUE, distance = 4,
                         subset = sbst$kappa2 > 0, extension = TRUE, directions = TRUE)
-
+   
    plot(sbst, col = "kappa2")
    spheres3d(lmks, col = "yellow", radius = 2)
 
@@ -80,6 +80,13 @@ findac <- function(face) {
       dst1 <- rdist(t(sbst$landmarks["pn", ]), rbind(ac, ac + drn))
       if (dst1[2] > dst1[1]) drn <- -drn
       sbst1 <- subset(sbst, dst < 10)
+      
+      sbst0 <- subset(sbst, dst < 20 & sbst$kappa2 < 0)
+      wts   <- sbst0$kappa2 / sum(sbst0$kappa2)
+      vec   <- apply(sbst0$directions[ , 1, ], 1, function(x) sum(x * wts))
+      vec   <- vec / sqrt(sum(vec^2))
+      # spheres3d(ac, radius = 5)
+      # lines3d(rbind(ac + 10 * vec, ac - 10 * vec))
 
       # lines3d(rbind(acR, acR + 5 * drn))
       # plot(sbst, col = sbst$kappa2)
@@ -98,15 +105,16 @@ findac <- function(face) {
          ac    <- sbst1$vertices[j, ]
          dst   <- c(rdist(t(ac), sbst$vertices))
          sbst2 <- subset(sbst, dst < 10)
-         drn   <- sbst1$directions[ , 1, j]
+         # drn   <- sbst1$directions[ , 1, j]
+         drn   <- vec
          # dst1  <- rdist(t(sbst1$lmks["pn", ]), rbind(acR, acR + drn))
          dst1  <- rdist(t(sbst1$landmarks["pn", ]), rbind(ac, ac + drn))
          if (dst1[2] > dst1[1]) drn <- -drn
          pnac  <- (sbst1$landmarks["pn", ] - ac)
          pnse  <- (sbst1$landmarks["se", ] - sbst1$landmarks["pn", ])
          nrm   <- sbst1$normals[j, ]
-         if ((acos(sum(drn * pnac) / sqrt(sum(pnac^2))) < pi / 4) &
-             (abs(acos(sum(nrm * pnac) / sqrt(sum(pnac^2))) - pi / 2) < pi / 4)) {
+         # if ((acos(sum(drn * pnac) / sqrt(sum(pnac^2))) < pi / 4) &
+         #     (abs(acos(sum(nrm * pnac) / sqrt(sum(pnac^2))) - pi / 2) < pi / 4)) {
             path <- planepath.face3d(sbst2, ac, direction = drn, si.target = 1, rotation = 0)$path
             if (is.null(path)) 
                rdg <- NA
@@ -116,9 +124,10 @@ findac <- function(face) {
                ind  <- (cdst$closest.curvept != 1) & (abs(cdst$closest.distance) < 4) 
                rdg  <- -sum(area[ind] * sbst2$kappa2[ind])
             }
-         }
-         else
-            rdg <- NA
+         # }
+         # else
+         #    rdg <- NA
+            
          # ind1   <- ind & (cdst$closest.distance > 0)
          # ind2   <- ind & (cdst$closest.distance < 0)
          # rdg    <- sum(area[ind1] * sbst2$kappa2[ind1]) - sum(area[ind2] * sbst2$kappa2[ind2])
