@@ -89,7 +89,7 @@ for (i in 107:length(fls)) {
    rnms <- rownames(face$landmarks)
    if (all(c("acL", "acR") %in% rnms))
       face$landmarks <- face$landmarks[-match(c("acL", "acR"), rnms), ]
-   face <- findac(face)
+   face <- findac(face, monitor = 3)
    face$landmarks
    plot(face)
    spheres3d(face$landmarks, col = "yellow", radius = 2)

@@ -1,6 +1,6 @@
 # Find acL/R from pn and se
 
-findac <- function(face) {
+findac <- function(face, monitor = 0) {
    
    # Subset to area around the nose
    mn2.image <- apply(face$landmarks[c("pn", "se"), ], 2, mean)
@@ -108,8 +108,8 @@ findac <- function(face) {
          ac    <- sbst1$vertices[j, ]
          dst   <- c(rdist(t(ac), sbst$vertices))
          sbst2 <- subset(sbst, dst < 10)
-         # drn   <- sbst1$directions[ , 1, j]
-         drn   <- vec
+         drn   <- sbst1$directions[ , 1, j]
+         # drn   <- vec
          # dst1  <- rdist(t(sbst1$lmks["pn", ]), rbind(acR, acR + drn))
          dst1  <- rdist(t(sbst1$landmarks["pn", ]), rbind(ac, ac + drn))
          if (dst1[2] > dst1[1]) drn <- -drn
@@ -118,22 +118,24 @@ findac <- function(face) {
          nrm   <- sbst1$normals[j, ]
          # if ((acos(sum(drn * pnac) / sqrt(sum(pnac^2))) < pi / 4) &
          #     (abs(acos(sum(nrm * pnac) / sqrt(sum(pnac^2))) - pi / 2) < pi / 4)) {
-         print(drn)
-            path <- planepath.face3d(sbst2, ac, direction = drn, si.target = 1, rotation = 0)$path
+            path <- planepath.face3d(sbst2, ac, direction = drn, directions = TRUE, rotation = 0)
             if (is.null(path)) 
                rdg <- NA
             else {
-               cdst <- closestcurve.face3d(sbst2, path)
+               cdst <- closestcurve.face3d(sbst2, path$path)
                area <- area.face3d(sbst2)$points
-               ind  <- (cdst$closest.curvept != 1) & (abs(cdst$closest.distance) < 4) 
-               rdg  <- -sum(area[ind] * sbst2$kappa2[ind])
+               ind  <- (cdst$closest.curvept != 1) & (abs(cdst$closest.distance) < 4)
+               # ang  <- abs(apply(t(sbst2$directions[ , 2, ind]) * sbst1$directions[ , 2, j], 1, sum))
+               ang  <- sum(c(t(path$directions[ , 2, ]) %*% sbst1$directions[ , 1, j]))
+               rdg  <- -sum(area[ind] * sbst2$kappa2[ind]) * ang
                
-               if (j != jlst[1]) for (jj in 1:2) pop3d()
-               spheres3d(path)
-               spheres3d(ac, col = "yellow", radius = 2)
-               # spheres3d(sbst1$vertices[ind, ], col = "yellow", radius = 0.5)
-               invisible(readline(prompt = " Press [enter] to continue"))
-               
+               if (monitor > 2) {
+                  if (j != jlst[1]) for (jj in 1:2) pop3d()
+                  spheres3d(path)
+                  spheres3d(ac, col = "yellow", radius = 2)
+                  # spheres3d(sbst1$vertices[ind, ], col = "yellow", radius = 0.5)
+                  invisible(readline(prompt = " Press [enter] to continue"))
+               }
             }
          # }
          # else
@@ -142,6 +144,7 @@ findac <- function(face) {
          # ind1   <- ind & (cdst$closest.distance > 0)
          # ind2   <- ind & (cdst$closest.distance < 0)
          # rdg    <- sum(area[ind1] * sbst2$kappa2[ind1]) - sum(area[ind2] * sbst2$kappa2[ind2])
+         # print(c(sbst1$kappa1[j], rdg, sbst1$kappa1[j] * rdg))
          crv  <- c(crv, sbst1$kappa1[j] * rdg)
       }
    
