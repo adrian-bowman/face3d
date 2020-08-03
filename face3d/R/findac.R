@@ -68,6 +68,7 @@ findac <- function(face) {
                         subset = sbst$kappa2 > 0, extension = TRUE, directions = TRUE)
    
    plot(sbst, col = "kappa2")
+   plot(sbst, display = "principal 1", add = TRUE)
    spheres3d(lmks, col = "yellow", radius = 2)
 
    for (ac.nm in c("acL", "acR")) {
@@ -85,6 +86,8 @@ findac <- function(face) {
       wts   <- sbst0$kappa2 / sum(sbst0$kappa2)
       vec   <- apply(sbst0$directions[ , 1, ], 1, function(x) sum(x * wts))
       vec   <- vec / sqrt(sum(vec^2))
+      lines3d(rbind(ac + 10 * vec, ac - 10 * vec))
+
       # spheres3d(ac, radius = 5)
       # lines3d(rbind(ac + 10 * vec, ac - 10 * vec))
 
@@ -115,6 +118,7 @@ findac <- function(face) {
          nrm   <- sbst1$normals[j, ]
          # if ((acos(sum(drn * pnac) / sqrt(sum(pnac^2))) < pi / 4) &
          #     (abs(acos(sum(nrm * pnac) / sqrt(sum(pnac^2))) - pi / 2) < pi / 4)) {
+         print(drn)
             path <- planepath.face3d(sbst2, ac, direction = drn, si.target = 1, rotation = 0)$path
             if (is.null(path)) 
                rdg <- NA
@@ -123,6 +127,13 @@ findac <- function(face) {
                area <- area.face3d(sbst2)$points
                ind  <- (cdst$closest.curvept != 1) & (abs(cdst$closest.distance) < 4) 
                rdg  <- -sum(area[ind] * sbst2$kappa2[ind])
+               
+               if (j != jlst[1]) for (jj in 1:2) pop3d()
+               spheres3d(path)
+               spheres3d(ac, col = "yellow", radius = 2)
+               # spheres3d(sbst1$vertices[ind, ], col = "yellow", radius = 0.5)
+               invisible(readline(prompt = " Press [enter] to continue"))
+               
             }
          # }
          # else
@@ -143,6 +154,7 @@ findac <- function(face) {
    
       plot(sbstj, col = crv[ind], display = "spheres", add = TRUE)
       spheres3d(ac, radius = 3)
+      stop()
    }
 
    return(invisible(sbst))
