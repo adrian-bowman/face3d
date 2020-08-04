@@ -81,7 +81,7 @@ findac <- function(face, monitor = 0) {
       dst1 <- rdist(t(sbst$landmarks["pn", ]), rbind(ac, ac + drn))
       if (dst1[2] > dst1[1]) drn <- -drn
       sbst1 <- subset(sbst, dst < 10)
-      
+
       sbst0 <- subset(sbst, dst < 20 & sbst$kappa2 < 0)
       wts   <- sbst0$kappa2 / sum(sbst0$kappa2)
       vec   <- apply(sbst0$directions[ , 1, ], 1, function(x) sum(x * wts))
@@ -126,12 +126,12 @@ findac <- function(face, monitor = 0) {
                area <- area.face3d(sbst2)$points
                ind  <- (cdst$closest.curvept != 1) & (abs(cdst$closest.distance) < 4)
                # ang  <- abs(apply(t(sbst2$directions[ , 2, ind]) * sbst1$directions[ , 2, j], 1, sum))
-               ang  <- sum(c(t(path$directions[ , 2, ]) %*% sbst1$directions[ , 1, j]))
+               ang  <- sum(c(t(path$directions[ , 2, -1]) %*% sbst1$directions[ , 2, j]))
                rdg  <- -sum(area[ind] * sbst2$kappa2[ind]) * ang
                
                if (monitor > 2) {
                   if (j != jlst[1]) for (jj in 1:2) pop3d()
-                  spheres3d(path)
+                  spheres3d(path$path)
                   spheres3d(ac, col = "yellow", radius = 2)
                   # spheres3d(sbst1$vertices[ind, ], col = "yellow", radius = 0.5)
                   invisible(readline(prompt = " Press [enter] to continue"))
@@ -157,7 +157,6 @@ findac <- function(face, monitor = 0) {
    
       plot(sbstj, col = crv[ind], display = "spheres", add = TRUE)
       spheres3d(ac, radius = 3)
-      stop()
    }
 
    return(invisible(sbst))
