@@ -126,14 +126,16 @@ findac <- function(face, monitor = 0) {
                area <- area.face3d(sbst2)$points
                ind  <- (cdst$closest.curvept != 1) & (abs(cdst$closest.distance) < 4)
                # ang  <- abs(apply(t(sbst2$directions[ , 2, ind]) * sbst1$directions[ , 2, j], 1, sum))
-               ang  <- abs(sum(c(t(path$directions[ , 2, -1]) %*% sbst1$directions[ , 2, j])))
+               ang  <- abs(mean(c(t(path$directions[ , 2, -1]) %*% sbst1$directions[ , 2, j])))
                rdg  <- -sum(area[ind] * sbst2$kappa2[ind])
                
-               if (monitor > 2) {
-                  if (j != jlst[1]) for (jj in 1:2) pop3d()
+               if (monitor > 2 & ac.nm == "acR") {
+                  if (j != jlst[1]) for (jj in 1:3) pop3d()
                   spheres3d(path$path)
                   spheres3d(ac, col = "yellow", radius = 2)
-                  # spheres3d(sbst1$vertices[ind, ], col = "yellow", radius = 0.5)
+                  spheres3d(sbst2$vertices[ind, ], col = "yellow", radius = 0.5)
+                  print(j)
+                  print(sbst1$kappa1[j] * rdg * ang)
                   invisible(readline(prompt = " Press [enter] to continue"))
                }
             }
@@ -144,7 +146,17 @@ findac <- function(face, monitor = 0) {
          # ind1   <- ind & (cdst$closest.distance > 0)
          # ind2   <- ind & (cdst$closest.distance < 0)
          # rdg    <- sum(area[ind1] * sbst2$kappa2[ind1]) - sum(area[ind2] * sbst2$kappa2[ind2])
-         print(c(sbst1$kappa1[j], rdg , ang, sbst1$kappa1[j] * rdg * ang))
+
+         # if (j %in% c(29, 82)) {
+         if (sbst1$kappa1[j] * rdg * ang > 1) {
+         #    print(j)
+            cat(j, sbst1$kappa1[j], rdg , ang, sbst1$kappa1[j] * rdg * ang, "\n")
+         #    print(dim(path$path))
+         #    angs <- c(t(path$directions[ , 2, -1]) %*% sbst1$directions[ , 2, j])
+         #    boxplot(abs(angs))
+         #    print(length(angs))
+         #    if (j == 82) stop()
+         }
          crv  <- c(crv, sbst1$kappa1[j] * rdg * ang)
       }
    
