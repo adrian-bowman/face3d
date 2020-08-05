@@ -113,9 +113,9 @@ findac <- function(face, monitor = 0) {
          # dst1  <- rdist(t(sbst1$lmks["pn", ]), rbind(acR, acR + drn))
          dst1  <- rdist(t(sbst1$landmarks["pn", ]), rbind(ac, ac + drn))
          if (dst1[2] > dst1[1]) drn <- -drn
-         pnac  <- (sbst1$landmarks["pn", ] - ac)
-         pnse  <- (sbst1$landmarks["se", ] - sbst1$landmarks["pn", ])
-         nrm   <- sbst1$normals[j, ]
+         # pnac  <- (sbst1$landmarks["pn", ] - ac)
+         # pnse  <- (sbst1$landmarks["se", ] - sbst1$landmarks["pn", ])
+         # nrm   <- sbst1$normals[j, ]
          # if ((acos(sum(drn * pnac) / sqrt(sum(pnac^2))) < pi / 4) &
          #     (abs(acos(sum(nrm * pnac) / sqrt(sum(pnac^2))) - pi / 2) < pi / 4)) {
             path <- planepath.face3d(sbst2, ac, direction = drn, directions = TRUE, rotation = 0)
@@ -126,8 +126,8 @@ findac <- function(face, monitor = 0) {
                area <- area.face3d(sbst2)$points
                ind  <- (cdst$closest.curvept != 1) & (abs(cdst$closest.distance) < 4)
                # ang  <- abs(apply(t(sbst2$directions[ , 2, ind]) * sbst1$directions[ , 2, j], 1, sum))
-               ang  <- sum(c(t(path$directions[ , 2, -1]) %*% sbst1$directions[ , 2, j]))
-               rdg  <- -sum(area[ind] * sbst2$kappa2[ind]) * ang
+               ang  <- abs(sum(c(t(path$directions[ , 2, -1]) %*% sbst1$directions[ , 2, j])))
+               rdg  <- -sum(area[ind] * sbst2$kappa2[ind])
                
                if (monitor > 2) {
                   if (j != jlst[1]) for (jj in 1:2) pop3d()
@@ -144,8 +144,8 @@ findac <- function(face, monitor = 0) {
          # ind1   <- ind & (cdst$closest.distance > 0)
          # ind2   <- ind & (cdst$closest.distance < 0)
          # rdg    <- sum(area[ind1] * sbst2$kappa2[ind1]) - sum(area[ind2] * sbst2$kappa2[ind2])
-         # print(c(sbst1$kappa1[j], rdg, sbst1$kappa1[j] * rdg))
-         crv  <- c(crv, sbst1$kappa1[j] * rdg)
+         print(c(sbst1$kappa1[j], rdg , ang, sbst1$kappa1[j] * rdg * ang))
+         crv  <- c(crv, sbst1$kappa1[j] * rdg * ang)
       }
    
       ind   <- which(!is.na(crv))
