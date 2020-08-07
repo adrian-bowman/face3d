@@ -5,6 +5,18 @@ install.packages("~/OneDrive - University of Glasgow/research/face3d_0.1-1/face3
 library(face3d)
 library(rgl)
 
+# Interpolate the principal directions and normals
+dst   <- rdist(t(template_male$landmarks["pn", ]), template_male$vertices)
+nose  <- subset(template_male, dst < 30)
+ppath <- planepath.face3d(nose, nose$landmarks["pn", ], nose$landmarks["acL", ],
+                          si.target = 1, directions = TRUE)
+plot(nose)
+spheres3d(ppath$path, radius = 0.1)
+dm <- 3
+segs <- rbind(t(ppath$path) + 5 * ppath$directions[ , dm, ],
+              t(ppath$path) - 5 * ppath$directions[ , dm, ])
+segments3d(matrix(c(segs), ncol = 3, byrow = TRUE), col = "blue")
+
 # Dealing with points on the edges
 
 load("nose.Rda")

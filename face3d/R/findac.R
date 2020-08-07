@@ -70,23 +70,24 @@ findac <- function(face, monitor = 0) {
    plot(sbst, col = "kappa2")
    plot(sbst, display = "principal 1", add = TRUE)
    spheres3d(lmks, col = "yellow", radius = 2)
+   
+   results <- matrix(nrow = 0, ncol = 6)
 
    for (ac.nm in c("acL", "acR")) {
       
-      dst  <- c(rdist(t(lmks[ac.nm, ]), sbst$vertices))
-      ind  <- which.min(dst)
-      ac   <- sbst$vertices[ind, ]
-      # spheres3d(acR, col = "red", radius = 2)
-      drn  <- sbst$directions[ , 1, ind]
-      dst1 <- rdist(t(sbst$landmarks["pn", ]), rbind(ac, ac + drn))
-      if (dst1[2] > dst1[1]) drn <- -drn
+      dst   <- c(rdist(t(lmks[ac.nm, ]), sbst$vertices))
+      ind   <- which.min(dst)
+      ac    <- sbst$vertices[ind, ]
       sbst1 <- subset(sbst, dst < 10)
+      # drn  <- sbst$directions[ , 1, ind]
+      # dst1 <- rdist(t(sbst$landmarks["pn", ]), rbind(ac, ac + drn))
+      # if (dst1[2] > dst1[1]) drn <- -drn
 
-      sbst0 <- subset(sbst, dst < 20 & sbst$kappa2 < 0)
-      wts   <- sbst0$kappa2 / sum(sbst0$kappa2)
-      vec   <- apply(sbst0$directions[ , 1, ], 1, function(x) sum(x * wts))
-      vec   <- vec / sqrt(sum(vec^2))
-      lines3d(rbind(ac + 10 * vec, ac - 10 * vec))
+      # sbst0 <- subset(sbst, dst < 20 & sbst$kappa2 < 0)
+      # wts   <- sbst0$kappa2 / sum(sbst0$kappa2)
+      # vec   <- apply(sbst0$directions[ , 1, ], 1, function(x) sum(x * wts))
+      # vec   <- vec / sqrt(sum(vec^2))
+      # lines3d(rbind(ac + 10 * vec, ac - 10 * vec))
 
       # spheres3d(ac, radius = 5)
       # lines3d(rbind(ac + 10 * vec, ac - 10 * vec))
@@ -102,12 +103,14 @@ findac <- function(face, monitor = 0) {
       # plot(sbst1, col = "kappa1")
       # plot(sbst1, col = "kappa2")
    
-      jlst <- which(sbst1$kappa1 > quantile(sbst1$kappa1, 0.5))
-      crv  <- numeric(0)
+      jlst  <- which(sbst1$kappa1 > quantile(sbst1$kappa1, 0.5))
+      crv   <- numeric(0)
+      first <- TRUE
       for (j in jlst) {
          ac    <- sbst1$vertices[j, ]
          dst   <- c(rdist(t(ac), sbst$vertices))
          sbst2 <- subset(sbst, dst < 10)
+         # Set the ppath diretion, making sure we are heading towards the nose tip.
          drn   <- sbst1$directions[ , 1, j]
          # drn   <- vec
          # dst1  <- rdist(t(sbst1$lmks["pn", ]), rbind(acR, acR + drn))
@@ -130,14 +133,23 @@ findac <- function(face, monitor = 0) {
                area <- area.face3d(sbst2)$points
                rdg  <- -sum(area[ind] * sbst2$kappa2[ind])
                # ang  <- abs(apply(t(sbst2$directions[ , 2, ind]) * sbst1$directions[ , 2, j], 1, sum))
-               ang  <- abs(mean(c(t(path$directions[ , 2, -1]) %*% sbst1$directions[ , 2, j])))
+               ang1 <- mean(abs(c(t(path$directions[ , 2, -1]) %*% sbst1$directions[ , 2, j])))
+               ang  <- exp(-(acos(ang1)^2 / 0.3))
 
-               if (monitor > 2 & sbst1$kappa1[j] * rdg * ang > 4) {
+               if (monitor > 2 & ac.nm == "acR" & sbst1$kappa1[j] * rdg * ang > 0.4) {
+                  print(range(apply(t(path$directions[ , 2, -1]), 1, function(x) sum(x^2))))
+                  print(sum(sbst1$directions[ , 2, j]^2))
+                  cat(ang1, acos(ang1), ang, "\n")
                   cat(j, sbst1$kappa1[j], rdg , ang, sbst1$kappa1[j] * rdg * ang, "\n")
-                  if (j != jlst[1]) for (jj in 1:3) pop3d()
+                  if (!first) for (jj in 1:5) pop3d()
                   spheres3d(path$path)
                   spheres3d(ac, col = "yellow", radius = 2)
                   spheres3d(sbst2$vertices[ind, ], col = "yellow", radius = 0.5)
+                  vec1 <- apply(t(path$directions[ , 2, -1]), 2, mean)
+                  vec2 <- sbst1$directions[ , 2, j]
+                  lines3d(rbind(ac + 10 * vec1, ac - 10 * vec1), col = "yellow")
+                  lines3d(rbind(ac + 10 * vec2, ac - 10 * vec2), col = "red")
+                  first <- FALSE
                   invisible(readline(prompt = " Press [enter] to continue"))
                }
             }
@@ -159,6 +171,7 @@ findac <- function(face, monitor = 0) {
          #    print(length(angs))
          #    if (j == 82) stop()
          # }
+         results <- rbind(results, c(ac, sbst1$kappa1[j], rdg , ang1))
          crv  <- c(crv, sbst1$kappa1[j] * rdg * ang)
       }
    
@@ -175,5 +188,6 @@ findac <- function(face, monitor = 0) {
       spheres3d(ac, radius = 3)
    }
 
-   return(invisible(sbst))
+   return(invisible(list(sbst = sbst, results = results)))
+   # return(invisible(sbst))
 }

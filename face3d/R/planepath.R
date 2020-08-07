@@ -206,7 +206,9 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
       cvals <- (1 - wts) * values[edges[ , 1]] + wts  * values[edges[ , 2]]
    if ("directions" %in% names(shape)) {
       drns  <- sweep(shape$directions[ , , edges[ , 1]], 3, 1 - wts, "*") + 
-               sweep(shape$directions[ , , edges[ , 1]], 3,     wts, "*")
+               sweep(shape$directions[ , , edges[ , 2]], 3,     wts, "*")
+      lngth <- apply(drns, 2:3, function(x) sqrt(sum(x^2)))
+      drns  <- sweep(drns, 2:3, lngth, "/")
       kp1   <- (1 - wts) * shape$kappa1[edges[ , 1]] + wts  * shape$kappa1[edges[ , 2]]
       kp2   <- (1 - wts) * shape$kappa2[edges[ , 1]] + wts  * shape$kappa2[edges[ , 2]]
    }
@@ -405,7 +407,7 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
             dm        <- dim(drns)
             drns1     <- array(dim = c(dm[1:2], length(ind) + 2 + abs(ind4 - ind3)))
             drns1[ , , 1:length(ind)] <- drns[ , , ind]
-            drns1[ , , length(ind) + 2 + 0:(ind4-ind3)] <- drns[ , , ind3:ind4]
+            drns1[ , , length(ind) + 2 + 0:(ind4 - ind3)] <- drns[ , , ind3:ind4]
             drns      <- drns1
             kp1       <- kp1[ind5]
             kp2       <- kp2[ind5]

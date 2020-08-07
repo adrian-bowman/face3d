@@ -9,6 +9,7 @@ library(fields)
 library(geometry)
 library(shapes)
 library(MASS)
+library(colorspace)
 
 # Test on controls
 
@@ -89,7 +90,18 @@ for (i in 107:length(fls)) {
    rnms <- rownames(face$landmarks)
    if (all(c("acL", "acR") %in% rnms))
       face$landmarks <- face$landmarks[-match(c("acL", "acR"), rnms), ]
-   face <- findac(face, monitor = 3)
+   results <- findac(face, monitor = 1)
+
+   val  <- results$results[ , 4]
+   val  <- results$results[ , 5]
+   val  <- results$results[ , 6]
+   val  <- results$results[ , 4] * results$results[ , 5] * results$results[ , 6]
+   brks <- seq(-max(abs(val)), max(abs(val)), length = 20)
+   clr  <- colorspace::diverge_hcl(19)[cut(val, brks, labels = FALSE)]
+   plot(results$sbst)
+   plot(results$sbst, display = "principal 2", add = TRUE)
+   spheres3d(results$results[ , 1:3], col = clr)
+   
    face$landmarks
    plot(face)
    spheres3d(face$landmarks, col = "yellow", radius = 2)
