@@ -76,7 +76,7 @@ covt    <- cov(t(tan))
 i <- 106
 
 # Look at the curvature characteristics at acL and acR
-for (i in 107:length(fls)) {
+for (i in 1:length(fls)) {
    cat(i, "")
    load(fls[i])
    if ("coords" %in% names(face)) {
@@ -92,20 +92,20 @@ for (i in 107:length(fls)) {
       face$landmarks <- face$landmarks[-match(c("acL", "acR"), rnms), ]
    results <- findac(face, monitor = 1)
 
-   val  <- results$results[ , 4]
-   val  <- results$results[ , 5]
-   val  <- results$results[ , 6]
-   val  <- results$results[ , 4] * results$results[ , 5] * results$results[ , 6]
-   brks <- seq(-max(abs(val)), max(abs(val)), length = 20)
-   clr  <- colorspace::diverge_hcl(19)[cut(val, brks, labels = FALSE)]
-   plot(results$sbst)
-   plot(results$sbst, display = "principal 2", add = TRUE)
-   spheres3d(results$results[ , 1:3], col = clr)
+   # val  <- results$results[ , 4]
+   # val  <- results$results[ , 5]
+   # val  <- results$results[ , 6]
+   # val  <- results$results[ , 4] * results$results[ , 5] * results$results[ , 6]
+   # brks <- seq(-max(abs(val)), max(abs(val)), length = 20)
+   # clr  <- colorspace::diverge_hcl(19)[cut(val, brks, labels = FALSE)]
+   # plot(results$sbst)
+   # plot(results$sbst, display = "principal 2", add = TRUE)
+   # spheres3d(results$results[ , 1:3], col = clr)
    
-   face$landmarks
    plot(face)
-   spheres3d(face$landmarks, col = "yellow", radius = 2)
-   save(face, file = fls[i])
+   spheres3d(results$sbst$landmarks, col = "yellow", radius = 2)
+   # save(face, file = fls[i])
+   snapshot3d(paste("~/Desktop/temp/temp_", i, ".png", sep = ""))
 }
 
 # Inspect the results
