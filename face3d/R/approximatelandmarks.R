@@ -76,7 +76,7 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
    if ("pn" %in% landmark.names) {
       
       if (monitor == 1) cat(" ... pn ...")
-      if (monitor > 1)  cat(":\n  pn: main area of positive shape index ... ")
+      if (monitor > 1)  cat(":\n  pn: main convex area  ... ")
       
       parts.pos <- connected.face3d(sbst.pos)
       parts.neg <- connected.face3d(sbst.neg)
@@ -138,7 +138,7 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
             invisible(readline(prompt = "      Press [enter] to continue"))
             cat("      ")
          }
-         cat("recompute curvatures with a smaller distance ...")
+         cat("recompute ...")
       }
       
       # Refine the estimate by computing shape index with a smaller value of distance
@@ -152,6 +152,15 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       ind          <- (sbst$kappa1 > 0) & (sbst$kappa2 > 0)
       crv[ind]     <- -crv[ind]
       lmks["pn", ] <- mode.face3d(sbst, crv, 10)$mode
+      
+      # Store the local region and curvature values
+      dst          <- c(rdist(t(lmks["pn", ]), face$vertices))
+      sbst         <- subset(face, dst < 10, retain.indices = TRUE)
+      crv          <- sbst$kappa1 * sbst$kappa2
+      ind          <- (sbst$kappa1 > 0) & (sbst$kappa2 > 0)
+      crv[ind]     <- -crv[ind]
+      face$pn.crv  <- crv
+      face$pn.ind  <- sbst$subset
 
       if (monitor > 1) {
          dst  <- c(rdist(t(lmks["pn", ]), sbst.pos$vertices))
@@ -176,7 +185,7 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       
       if (monitor == 1) cat("en ... ")
       if (monitor == 2) cat("\n")
-      if (monitor >  1) cat("  en: main area of negative shape index ...")
+      if (monitor >  1) cat("  en: main concave area ...")
       
       dst         <- c(rdist(t(pn), face$vertices))
       

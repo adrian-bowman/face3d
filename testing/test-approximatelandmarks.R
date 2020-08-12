@@ -102,7 +102,7 @@ for (i in 1:length(fls)) {
    # plot(results$sbst, display = "principal 2", add = TRUE)
    # spheres3d(results$results[ , 1:3], col = clr)
    
-   plot(face)
+   # plot(face)
    spheres3d(results$sbst$landmarks, col = "yellow", radius = 2)
    # save(face, file = fls[i])
    snapshot3d(paste("~/Desktop/temp/temp_", i, ".png", sep = ""))

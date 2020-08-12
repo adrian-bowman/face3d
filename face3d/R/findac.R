@@ -5,7 +5,7 @@ findac <- function(face, monitor = 0) {
    # Subset to area around the nose
    mn2.image <- apply(face$landmarks[c("pn", "se"), ], 2, mean)
    dst       <- c(rdist(t(mn2.image), face$vertices))
-   sbst      <- subset(face, dst < 50)
+   sbst      <- face
    
    # Move the image to match the mid-point of pn and se and the direction to se.
    mn2.popn       <- apply(mn.popn[c("pn", "se"), ], 2, mean)
@@ -63,9 +63,13 @@ findac <- function(face, monitor = 0) {
    # mhd <- c(t(x) %*% inv %*% x)
    # print(mhd)
    
-   sbst <- index.face3d(sbst, distance = 10, overwrite = TRUE, directions = TRUE)
-   sbst <- index.face3d(sbst, overwrite = TRUE, distance = 4,
-                        subset = sbst$kappa2 > 0, extension = TRUE, directions = TRUE)
+   dstL <- c(rdist(t(lmks["acL", ]), sbst$vertices))
+   dstR <- c(rdist(t(lmks["acR", ]), sbst$vertices))
+   ind  <- (dstL < 20) | (dstR < 20)
+   sbst <- index.face3d(sbst, distance = 10, overwrite = TRUE, directions = TRUE,
+                        subset = ind, extension = TRUE)
+   sbst <- index.face3d(sbst, distance =  4, overwrite = TRUE, directions = TRUE,
+                        subset = ind & sbst$kappa2 > 0, extension = TRUE)
    
    plot(sbst, col = "kappa2")
    plot(sbst, display = "principal 1", add = TRUE)
@@ -78,7 +82,7 @@ findac <- function(face, monitor = 0) {
       dst   <- c(rdist(t(lmks[ac.nm, ]), sbst$vertices))
       ind   <- which.min(dst)
       ac    <- sbst$vertices[ind, ]
-      sbst1 <- subset(sbst, dst < 10)
+      sbst1 <- subset(sbst, dst < 10, retain.indices = TRUE)
       # drn  <- sbst$directions[ , 1, ind]
       # dst1 <- rdist(t(sbst$landmarks["pn", ]), rbind(ac, ac + drn))
       # if (dst1[2] > dst1[1]) drn <- -drn
@@ -110,7 +114,7 @@ findac <- function(face, monitor = 0) {
          ac    <- sbst1$vertices[j, ]
          dst   <- c(rdist(t(ac), sbst$vertices))
          sbst2 <- subset(sbst, dst < 10)
-         # Set the ppath diretion, making sure we are heading towards the nose tip.
+         # Set the ppath direction, making sure we are heading towards the nose tip.
          drn   <- sbst1$directions[ , 1, j]
          # drn   <- vec
          # dst1  <- rdist(t(sbst1$lmks["pn", ]), rbind(acR, acR + drn))
@@ -137,8 +141,8 @@ findac <- function(face, monitor = 0) {
                ang  <- exp(-(acos(ang1)^2 / 0.3))
 
                if (monitor > 2 & ac.nm == "acR" & sbst1$kappa1[j] * rdg * ang > 0.4) {
-                  print(range(apply(t(path$directions[ , 2, -1]), 1, function(x) sum(x^2))))
-                  print(sum(sbst1$directions[ , 2, j]^2))
+                  # print(range(apply(t(path$directions[ , 2, -1]), 1, function(x) sum(x^2))))
+                  # print(sum(sbst1$directions[ , 2, j]^2))
                   cat(ang1, acos(ang1), ang, "\n")
                   cat(j, sbst1$kappa1[j], rdg , ang, sbst1$kappa1[j] * rdg * ang, "\n")
                   if (!first) for (jj in 1:5) pop3d()
@@ -178,16 +182,22 @@ findac <- function(face, monitor = 0) {
       ind   <- which(!is.na(crv))
       sbstj <- subset(sbst1, jlst[ind], remove.singles = FALSE)
       ind1  <- ind[which.max(crv[ind])]
-      cat(jlst[ind1], crv[ind1], "\n")
-      ac   <- sbstj$vertices[ind1, ]
+      # cat(jlst[ind1], crv[ind1], "\n")
+      ac    <- sbstj$vertices[ind1, ]
       rnms  <- rownames(sbst$landmarks)
       sbst$landmarks <- rbind(sbst$landmarks, ac)
       rownames(sbst$landmarks) <- c(rnms, ac.nm)
-   
+      
+      # Store the curvature of the local region
+      nm <- paste(ac.nm, ".ind", sep = "")
+      sbst[[nm]] <- sbst1$subset[jlst[ind]]
+      nm <- paste(ac.nm, ".crv", sep = "")
+      sbst[[nm]] <- crv[ind]
+      
       plot(sbstj, col = crv[ind], display = "spheres", add = TRUE)
       spheres3d(ac, radius = 3)
    }
 
-   return(invisible(list(sbst = sbst, results = results)))
-   # return(invisible(sbst))
+   # return(invisible(list(sbst = sbst, results = results)))
+   return(invisible(sbst))
 }

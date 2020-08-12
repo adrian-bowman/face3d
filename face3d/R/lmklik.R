@@ -8,7 +8,7 @@ lmklik <- function(face, lmk.name, reflmk.name, monitor = 0) {
    if (!("directions" %in% names(face)))
       face  <- index.face3d(face, subset = dst < 20, directions = TRUE, overwrite = TRUE)
    sbst0 <- subset(face, dst < 20)
-   sbst  <- subset(face, dst < 10)
+   sbst  <- subset(face, dst < 10, retain.indices = TRUE)
    drn1  <- sbst0$directions[ , 1, which.min(dst[dst < 20])]
    
    if (monitor > 0) {
@@ -25,13 +25,13 @@ lmklik <- function(face, lmk.name, reflmk.name, monitor = 0) {
    sbst0$area <- area.face3d(sbst0)$points
    for (j in jlst) {
       if (monitor > 1 & j != jlst[1]) for (i in 1:3) pop3d()
-      lmk     <- sbst$vertices[j, ]
-      # drn   <- sbst$directions[ , 1, j]
-      # dst   <- rdist(t(sbst$landmarks[reflmk.name, ]), rbind(lmk, lmk + drn))
-      # drn   <- if (dst[2] > dst[1]) -drn else drn
-      # dst   <- c(rdist(t(lmk), sbst0$vertices))
-      drn2    <- c(crossproduct(drn1, sbst$normals[j, ]))
-      sbst2   <- sbst0
+      lmk    <- sbst$vertices[j, ]
+      drn1   <- sbst$directions[ , 1, j]
+      dst    <- rdist(t(sbst$landmarks[reflmk.name, ]), rbind(lmk, lmk + drn1))
+      drn1   <- if (dst[2] > dst[1]) -drn1 else drn1
+      dst    <- c(rdist(t(lmk), sbst0$vertices))
+      drn2   <- c(crossproduct(drn1, sbst$normals[j, ]))
+      sbst2  <- sbst0
       sbst2$directions <- NULL
       path1   <- planepath.face3d(sbst2, lmk, direction = drn1, bothways = TRUE, rotation = 0)
       path2   <- planepath.face3d(sbst2, lmk, direction = drn2, bothways = TRUE, rotation = 0)
@@ -68,21 +68,24 @@ lmklik <- function(face, lmk.name, reflmk.name, monitor = 0) {
       }
    }
    lmk <- sbst$vertices[which.max(crv), ]
-   sbst$pattern <- crv
-   
+
    if (monitor > 0) {
       plot(sbst, col = crv)
       spheres3d(lmk.initial)
       spheres3d(lmk, col = "yellow")
    }
    
-   # Add the landmark to the face object
+   # Add the landmark and local curvature to the face object
    if (lmk.name %in% rownames(face$landmarks))
       face$landmarks[lmk.name, ] <- lmk
    else {
       face$landmarks <- rbind(face$landmarks, lmk)
       rownames(face$landmarks)[nrow(face$landmarks)] <- lmk.name
    }
+   nm <- paste(lmk.name, ".ind", sep = "")
+   face[[nm]] <- sbst$subset
+   nm <- paste(lmk.name, ".crv", sep = "")
+   face[[nm]] <- crv
    
-   return(invisible(list(landmark = lmk, subset = sbst)))
+   return(invisible(face))
 }
