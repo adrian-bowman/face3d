@@ -51,6 +51,12 @@ fls <- fls[-grep("lmks", fls)]
 fls <- fls[-182]      # main area of positive curvature is the clothing
 fls <- fls[-61]       # eye ridge instead of pn
 
+load("~/Desktop/controls-liberty-001.dmp")
+face$vertices <- face$coords
+face$coords <- NULL
+face$triangles <- matrix(face$triples, ncol = 3, byrow = TRUE)
+face$triples <- NULL
+
 for (i in 1:length(fls)) {
    cat(i, "")
    load(fls[i])
@@ -63,7 +69,7 @@ for (i in 1:length(fls)) {
    face <- lmklik(face, "se", "pn", monitor = 1)
    
    plot(face)
-   plot(face, subset = face$pn.ind,  col = face$pn.crv,  display = "spheres", add = TRUE)
+   plot(face, subset = face$pn.ind,  col = face$pn.crv,  display = "spheres", palette = topo.colors(20), add = TRUE)
    sbst <- subset(face, face$se.ind, remove.singles = FALSE)
    plot(sbst, col = face$se.crv,  display = "spheres", palette = topo.colors(20), add = TRUE)
    sbst <- subset(face, face$acL.ind, remove.singles = FALSE)
