@@ -11,6 +11,38 @@ library(shapes)
 library(MASS)
 library(colorspace)
 
+load("lmks-liberty.rda")
+lmks.liberty <- lmks.liberty[-match(c("tL", "tR", "oiL", "oiR"), rownames(lmks.liberty)), , ]
+landmark.names <- c("pn", "se", "acL", "acR")
+lmks   <- lmks.liberty[landmark.names, , ]
+
+gpa     <- gpa.face3d(lmks, scale = FALSE)
+mn.popn <- gpa$mean
+n.lmks  <- nrow(lmks)
+tan     <- apply(sweep(gpa$aligned, 1:2, gpa$mean), 3, c)
+mnt     <- apply(tan, 1, mean)
+covt    <- cov(t(tan))
+
+# Test on male template
+
+face <- template_male
+face$landmarks <- NULL
+face <- approximatelandmarks.face3d(face, sample.spacing = 10, trim = 30,
+                                    distance = 10, sample.distance = 45, monitor = 2)
+face <- findac(face, monitor = 2)
+face$directions <- NULL
+face <- lmklik(face, "se", "pn", monitor = 1)
+
+plot(face)
+plot(face, subset = face$pn.ind,  col = face$pn.crv,  display = "spheres", add = TRUE)
+sbst <- subset(face, face$se.ind, remove.singles = FALSE)
+plot(sbst, col = face$se.crv,  display = "spheres", palette = topo.colors(20), add = TRUE)
+sbst <- subset(face, face$acL.ind, remove.singles = FALSE)
+plot(sbst, col = face$acL.crv, display = "spheres", palette = topo.colors(20), add = TRUE)
+sbst <- subset(face, face$acR.ind, remove.singles = FALSE)
+plot(sbst, col = face$acR.crv, display = "spheres", palette = topo.colors(20), add = TRUE)
+spheres3d(face$landmarks, radius = 2, col = "red")
+
 # Test on controls
 
 fls <- list.files("~/Desktop/Glasgow-controls", recursive = TRUE, full.names = TRUE)
@@ -18,6 +50,29 @@ fls <- fls[-grep("details", fls)]
 fls <- fls[-grep("lmks", fls)]
 fls <- fls[-182]      # main area of positive curvature is the clothing
 fls <- fls[-61]       # eye ridge instead of pn
+
+for (i in 1:length(fls)) {
+   cat(i, "")
+   load(fls[i])
+   class(face) <- "face3d"
+   face$landmarks <- NULL
+   face <- approximatelandmarks.face3d(face, sample.spacing = 10, trim = 30,
+                                       distance = 10, sample.distance = 45, monitor = 2)
+   face <- findac(face, monitor = 2)
+   face$directions <- NULL
+   face <- lmklik(face, "se", "pn", monitor = 1)
+   
+   plot(face)
+   plot(face, subset = face$pn.ind,  col = face$pn.crv,  display = "spheres", add = TRUE)
+   sbst <- subset(face, face$se.ind, remove.singles = FALSE)
+   plot(sbst, col = face$se.crv,  display = "spheres", palette = topo.colors(20), add = TRUE)
+   sbst <- subset(face, face$acL.ind, remove.singles = FALSE)
+   plot(sbst, col = face$acL.crv, display = "spheres", palette = topo.colors(20), add = TRUE)
+   sbst <- subset(face, face$acR.ind, remove.singles = FALSE)
+   plot(sbst, col = face$acR.crv, display = "spheres", palette = topo.colors(20), add = TRUE)
+   spheres3d(face$landmarks, radius = 2, col = "red")
+   snapshot3d(paste("~/Desktop/temp/temp_", i, ".png", sep = ""))
+}
 
 landmark.names <- c("pn", "enL", "enR", "se")
 # landmark.names <- "none"
@@ -31,12 +86,9 @@ for (i in 1:length(fls)) {
    load(fls[i])
    class(face) <- "face3d"
    face$landmarks <- NULL
-   s.spacing  <- 10
-   s.distance <- 45
-   trim       <- 30
    face <- approximatelandmarks.face3d(face, landmark.names,
-                                       sample.spacing = s.spacing, trim = trim,
-                                       distance = 10, sample.distance = s.distance,
+                                       sample.spacing = 10, trim = 30,
+                                       distance = 10, sample.distance = 45,
                                        monitor = 3)
    plot(face)
    clr <- rep("blue", nrow(face$landmarks))
@@ -61,18 +113,6 @@ save(dst, file = "~/Desktop/discrepancies.Rda")
 
 # Find acL/R
 
-load("lmks-liberty.rda")
-lmks.liberty <- lmks.liberty[-match(c("tL", "tR", "oiL", "oiR"), rownames(lmks.liberty)), , ]
-landmark.names <- c("pn", "se", "acL", "acR")
-lmks   <- lmks.liberty[landmark.names, , ]
-
-gpa     <- gpa.face3d(lmks, scale = FALSE)
-mn.popn <- gpa$mean
-n.lmks  <- nrow(lmks)
-tan     <- apply(sweep(gpa$aligned, 1:2, gpa$mean), 3, c)
-mnt     <- apply(tan, 1, mean)
-covt    <- cov(t(tan))
-
 i <- 106
 
 # Look at the curvature characteristics at acL and acR
@@ -90,7 +130,7 @@ for (i in 1:length(fls)) {
    rnms <- rownames(face$landmarks)
    if (all(c("acL", "acR") %in% rnms))
       face$landmarks <- face$landmarks[-match(c("acL", "acR"), rnms), ]
-   results <- findac(face, monitor = 1)
+   results <- findac(face, monitor = 3)
 
    # val  <- results$results[ , 4]
    # val  <- results$results[ , 5]

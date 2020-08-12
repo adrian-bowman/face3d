@@ -29,7 +29,7 @@ export(
   index.face3d,
   interp.barycentric,
   is.face3d,
-  lmk.lik,
+  lmklik,
   mesh.face3d,
   mode.face3d,
   model.face3d,
