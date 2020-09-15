@@ -22,6 +22,7 @@ n.lmks  <- nrow(lmks)
 tan     <- apply(sweep(gpa$aligned, 1:2, gpa$mean), 3, c)
 mnt     <- apply(tan, 1, mean)
 covt    <- cov(t(tan))
+covinv  <- MASS::ginv(covt)
 
 # Test on male template
 
@@ -43,9 +44,17 @@ sbst <- subset(face, face$acR.ind, remove.singles = FALSE)
 plot(sbst, col = face$acR.crv, display = "spheres", palette = topo.colors(20), add = TRUE)
 spheres3d(face$landmarks, radius = 2, col = "red")
 
+lpost <- findbayes(face, mn.popn, covinv)
+   
+plot(face)
+sbst <- subset(face, face$se.ind, remove.singles = FALSE)
+plot(sbst, col = sbst$se.crv,  display = "spheres", palette = topo.colors(20), add = TRUE)
+pop3d()
+plot(sbst, col = lpost,  display = "spheres", palette = topo.colors(20), add = TRUE)
+
 # Test on controls
 
-fls <- list.files("~/Desktop/Glasgow-controls", recursive = TRUE, full.names = TRUE)
+fls <- list.files("../Face3D_data/Glasgow-controls", recursive = TRUE, full.names = TRUE)
 fls <- fls[-grep("details", fls)]
 fls <- fls[-grep("lmks", fls)]
 fls <- fls[-182]      # main area of positive curvature is the clothing
