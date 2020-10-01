@@ -1,4 +1,4 @@
-#     Approximate location of landmarks on the face
+#     Approximate and then Bayesian location of landmarks on the face
 
 setwd("~/OneDrive - University of Glasgow/research/face3d")
 
@@ -35,15 +35,15 @@ face$directions <- NULL
 face <- lmklik(face, "se", "pn", monitor = 1)
 face <- findbayes(face, mn.popn, covinv, monitor = 0)
 
-plot(face)
-plot(face, subset = face$pn.ind,  col = face$pn.crv,  display = "spheres", add = TRUE)
-sbst <- subset(face, face$se.ind, remove.singles = FALSE)
-plot(sbst, col = face$se.crv,  display = "spheres", palette = topo.colors(20), add = TRUE)
-sbst <- subset(face, face$acL.ind, remove.singles = FALSE)
-plot(sbst, col = face$acL.crv, display = "spheres", palette = topo.colors(20), add = TRUE)
-sbst <- subset(face, face$acR.ind, remove.singles = FALSE)
-plot(sbst, col = face$acR.crv, display = "spheres", palette = topo.colors(20), add = TRUE)
-spheres3d(face$landmarks, radius = 2, col = "red")
+# plot(face)
+# plot(face, subset = face$pn.ind,  col = face$pn.crv,  display = "spheres", add = TRUE)
+# sbst <- subset(face, face$se.ind, remove.singles = FALSE)
+# plot(sbst, col = face$se.crv,  display = "spheres", palette = topo.colors(20), add = TRUE)
+# sbst <- subset(face, face$acL.ind, remove.singles = FALSE)
+# plot(sbst, col = face$acL.crv, display = "spheres", palette = topo.colors(20), add = TRUE)
+# sbst <- subset(face, face$acR.ind, remove.singles = FALSE)
+# plot(sbst, col = face$acR.crv, display = "spheres", palette = topo.colors(20), add = TRUE)
+# spheres3d(face$landmarks, radius = 2, col = "red")
 
 plot(face)
 spheres3d(face$landmarks,  radius = 2, col = "blue")
