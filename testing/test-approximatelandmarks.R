@@ -33,6 +33,7 @@ face <- approximatelandmarks.face3d(face, sample.spacing = 10, trim = 30,
 face <- findac(face, monitor = 2)
 face$directions <- NULL
 face <- lmklik(face, "se", "pn", monitor = 1)
+face <- findbayes(face, mn.popn, covinv, monitor = 0)
 
 plot(face)
 plot(face, subset = face$pn.ind,  col = face$pn.crv,  display = "spheres", add = TRUE)
@@ -44,48 +45,37 @@ sbst <- subset(face, face$acR.ind, remove.singles = FALSE)
 plot(sbst, col = face$acR.crv, display = "spheres", palette = topo.colors(20), add = TRUE)
 spheres3d(face$landmarks, radius = 2, col = "red")
 
-lpost <- findbayes(face, mn.popn, covinv)
-   
 plot(face)
-sbst <- subset(face, face$se.ind, remove.singles = FALSE)
-plot(sbst, col = sbst$se.crv,  display = "spheres", palette = topo.colors(20), add = TRUE)
-pop3d()
-plot(sbst, col = lpost,  display = "spheres", palette = topo.colors(20), add = TRUE)
+spheres3d(face$landmarks,  radius = 2, col = "blue")
+spheres3d(face$lmks.bayes, radius = 2, col = "red")
 
 # Test on controls
 
-fls <- list.files("../Face3D_data/Glasgow-controls", recursive = TRUE, full.names = TRUE)
+fls <- list.files("../Face3D_data/Face3D/Glasgow-controls", recursive = TRUE, full.names = TRUE)
 fls <- fls[-grep("details", fls)]
 fls <- fls[-grep("lmks", fls)]
 fls <- fls[-182]      # main area of positive curvature is the clothing
 fls <- fls[-61]       # eye ridge instead of pn
 
-load("~/Desktop/controls-liberty-001.dmp")
-face$vertices <- face$coords
-face$coords <- NULL
-face$triangles <- matrix(face$triples, ncol = 3, byrow = TRUE)
-face$triples <- NULL
-
 for (i in 1:length(fls)) {
    cat(i, "")
    load(fls[i])
-   class(face) <- "face3d"
+   face$vertices  <- face$coords
+   face$triangles <- matrix(face$triples, ncol = 3, byrow = TRUE)
+   face$coords    <- NULL
+   face$triples   <- NULL
    face$landmarks <- NULL
+   class(face)    <- "face3d"
    face <- approximatelandmarks.face3d(face, sample.spacing = 10, trim = 30,
                                        distance = 10, sample.distance = 45, monitor = 2)
    face <- findac(face, monitor = 2)
    face$directions <- NULL
    face <- lmklik(face, "se", "pn", monitor = 1)
+   face <- findbayes(face, mn.popn, covinv, monitor = 1)
    
    plot(face)
-   plot(face, subset = face$pn.ind,  col = face$pn.crv,  display = "spheres", palette = topo.colors(20), add = TRUE)
-   sbst <- subset(face, face$se.ind, remove.singles = FALSE)
-   plot(sbst, col = face$se.crv,  display = "spheres", palette = topo.colors(20), add = TRUE)
-   sbst <- subset(face, face$acL.ind, remove.singles = FALSE)
-   plot(sbst, col = face$acL.crv, display = "spheres", palette = topo.colors(20), add = TRUE)
-   sbst <- subset(face, face$acR.ind, remove.singles = FALSE)
-   plot(sbst, col = face$acR.crv, display = "spheres", palette = topo.colors(20), add = TRUE)
-   spheres3d(face$landmarks, radius = 2, col = "red")
+   spheres3d(face$landmarks,  radius = 2, col = "blue")
+   spheres3d(face$lmks.bayes, radius = 2, col = "red")
    snapshot3d(paste("~/Desktop/temp/temp_", i, ".png", sep = ""))
 }
 

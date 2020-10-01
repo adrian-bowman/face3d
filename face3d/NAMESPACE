@@ -21,6 +21,7 @@ export(
   extract.face3d,
   facecurves.face3d,
   findac,
+  findbayes,
   # findlandmarks.face3d,
   gcurvature.face3d,
   ginvtps.face3d,
