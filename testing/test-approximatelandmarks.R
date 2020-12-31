@@ -1,6 +1,6 @@
 #     Approximate and then Bayesian location of landmarks on the face
 
-setwd("~/OneDrive - University of Glasgow/research/face3d")
+setwd("~/research/face3d")
 
 install.packages("face3d", repos = NULL, type = "source")
 library(face3d)

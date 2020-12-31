@@ -19,6 +19,9 @@ to install the library.
 On Windows 10
       install.packages("C:/Users/Adrian Bowman/OneDrive - University of Glasgow/research/face3d_0.1-1/face3d", repos = NULL, type = "source")
 
+To install from GitHub:
+		    library(devtools)
+		    install_github("adrian-bowman/face3d/face3d")
 
 Checking
 --------
