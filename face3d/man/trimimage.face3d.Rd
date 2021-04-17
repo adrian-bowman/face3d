@@ -14,11 +14,11 @@ This function uses supplied landmarks to align the shape horizontally and vertic
 }
 
 \arguments{
-\item{shape}{a \code{face3d} object to be trimmed.}
+\item{shape}{a \code{face3d} object to be trimmed.  This must contain both a \code{landmarks} and a \code{mesh} component.}
 \item{lmks.vertical}{the names of two landmarks which will be used to rotate the shape to a vertical orientation (first representing bottom and second top).}
 \item{lmks.horizontal}{the names of two landmarks which will be used to rotate the shape to a horizontal orientation (first representing right and second left).}
 }
 
 \value{
-  A trimmed \code{face3d} object.
+  A \code{face3d} object which is a trimmed version of the input object.
 }

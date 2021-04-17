@@ -21,9 +21,11 @@ approximatelandmarks.face3d(face, landmark.names = c("pn", "enL", "enR", "se"),
 }
 
 \details{
-If the special value \code{"none"} is given in the \code{landmark.names} argument then the returned value contains the shape index and curvatures computed from the value of \code{distance}.
+If the special value \code{"none"} is given in the \code{landmark.names} argument then the returned value contains the shape index and curvatures computed from the value of \code{distance}.  THis can be useful in troubleshooting.
 
 The setting \code{monitor = 3} allows the stages of the process to be inspected by rotating the images in the \pkg{rgl} window.  This can indicate where the problem lies and suggest alterations to the defaukt setting of the distance parameters.
+
+gn is estimated by subsetting the low resolution to include only areas where the Gaussian curvature is above the 80th percentile of the positive values.  Points which are within a distance 20 of pn are also excluded.  At each point in the remaining object, the Gaussian curvature, the cosine of the angle between the vector from pn to the point and the vector from se to pn, and an indicator of whether the distance of the point from pn lies between 0.5 and 2 times the distance between se and pn, are all multiplied together to create an index.  This is then integrated over each distanct part of teh object.  The part with the highest integral is selected and gn is estimated as the local model using a distance of 15.
 }
 
 \value{

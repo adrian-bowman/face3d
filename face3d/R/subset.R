@@ -2,13 +2,25 @@ subset.face3d <- function(shape, subset, remove.singles = TRUE, retain.indices =
 
    ind   <- subset
    nvert <- nrow(shape$vertices)
-   if (is.logical(ind)) ind <- which(ind)
+   
+   # Check the contents of subset
+   if (!is.logical(ind) & !is.integer(ind))
+      stop("subset contains inappropriate values.")
+   if (is.logical(ind)) {
+      if (length(ind) != nvert)
+         stop("the length of subset does not match the number of vertices.")
+      else
+         ind <- which(ind)
+   }
    if (any(ind < 0)) {
       if (any(ind >= 0))
-         stop("the subset definition contains both positive and non-negative indices.")
+         stop("subset contains both positive and non-negative indices.")
       ind <- (1:nvert)[ind]
    }
-   if (length(ind) == 0) stop("the subset is empty.")
+   if (any(ind < 1) | any(ind > nvert))
+      stop("subset contains inappropriate values.")
+   if (length(ind) == 0)
+      stop("the subset is empty.")
    
    dnms        <- dimnames(shape$vertices)
    rnms        <- if (is.null(dnms[[1]])) as.character(1:nvert) else dnms[[1]]

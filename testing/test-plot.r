@@ -21,3 +21,17 @@ plot(face, new = FALSE, col = "normal-z")
 plot(face, new = FALSE, col = face$kappa1)
 plot(face, new = FALSE, col = "kappa1")
 plot(face, new = FALSE, col = face$kappa1 + 1)
+
+# lines
+load ("analysis/nose.RData")
+nose$vertices  <- nose$coords
+nose$triangles <- matrix(nose$triples, ncol = 3, byrow = TRUE)
+nose$coords    <- NULL
+nose$triples   <- NULL
+nose$lines     <- matrix(c(55, rep(130:135, each = 2), 136,
+                           109, rep(118:123, each = 2), rep(136, 2),
+                           rep(129:124, each = 2), 1),
+                         ncol = 2, byrow = TRUE)
+plot(nose)
+plot(nose, display = c("surface", "lines", "spheres"))
+

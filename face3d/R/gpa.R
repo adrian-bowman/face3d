@@ -52,9 +52,10 @@ gpa.face3d <- function(x, triangles, match.ids, scale = TRUE, tol = 1e-5, monito
       dst0   <- dst
       dst    <- mean(apply(xp, 3, function(x) mean(sweep((x - mshape)^2, 1, wts, "*"))))
       iter   <- iter + 1
-      if (monitor > 0) cat("iteration", iter, ":", dst, "\n")
+      if (monitor > 0) cat("  iteration", iter, ":", dst, "\n")
    }
-
+   if (monitor > 0) cat("  completed.", "\n")
+   
    return(invisible(list(aligned = xp, mean = mshape, weights = wts)))
    
 }

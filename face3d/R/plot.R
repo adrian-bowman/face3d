@@ -1,4 +1,4 @@
-plot.face3d <- function (shape, display = "surface", plot.isolated = TRUE,
+plot.face3d <- function (shape, display = c("surface", "lines"), plot.isolated = TRUE,
                               colour = "texture", palette, breaks, scaling,
                               range.colour, key = FALSE, clabel = NULL, cex.axis = 1,
                               new = FALSE, add = FALSE, subset, vector.scale = 1,
@@ -34,12 +34,13 @@ plot.face3d <- function (shape, display = "surface", plot.isolated = TRUE,
       stop("the lit argument is set by default.")
 
    if (!missing(subset)) {
-      if (is.logical(subset) & (length(subset) != nrow(shape$vertices)))
-         stop("the length of subset does not match the shape vertices.")
-      if (is.integer(subset) & all(subset >= 1) & all(subset <= nrow(shape$vertices)))
+      # if (!is.logical(subset) & !)
+      # if (is.logical(subset) & (length(subset) != nrow(shape$vertices)))
+      #    stop("the length of subset does not match the shape vertices.")
+      # if (is.integer(subset) & all(subset >= 1) & all(subset <= nrow(shape$vertices)))
          shape <- subset.face3d(shape, subset)
-      else
-         stop("subset contains inappropriate values.")
+      # else
+      #    stop("subset contains inappropriate values.")
    }
 
    if (length(rgl::rgl.dev.list()) == 0) new <- TRUE
@@ -219,9 +220,13 @@ plot.face3d <- function (shape, display = "surface", plot.isolated = TRUE,
             front = "line", back = "line", lit = FALSE, ...)
    if ("surface" %in% display)
       rgl::triangles3d(shape$vertices[c(t(shape$triangles)), ], col = colour, lit = single.colour, ...)
-   
-   if (any(display %in% c("mesh", "surface")) & plot.isolated) {
+   if (("lines" %in% display) & ("lines" %in% names(shape)))
+      rgl::segments3d(shape$vertices[c(t(shape$lines)), ], ...)
+   # Plot isolated points
+   if (!("points" %in% display) & any(display %in% c("mesh", "surface")) & plot.isolated) {
       ind <- which(!(1:nrow(shape$vertices) %in% c(shape$triangles)))
+      if (("lines" %in% display) & ("lines" %in% names(shape)))
+         ind <- ind[!(ind %in% c(shape$lines))]
       rgl::spheres3d(shape$vertices[ind, ], ...)
    }
 

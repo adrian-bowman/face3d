@@ -48,8 +48,10 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
       else
          shape <- subset.face3d(shape, ind1, retain.indices = TRUE)
    }
-   if (monitor) plot(shape, display = "mesh")
-   # Check whether the boundary setting has split the shape into parts with x1 and x2 in different parts
+   
+   if (monitor > 0) plot(shape, display = c("mesh", "lines"))
+
+      # Check whether the boundary setting has split the shape into parts with x1 and x2 in different parts
    if (!any(is.na(x2)) & !bridge.gaps) {
       parts <- connected.face3d(shape)
       nparts <- length(unique(parts))
@@ -101,11 +103,11 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
    
    if (monitor) {
        if (si.target.present)
-     	    plot(shape, display = "mesh", colour = values + 2)
+     	    plot(shape, display = c("mesh", "lines"), colour = values + 2)
      	 else
-     	    plot(shape, display = "mesh")
+     	    plot(shape, display = c("mesh", "lines"))
      if (monitor.prompt) cat("Press the Return key to see successive images.\n")
-     rgl::spheres3d(rbind(x1, x2), radius = gspheres/5, col = "red")
+     rgl::spheres3d(rbind(x1, x2), radius = gspheres, col = "red")
      # Create a dummy object for removal when iterations begin
      rgl::spheres3d(rbind(x1, x2), radius = gspheres, alpha = 0)
    }
@@ -184,301 +186,299 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
                       function(a) as.numeric(c(shape$vertices[a, ] %*% rcross <= sum(x1 * rcross)))))
    indsum    <- apply(ind, 1, sum)
    indtrng   <- which(indsum > 0 & indsum < 3)
-   trngls    <- triangles[indtrng, ]
-   triangle1 <- triangles1[which(triangles1 %in% indtrng)][1]
-   triangle2 <- triangles2[which(triangles2 %in% indtrng)][1]
-   ind       <- ind[indtrng, ]
-   j         <- which(apply(ind, 1, sum) == 2)
-   ind[j, ]  <- 1 - ind[j, ]
-   ind1      <- c(ind %*% 1:3)
-   nind1     <- length(ind1)
-   indnot1   <- rep(1:3, nind1)[-((0:(nind1 - 1)) * 3 + ind1)]
-   indnot1   <- matrix(indnot1, ncol = 2, byrow = TRUE)
-   j         <- 1:nind1
-   edges     <- rbind(cbind(trngls[cbind(j, ind1)], trngls[cbind(j, indnot1[ , 1])]),
-                      cbind(trngls[cbind(j, ind1)], trngls[cbind(j, indnot1[ , 2])]))
-   e1        <- c(shape$vertices[edges[, 1], ] %*% rcross)
-   e2        <- c(shape$vertices[edges[, 2], ] %*% rcross)
-   wts       <- (sum(x1 * rcross) - e1) / (e2 - e1)
-   crossings <- (1 - wts) * shape$vertices[edges[ , 1], ] +
-                     wts  * shape$vertices[edges[ , 2], ]
-   if (si.target.present)
-      cvals <- (1 - wts) * values[edges[ , 1]] + wts  * values[edges[ , 2]]
-   if ("directions" %in% names(shape)) {
-      drns  <- sweep(shape$directions[ , , edges[ , 1]], 3, 1 - wts, "*") + 
-               sweep(shape$directions[ , , edges[ , 2]], 3,     wts, "*")
-      lngth <- apply(drns, 2:3, function(x) sqrt(sum(x^2)))
-      drns  <- sweep(drns, 2:3, lngth, "/")
-      kp1   <- (1 - wts) * shape$kappa1[edges[ , 1]] + wts  * shape$kappa1[edges[ , 2]]
-      kp2   <- (1 - wts) * shape$kappa2[edges[ , 1]] + wts  * shape$kappa2[edges[ , 2]]
+   # Proceed with this angle only if crossings points have been identified.
+   if (length(indtrng) == 0) {
+      if (monitor > 0) cat("No crossing points identified for angle", angle, "\n")
    }
-   
-   if (as.numeric(monitor) == 2) rgl::spheres3d(crossings, radius = gspheres/5)
-
-   edges <- t(apply(edges, 1, sort))
-   e     <- paste(edges[ , 1], edges[ , 2])
-   tbl   <- table(e)
-   ends  <- which(e %in% names(which(tbl == 1)))
-   if (length(ends) == 0) ends <- 1
-
-   # Find the edge point which is closest to x1
-   ind  <- which.min(apply(sweep(matrix(c(crossings[ends, ]), ncol = 3), 2, x1)^2, 1, sum))
-   idx1 <- ends[ind]
-   ends <- ends[-ind]
-   trng <- integer()
-   ind  <- integer(0)
-   # ind  <- idx1
-
-   # Find the section which contains x1 (and x2, if required)
-   # The variable flag counts how many of x1 and x2 have been found.
-   flag    <- 0
-   idx.vec <- numeric(0)
-   while (flag < 2) {
-      idx     <- if (idx1 <= nind1) idx1 + nind1 else idx1 - nind1
-      trngnew <- if (idx  <= nind1) idx else idx - nind1
-      trng    <- c(trng, trngnew)
-      # spheres3d(shape$vertices[c(triangles[indtrng[trngnew], ]), ], radius = 0.5)
-      if (!any(e == e[idx])) stop("e problem.")
-      idx1    <- which(e == e[idx])
-      idx1    <- idx1[idx1 != idx]
-      # flag1   <- length(which(triangle1 == indtrng[trng]))
-      # flag2   <- if (all(!is.na(x2))) length(which(triangle2 == indtrng[trng])) else 0
-      flag1   <- length(which(triangle1 %in% indtrng[trng]))
-      flag2   <- if (all(!is.na(x2))) length(which(triangle2 %in% indtrng[trng])) else 0
-      idx1    <- if (flag1 > 1 | flag2 > 1) NULL else idx1
-      flag1   <- min(flag1, 1)
-      flag2   <- min(flag2, 1)
-      # flag1   <- as.numeric(any(triangle1 %in% indtrng[trng]))
-      # flag2   <- if (all(!is.na(x2))) as.numeric(any(triangle2 %in% indtrng[trng])) else 0
-      # # flag2   <- if (all(!is.na(x2))) as.numeric(any(pts2 %in% indtrng[trngnew])) else 0
-      flag    <- flag1 + flag2
-      # Deal with circular paths
-      if (any(idx == idx.vec)) flag <- 3 else idx.vec <- c(idx, idx.vec)
-      if (flag == 1 | all(is.na(x2))) ind <- c(ind, idx)
-      # print(ends)
-      # print(flag)
-      # print(idx1)
-      # print(matrix(c(crossings[idx, ]), ncol = 3))
-      # spheres3d(matrix(c(crossings[idx, ]), ncol = 3), radius = 1.2 * gspheres, col = "blue")
-      # spheres3d(matrix(c(crossings[idx, ]), ncol = 3), radius = 0.21, col = "blue")
-      # If an edge is encountered and bridge.gaps is FALSE, jump to another edge 
-      # if no points have been found.  Give up if one point has been found.
-      if (length(idx1) == 0) {
-         if (flag == 1 & bridge.gaps) {
-            # segments3d(shape$vertices[c(t(edges[ends, ])), ], col = "blue", lwd = 3)
-            # spheres3d(crossings[ends, ], col = "green", radius = 1, alpha = 1)
-            ends <- ends[ends != idx]
-            # Find the end point which is closer to the missing one of x1 or x2
-            # but of those is the closest to idx.
-            xx    <- if (flag1) x2 else x1
-            ed0   <- sqrt(sum((crossings[idx, ] - xx)^2))
-            ed1   <- edist.face3d(crossings[ends, ], xx)
-            ed2   <- edist.face3d(crossings[ends, ], crossings[idx, ])
-            ed    <- ends[ed1 <= ed0]
-            idx1  <- ed[which.min(ed2[ed1 <= ed0])]
-         	# cat("ends", ends, "\n")
-         	# cat("ed", ed, "\n")
-         	# cat("idx1", idx1, "\n")
-            ind   <- c(ind, idx1)
-            ends <- ends[ends != idx1]
-         }
-         else if (flag == 0) {
-            if (length(ends) > 0) ends <- ends[-which(ends == idx)]
-            trng <- integer(0)
-            if (length(ends) > 0) {
-               idx1 <- ends[1]
-               ends <- ends[-1]
-               flag <- 0
-               ind  <- integer(0)
-               }
-            else
-               flag <- 3
-         	 # else if (length(idx) < 2 * nind1) {
-          	 # 	idx1 <- which(!(1:(2*nind1) %in% ind))[1]
-         	 # 	ind  <- c(ind, idx1)
-         	 # }
-         	 # else stop("a path cannot be identified.")
-         }
-         else if (flag == 1)
-            flag <- if (all(is.na(x2))) 2 else 3
-      }
-   }
-   
-   # Keep a record of the triangles in the path (only works in the case where x1 and x2 are both present)
-   if (flag != 3 & all(!is.na(x2))) {
-      # i1 <- which(triangle1 == indtrng[trng])[1]
-      # i2 <- which(triangle2 == indtrng[trng])[1]
-      # print(flag)
-      # print(indtrng[trng])
-      # print(triangle2)
-      i1 <- which(indtrng[trng] %in% triangle1)[1]
-      i2 <- which(indtrng[trng] %in% triangle2)[1]
-      # print(c(i1, i2))
-      trngls <- indtrng[trng][i1:i2]
-   }
-   
-   path  <- crossings[ind, ]
-   if (!is.matrix(path)) path <- matrix(path, nrow = 1)
-   if (si.target.present) cvals <- cvals[ind]
-   if ("directions" %in% names(shape)) {
-      drns <- drns[ , , ind]
-      kp1  <- kp1[ind]
-      kp2  <- kp2[ind]
-   }
-   
-   # Remove repeated points
-   if (flag < 3 & nrow(path) > 1) {
-      tol  <- sqrt(.Machine$double.eps)
-      eps  <- apply(diff(path), 1, function(x) sqrt(sum(x^2)))
-      ind  <- 1 + which(eps < tol)
-      if (length(ind) > 0) {
-         path <- path[-ind, ]
-         if (si.target.present) cvals <- cvals[-ind]
-         if ("directions" %in% names(shape)) {
-            drns <- drns[ , , -ind]
-            kp1  <- kp1[-ind]
-            kp2  <- kp2[-ind]
-         }
-      }
-   }
-   
-   # If x1 and x2 are both present, restrict the path to the section between x1 and x2.
-   if (all(!is.na(x2)) & (flag == 2)) {
-      dist1 <- sqrt(sum((path[1, ] - x1)^2))
-      distn <- sqrt(sum((path[nrow(path), ] - x1)^2))
-      if (distn < dist1) {
-         path  <- path[nrow(path):1, ]
-         if (si.target.present) cvals <- cvals[nrow(path):1]
-         if ("directions" %in% names(shape)) {
-            drns <- drns[ , , nrow(path):1]
-            kp1  <- kp1[nrow(path):1]
-            kp2  <- kp2[nrow(path):1]
-         }
-      }
-      if (sqrt(sum((x1 - path[1, ])^2)) < 1e-8) {
-         path  <- path[-1, ]
-         if (si.target.present) cvals <- cvals[-1]
-         if ("directions" %in% names(shape)) {
-            drns <- drns[ , , -1]
-            kp1  <- kp1[-1]
-            kp2  <- kp2[-1]
-         }
-         if (!is.matrix(path)) path <- matrix(path, nrow = 1)
-      }
-      if (sqrt(sum((x2 - path[nrow(path), ])^2)) < 1e-8) {
-         path <- path[-nrow(path), ]
-         if (si.target.present) cvals <- cvals[-nrow(path)]
-         if ("directions" %in% names(shape)) {
-            drns <- drns[ , , -nrow(path)]
-            kp1  <- kp1[-nrow(path)]
-            kp2  <- kp2[-nrow(path)]
-         }
-      }
-      path   <- rbind(x1, path, x2)
-      if (si.target.present) cvals <- c(NA, cvals, NA)
-      if ("directions" %in% names(shape)) {
-         dm    <- dim(drns)
-         dm[3] <- dm[3] + 2
-         matd  <- array(NA, dim = dm)
-         matd[ , , 2:(dm[3]-1)] <- drns
-         drns  <- matd
-         kp1   <- c(NA, kp1, NA)
-         kp2   <- c(NA, kp2, NA)
-      }
-   }
-   
-   # If only x1 is present, restrict the path to the section from x1 in the appropriate direction.   
-   if (any(is.na(x2)) & flag < 3) {
-      dst  <- edist.face3d(path, x1)
-      proj <- c(sweep(path, 2, x1) %*% direction)
-      ind  <- which(proj > 0)
-      ind1 <- ind[which.min(dst[ind])]
-      ind2 <- if (ind1 > 1 && proj[ind1 - 1] > 0) 1 else nrow(path)
-      if (bothways) {
-         ind          <- ind2:ind1
-      	path1        <- rbind(path[ind, ], x1)
-      	x1.arclength <- sum(apply(diff(path1)^2, 1, function(x) sqrt(sum(x))))
-      	ind3         <- if (ind2 ==1) ind1 + 1 else ind1 - 1
-      	ind4         <- nrow(path) + 1 - ind2
-         path         <- rbind(path1, path[ind3:ind4, ])
-         ind5         <- c(ind, NA, ind3:ind4)
-         if (si.target.present) cvals <- c(cvals[ind], NA, cvals[ind3:ind4])
-         if ("directions" %in% names(shape)) {
-            dm        <- dim(drns)
-            drns1     <- array(dim = c(dm[1:2], length(ind) + 2 + abs(ind4 - ind3)))
-            drns1[ , , 1:length(ind)] <- drns[ , , ind]
-            drns1[ , , length(ind) + 2 + 0:(ind4 - ind3)] <- drns[ , , ind3:ind4]
-            drns      <- drns1
-            kp1       <- kp1[ind5]
-            kp2       <- kp2[ind5]
-         }
-      }
-      else {
-         x1.arclength <- 0
-         path         <- rbind(x1, path[ind1:ind2, ])
-         if (si.target.present) cvals <- c(NA, cvals[ind1:ind2])
-         if ("directions" %in% names(shape)) {
-            dm        <- dim(drns)
-            dm[3]     <- length(ind1:ind2) + 1
-            matd      <- array(NA, dim = dm)
-            matd[ , , 2:dm[3]] <- drns[ , , ind1:ind2]
-            drns      <- matd
-            kp1       <- c(NA, kp1[ind1:ind2])
-            kp2       <- c(NA, kp2[ind1:ind2])
-         }
-      }
-   }
-
-   # Compute the criterion
-   if (flag == 3)
-      crit <- Inf
    else {
-      lngths <- apply(diff(path)^2, 1, function(x) sqrt(sum(x)))
+      trngls    <- triangles[indtrng, , drop = FALSE]
+      triangle1 <- triangles1[which(triangles1 %in% indtrng)][1]
+      triangle2 <- triangles2[which(triangles2 %in% indtrng)][1]
+      ind       <- ind[indtrng, , drop = FALSE]
+      j         <- which(apply(ind, 1, sum) == 2)
+      ind[j, ]  <- 1 - ind[j, ]
+      ind1      <- c(ind %*% 1:3)
+      nind1     <- length(ind1)
+      indnot1   <- rep(1:3, nind1)[-((0:(nind1 - 1)) * 3 + ind1)]
+      indnot1   <- matrix(indnot1, ncol = 2, byrow = TRUE)
+      j         <- 1:nind1
+      edges     <- rbind(cbind(trngls[cbind(j, ind1)], trngls[cbind(j, indnot1[ , 1])]),
+                         cbind(trngls[cbind(j, ind1)], trngls[cbind(j, indnot1[ , 2])]))
+      e1        <- c(shape$vertices[edges[, 1], ] %*% rcross)
+      e2        <- c(shape$vertices[edges[, 2], ] %*% rcross)
+      wts       <- (sum(x1 * rcross) - e1) / (e2 - e1)
+      crossings <- (1 - wts) * shape$vertices[edges[ , 1], ] +
+                        wts  * shape$vertices[edges[ , 2], ]
       if (si.target.present)
-         crit <- -sum(cvals[-1] * lngths, na.rm = TRUE) / sum(lngths)
-         # Old version
-         # crit <- -sum(cvals[-1] * lngths[-length(lngths)], na.rm = TRUE) / 
-         #                            sum(lngths[-length(lngths)]))
-      else if (rotation[1] %in% c("maximise", "maxmize"))
-         crit <- -sum(lngths)
-      else
-         crit <-  sum(lngths)
-   }
-   # if (all(is.na(x2)))
-   #    criterion <- c(criterion, sum(apply(diff(path)^2, 1, function(x) sqrt(sum(x)))))
-   criterion <- c(criterion, crit)
-   
-   # Identify whether this is the minimum so far
-   ind <- which.min(criterion)
-   if (ind == length(criterion)) {
-      criterion.min <- criterion[ind]
-      path.min      <- path
-      angle.min     <- angle
-      if (all(!is.na(x2))) trngs.min <- trngls
-      if (si.target.present) cvals.min <- cvals
+         cvals <- (1 - wts) * values[edges[ , 1]] + wts  * values[edges[ , 2]]
       if ("directions" %in% names(shape)) {
-         drns.min <- drns
-         kp1.min  <- kp1
-         kp2.min  <- kp2
+         drns  <- sweep(shape$directions[ , , edges[ , 1]], 3, 1 - wts, "*") + 
+                  sweep(shape$directions[ , , edges[ , 2]], 3,     wts, "*")
+         lngth <- apply(drns, 2:3, function(x) sqrt(sum(x^2)))
+         drns  <- sweep(drns, 2:3, lngth, "/")
+         kp1   <- (1 - wts) * shape$kappa1[edges[ , 1]] + wts  * shape$kappa1[edges[ , 2]]
+         kp2   <- (1 - wts) * shape$kappa2[edges[ , 1]] + wts  * shape$kappa2[edges[ , 2]]
       }
-   }
+      
+      if (as.numeric(monitor) == 2) rgl::spheres3d(crossings, radius = gspheres/5)
+
+      edges <- t(apply(edges, 1, sort))
+         e     <- paste(edges[ , 1], edges[ , 2])
+      tbl   <- table(e)
+      ends  <- which(e %in% names(which(tbl == 1)))
+      if (length(ends) == 0) ends <- 1
+
+      # Find the edge point which is closest to x1
+      ind  <- which.min(apply(sweep(matrix(c(crossings[ends, ]), ncol = 3), 2, x1)^2, 1, sum))
+      idx1 <- ends[ind]
+      ends <- ends[-ind]
+      trng <- integer()
+      ind  <- integer(0)
+      # ind  <- idx1
+
+      # Find the section which contains x1 (and x2, if required)
+      # The variable flag counts how many of x1 and x2 have been found.
+      flag    <- 0
+      idx.vec <- numeric(0)
+      while (flag < 2) {
+         idx     <- if (idx1 <= nind1) idx1 + nind1 else idx1 - nind1
+         trngnew <- if (idx  <= nind1) idx else idx - nind1
+         trng    <- c(trng, trngnew)
+         # spheres3d(shape$vertices[c(triangles[indtrng[trngnew], ]), ], radius = 0.5)
+         if (!any(e == e[idx])) stop("e problem.")
+         idx1    <- which(e == e[idx])
+         idx1    <- idx1[idx1 != idx]
+         # flag1   <- length(which(triangle1 == indtrng[trng]))
+         # flag2   <- if (all(!is.na(x2))) length(which(triangle2 == indtrng[trng])) else 0
+         flag1   <- length(which(triangle1 %in% indtrng[trng]))
+         flag2   <- if (all(!is.na(x2))) length(which(triangle2 %in% indtrng[trng])) else 0
+         idx1    <- if (flag1 > 1 | flag2 > 1) NULL else idx1
+         flag1   <- min(flag1, 1)
+         flag2   <- min(flag2, 1)
+         # flag1   <- as.numeric(any(triangle1 %in% indtrng[trng]))
+         # flag2   <- if (all(!is.na(x2))) as.numeric(any(triangle2 %in% indtrng[trng])) else 0
+         # # flag2   <- if (all(!is.na(x2))) as.numeric(any(pts2 %in% indtrng[trngnew])) else 0
+         flag    <- flag1 + flag2
+         # Deal with circular paths
+         if (any(idx == idx.vec)) flag <- 3 else idx.vec <- c(idx, idx.vec)
+         if (flag == 1 | all(is.na(x2))) ind <- c(ind, idx)
+         # print(ends)
+         # print(flag)
+         # print(idx1)
+         # print(matrix(c(crossings[idx, ]), ncol = 3))
+         # spheres3d(matrix(c(crossings[idx, ]), ncol = 3), radius = 1.2 * gspheres, col = "blue")
+         # spheres3d(matrix(c(crossings[idx, ]), ncol = 3), radius = 0.21, col = "blue")
+         # If an edge is encountered and bridge.gaps is FALSE, jump to another edge 
+         # if no points have been found.  Give up if one point has been found.
+         if (length(idx1) == 0) {
+            if (flag == 1 & bridge.gaps) {
+               # segments3d(shape$vertices[c(t(edges[ends, ])), ], col = "blue", lwd = 3)
+               # spheres3d(crossings[ends, ], col = "green", radius = 1, alpha = 1)
+               ends <- ends[ends != idx]
+               # Find the end point which is closer to the missing one of x1 or x2
+               # but of those is the closest to idx.
+               xx    <- if (flag1) x2 else x1
+               ed0   <- sqrt(sum((crossings[idx, ] - xx)^2))
+               ed1   <- edist.face3d(crossings[ends, ], xx)
+               ed2   <- edist.face3d(crossings[ends, ], crossings[idx, ])
+               ed    <- ends[ed1 <= ed0]
+               idx1  <- ed[which.min(ed2[ed1 <= ed0])]
+            	# cat("ends", ends, "\n")
+            	# cat("ed", ed, "\n")
+            	# cat("idx1", idx1, "\n")
+               ind   <- c(ind, idx1)
+               ends <- ends[ends != idx1]
+            }
+            else if (flag == 0) {
+               if (length(ends) > 0) ends <- ends[-which(ends == idx)]
+               trng <- integer(0)
+               if (length(ends) > 0) {
+                  idx1 <- ends[1]
+                  ends <- ends[-1]
+                  flag <- 0
+                  ind  <- integer(0)
+                  }
+               else
+                  flag <- 3
+            	 # else if (length(idx) < 2 * nind1) {
+             	 # 	idx1 <- which(!(1:(2*nind1) %in% ind))[1]
+            	 # 	ind  <- c(ind, idx1)
+            	 # }
+            	 # else stop("a path cannot be identified.")
+            }
+            else if (flag == 1)
+               flag <- if (all(is.na(x2))) 2 else 3
+         }
+      }
    
-   if (monitor) {
-   	  rgl::pop3d()
-   	  rgl::spheres3d(matrix(c(path), ncol = 3), radius = gspheres)
-   	  cat("angle:", angle, "criterion:", criterion[length(criterion)])
-   	  if (monitor.prompt) scan(quiet = TRUE)
-   }
+      # Keep a record of the triangles in the path (only works in the case where x1 and x2 are both present)
+      if (flag != 3 & all(!is.na(x2))) {
+         # i1 <- which(triangle1 == indtrng[trng])[1]
+         # i2 <- which(triangle2 == indtrng[trng])[1]
+         # print(flag)
+         # print(indtrng[trng])
+         # print(triangle2)
+         i1 <- which(indtrng[trng] %in% triangle1)[1]
+         i2 <- which(indtrng[trng] %in% triangle2)[1]
+         # print(c(i1, i2))
+         trngls <- indtrng[trng][i1:i2]
+      }
+   
+      path  <- crossings[ind, , drop = FALSE]
+      if (si.target.present) cvals <- cvals[ind]
+      if ("directions" %in% names(shape)) {
+         drns <- drns[ , , ind]
+         kp1  <- kp1[ind]
+         kp2  <- kp2[ind]
+      }
+   
+      # Remove repeated points
+      if (flag < 3 & nrow(path) > 1) {
+         tol  <- sqrt(.Machine$double.eps)
+         eps  <- apply(diff(path), 1, function(x) sqrt(sum(x^2)))
+         ind  <- 1 + which(eps < tol)
+         if (length(ind) > 0) {
+            path <- path[-ind, ]
+            if (si.target.present) cvals <- cvals[-ind]
+            if ("directions" %in% names(shape)) {
+               drns <- drns[ , , -ind]
+               kp1  <- kp1[-ind]
+               kp2  <- kp2[-ind]
+            }
+         }
+      }
+   
+      # If x1 and x2 are both present, restrict the path to the section between x1 and x2.
+      if (all(!is.na(x2)) & (flag == 2)) {
+         dist1 <- sqrt(sum((path[1, ] - x1)^2))
+         distn <- sqrt(sum((path[nrow(path), ] - x1)^2))
+         if (distn < dist1) {
+            path  <- path[nrow(path):1, ]
+            if (si.target.present) cvals <- cvals[nrow(path):1]
+            if ("directions" %in% names(shape)) {
+               drns <- drns[ , , nrow(path):1]
+               kp1  <- kp1[nrow(path):1]
+               kp2  <- kp2[nrow(path):1]
+            }
+         }
+         if (sqrt(sum((x1 - path[1, ])^2)) < 1e-8) {
+            path  <- path[-1, ]
+            if (si.target.present) cvals <- cvals[-1]
+            if ("directions" %in% names(shape)) {
+               drns <- drns[ , , -1]
+               kp1  <- kp1[-1]
+               kp2  <- kp2[-1]
+            }
+            if (!is.matrix(path)) path <- matrix(path, nrow = 1)
+         }
+         if (sqrt(sum((x2 - path[nrow(path), ])^2)) < 1e-8) {
+            path <- path[-nrow(path), ]
+            if (si.target.present) cvals <- cvals[-nrow(path)]
+            if ("directions" %in% names(shape)) {
+               drns <- drns[ , , -nrow(path)]
+               kp1  <- kp1[-nrow(path)]
+               kp2  <- kp2[-nrow(path)]
+            }
+         }
+         path   <- rbind(x1, path, x2)
+         if (si.target.present) cvals <- c(NA, cvals, NA)
+         if ("directions" %in% names(shape)) {
+            dm    <- dim(drns)
+            dm[3] <- dm[3] + 2
+            matd  <- array(NA, dim = dm)
+            matd[ , , 2:(dm[3]-1)] <- drns
+            drns  <- matd
+            kp1   <- c(NA, kp1, NA)
+            kp2   <- c(NA, kp2, NA)
+         }
+      }
+   
+      # If only x1 is present, restrict the path to the section from x1 in the appropriate direction.   
+      if (any(is.na(x2)) & flag < 3) {
+         dst  <- edist.face3d(path, x1)
+         proj <- c(sweep(path, 2, x1) %*% direction)
+         ind  <- which(proj > 0)
+         ind1 <- ind[which.min(dst[ind])]
+         ind2 <- if (ind1 > 1 && proj[ind1 - 1] > 0) 1 else nrow(path)
+         if (bothways) {
+            ind          <- ind2:ind1
+         	path1        <- rbind(path[ind, ], x1)
+         	x1.arclength <- sum(apply(diff(path1)^2, 1, function(x) sqrt(sum(x))))
+         	ind3         <- if (ind2 ==1) ind1 + 1 else ind1 - 1
+         	ind4         <- nrow(path) + 1 - ind2
+            path         <- rbind(path1, path[ind3:ind4, ])
+            ind5         <- c(ind, NA, ind3:ind4)
+            if (si.target.present) cvals <- c(cvals[ind], NA, cvals[ind3:ind4])
+            if ("directions" %in% names(shape)) {
+               dm        <- dim(drns)
+               drns1     <- array(dim = c(dm[1:2], length(ind) + 2 + abs(ind4 - ind3)))
+               drns1[ , , 1:length(ind)] <- drns[ , , ind]
+               drns1[ , , length(ind) + 2 + 0:(ind4 - ind3)] <- drns[ , , ind3:ind4]
+               drns      <- drns1
+               kp1       <- kp1[ind5]
+               kp2       <- kp2[ind5]
+            }
+         }
+         else {
+            x1.arclength <- 0
+            path         <- rbind(x1, path[ind1:ind2, ])
+            if (si.target.present) cvals <- c(NA, cvals[ind1:ind2])
+            if ("directions" %in% names(shape)) {
+               dm        <- dim(drns)
+               dm[3]     <- length(ind1:ind2) + 1
+               matd      <- array(NA, dim = dm)
+               matd[ , , 2:dm[3]] <- drns[ , , ind1:ind2]
+               drns      <- matd
+               kp1       <- c(NA, kp1[ind1:ind2])
+               kp2       <- c(NA, kp2[ind1:ind2])
+            }
+         }
+      }
+
+      # Compute the criterion
+      if (flag == 3)
+         crit <- Inf
+      else {
+         lngths <- apply(diff(path)^2, 1, function(x) sqrt(sum(x)))
+         if (si.target.present)
+            crit <- -sum(cvals[-1] * lngths, na.rm = TRUE) / sum(lngths)
+            # Old version
+            # crit <- -sum(cvals[-1] * lngths[-length(lngths)], na.rm = TRUE) / 
+            #                            sum(lngths[-length(lngths)]))
+         else if (rotation[1] %in% c("maximise", "maxmize"))
+            crit <- -sum(lngths)
+         else
+            crit <-  sum(lngths)
+      }
+      # if (all(is.na(x2)))
+      #    criterion <- c(criterion, sum(apply(diff(path)^2, 1, function(x) sqrt(sum(x)))))
+      criterion <- c(criterion, crit)
+   
+      # Identify whether this is the minimum so far
+      ind <- which.min(criterion)
+      if (ind == length(criterion)) {
+         criterion.min <- criterion[ind]
+         path.min      <- path
+         angle.min     <- angle
+         if (all(!is.na(x2))) trngs.min <- trngls
+         if (si.target.present) cvals.min <- cvals
+         if ("directions" %in% names(shape)) {
+            drns.min <- drns
+            kp1.min  <- kp1
+            kp2.min  <- kp2
+         }
+      }
+   
+      if (monitor) {
+      	  rgl::pop3d()
+      	  rgl::spheres3d(matrix(c(path), ncol = 3), radius = gspheres)
+      	  cat("angle:", angle, "criterion:", criterion[length(criterion)])
+      	  if (monitor.prompt) scan(quiet = TRUE)
+      }
+      
+   }  # End of if block after test for the presence of crossings
    
    }  # End of the angles for loop.
-   
-   if (monitor) {
-      rgl::pop3d()
-   	  if (si.target.present) plot(shape, colour = 2 + values, new = FALSE)
-   	  else                   plot(shape, new = FALSE)
-      rgl::spheres3d(path.min, col = "green", radius = gspheres)
-      rgl::spheres3d(rbind(x1, x2), col = "red", radius = 1.2 * gspheres)
-   }
    
    if (nrow(path.min) > 0) {
       arclength <- apply(diff(path.min)^2, 1, function(x) sqrt(sum(x)))
@@ -492,13 +492,23 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
       cat("A path cannot be identified.\n")
       return(invisible(NULL))
    }
+   
+   if (monitor & !is.null(path.min)) {
+      rgl::pop3d()
+      if (si.target.present) plot(shape, colour = 2 + values)
+      else                   plot(shape)
+      rgl::spheres3d(path.min, col = "green", radius = gspheres)
+      rgl::spheres3d(rbind(x1, x2), col = "red", radius = 1.2 * gspheres)
+   }
+   
    result <- list(path = path.min, arclength = arclength, criterion = criterion.min,
                   pts1 = c(pts1), shape = shape, angle = angle.min, normal = normal)
    if (!any(is.na(x2))) {
       result$pts2      <- c(pts2)
-      sb.ind           <- shape$subset
-      # sb.ind           <- as.numeric(rownames(shape$vertices))
-      result$triangles <- matrix(sb.ind[c(triangles[trngs.min, ])], ncol = 3)
+      if ("subset" %in% names(shape)) {
+         sb.ind           <- shape$subset
+         result$triangles <- matrix(sb.ind[c(triangles[trngs.min, ])], ncol = 3)
+      }
    }
    else
       result$x1.arclength <- x1.arclength

@@ -3,8 +3,8 @@ trimimage.face3d <- function(shape, lmks.vertical = c("sn", "n"),
 
    # Reduce an image using landmarks as a guide
 
-   if (!all(c("lmks", "mesh") %in% names(shape)))
-      stop("both lmks and a mesh are required in shape.")
+   if (!all(c("landmarks", "mesh") %in% names(shape)))
+      stop("both landmarks and a mesh are required as components of the input object.")
    
    shape <- rotate.face3d(shape, landmarks = c(lmks.vertical, lmks.horizontal),
                          rotation = "coronal")

@@ -24,7 +24,8 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
    
    if (any(c("pn", "enL", "enR") %in% landmark.names) |all(landmark.names == "none")) {
       
-      if (monitor > 0) cat("Sampling ... ")
+      if (monitor > 0) cat("Initialising ...")
+      if (monitor > 1) cat("\n")
    
       ncoord   <- nrow(face$vertices)
       selected <- 1
@@ -35,7 +36,7 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
          idist     <- rdist(t(face$vertices[iselected, ]), face$vertices)
          mindist   <- pmin(idist, mindist)
       }
-      if (monitor > 0) cat(length(selected), "points ... ")
+      if (monitor > 0) cat("  sampling", length(selected), "points ... ")
       if (monitor > 1) {
          plot(face)
          spheres3d(face$vertices[selected, ], radius = sample.spacing / 5)
@@ -67,7 +68,7 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       ind.neg   <- face$shape.index <= 0
    }
 
-   if (monitor > 0) cat("Approximating location of")
+   if (monitor > 0) cat("Approximating location of ...")
    
    #---------------------------------------------------------------------------------
    #        pn
@@ -75,8 +76,8 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
    
    if ("pn" %in% landmark.names) {
       
-      if (monitor == 1) cat(" ... pn ...")
-      if (monitor > 1)  cat(":\n  pn: main convex area  ... ")
+      if (monitor == 1) cat(" pn ...")
+      if (monitor > 1)  cat("\n  pn: main convex area  ... ")
       
       parts.pos <- connected.face3d(sbst.pos)
       parts.neg <- connected.face3d(sbst.neg)

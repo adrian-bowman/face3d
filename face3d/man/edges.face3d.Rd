@@ -19,6 +19,8 @@ edges.face3d(shape)
 \details{
 The function identifies the pairs of points which define an edge which appears only once in the triangulation of the shape.  Edges which lie in the interior part of the surface are present in adjacent triangles and so appear more than once.
 
+If a \code{lines} component is present in \code{shape}, this is ignored.
+
 Note that single edges can sometimes also appear in areas of the surface where the trianglution is confused, due to imperfections in the captured image.  For example, strands of hair can sometimes cause this kind of problem in facial images.  There can also be confusion at the perimeter of the surface.  In these cases, multiple edges are produced.
 }
 
