@@ -22,13 +22,13 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
    #        Estimate global curvature
    #---------------------------------------------------------------------------------
    
-   if (any(c("pn", "enL", "enR") %in% landmark.names) |all(landmark.names == "none")) {
+   if (any(c("pn", "enL", "enR") %in% landmark.names) | all(landmark.names == "none")) {
       
       if (monitor > 0) cat("Initialising ...")
       if (monitor > 1) cat("\n")
    
       ncoord   <- nrow(face$vertices)
-      selected <- 1
+      selected <- as.integer(1)
       mindist  <- c(rdist(t(face$vertices[selected, ]), face$vertices))
       while(max(mindist) > sample.spacing & length(selected) < ncoord) {
          iselected <- which.max(mindist)
@@ -49,6 +49,7 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       selected <- selected[ind]
       to       <- cbind(face$shape.index, face$kappa1, face$kappa2)[selected, ]
       wp       <- warp.face3d(face$vertices[selected, ], to, face$vertices)
+      # Warping may extrapolate beyond [-1,1] so curtail in this case
       face$shape.index <- pmax(pmin(wp[ , 1], 1), -1)
       face$kappa1      <- wp[ , 2]
       face$kappa2      <- wp[ , 3]
@@ -170,6 +171,7 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
          spheres3d(lmks["pn", ], radius = 3, col = "red")
          cat("completed.")
          if (monitor > 2) invisible(readline(prompt = "      Press [enter] to continue"))
+         else cat("\n")
       }
 
    }
@@ -214,13 +216,14 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
          sbst.neg    <- subset(sbst.neg, ind.neg)
       dst            <- c(rdist(t(pn), sbst.neg$vertices))
       
-      # Use the new shape index to define the areas with positive Gaussian curvature
+      # Use the new shape index to define the top two areas with positive Gaussian curvature
       sbst.neg$gc    <- sbst.neg$kappa1 * sbst.neg$kappa2
       sbst.neg       <- subset(sbst.neg, sbst.neg$gc > 0 & dst > 40)
       # sbst.neg       <- subset(sbst.neg, sbst.neg$shape.index > 0 & dst > 40)
       sbst.neg$parts <- connected.face3d(sbst.neg)
       sbst.neg       <- subset(sbst.neg, sbst.neg$parts %in% 1:2)
       
+      # Find the first mode then remove that region and find the second
       mode           <- mode.face3d(sbst.neg, sbst.neg$gc, 5)
       lmks["enL", ]  <- mode$mode
       dst            <- rdist(t(lmks["enL", ]), sbst.neg$vertices)
@@ -230,10 +233,11 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       lmks["enR", ]  <- mode$mode
 
       if (monitor > 1) {
-         cat("completed.")
          plot(sbst.neg, col = sbst.neg$gc)
          spheres3d(lmks[c("enL", "enR"), ], radius = 5, col = "red")
+         cat("completed.")
          if (monitor > 2) invisible(readline(prompt = "      Press [enter] to continue"))
+         else cat("\n")
       }
 
    }
@@ -278,19 +282,20 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       # crv          <- -sbst$kappa1 * sbst$kappa2
       # lmks["se", ] <- mode.face3d(sbst, crv, 5)$mode
       
-      if (monitor > 0) cat("completed.\n")
       if (monitor > 1) {
          plot(sbst)
          spheres3d(ppath)
          spheres3d(se,  radius = 2, col = "red")
+         cat("completed.")
          if (monitor > 2) invisible(readline(prompt = "      Press [enter] to continue"))
+         else cat("\n")
       }
       
       lmks["se", ] <- se
    }
    
    #---------------------------------------------------------------------------------
-   #        Assign L/R to enL and enR (requires se)
+   #        Assign L/R to enL and enR (requires se, enL, enR)
    #---------------------------------------------------------------------------------
 
    if (all(c("enL", "enR") %in% rownames(lmks))) {
@@ -346,13 +351,15 @@ approximatelandmarks.face3d <- function(face, landmark.names = c("pn", "enL", "e
       # pathM <- planepath.face3d(sbst, pn, direction =  drn, rotation.range = pi / 4, si.target = 1)
       # sn    <- gcurvature.face3d(pathM$path, 10)$pos.max
    
-      if (monitor > 0) cat("completed.\n")
+      if (monitor > 0) 
       if (monitor > 1) {
          spheres3d(pathL)
          spheres3d(pathR)
          spheres3d(lmks["acL", ], radius = 3, col = "orange")
          spheres3d(lmks["acR", ], radius = 3, col = "green")
+         cat("completed.\n")
          if (monitor > 2) invisible(readline(prompt = "      Press [enter] to continue"))
+         else cat("\n")
       }
    }
    

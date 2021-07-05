@@ -6,23 +6,32 @@ summary.face3d <- function(object, checks = FALSE, fix = FALSE, ...) {
    n.vertices <- nrow(object$vertices)
    n.faces <- nrow(object$triangles)
    ranges  <- apply(object$vertices, 2, range)
-   dimnames(ranges) <- list(c("min", "max"), c("x", "y", "z"))
+   dimnames(ranges) <- list(c("min", "max"), c("    x", "    y", "    z"))
 
    lst     <- list(...)
    prnt    <- if ("print" %in% names(lst)) lst$print else TRUE
    if (prnt) {
-      cat("Number of vertices: ", n.vertices, "\n")
-      cat("Number of triangles:", n.faces, "\n")
-      cat("Range of x:", ranges[ , 1], "\n")
-      cat("Range of y:", ranges[ , 2], "\n")
-      cat("Range of z:", ranges[ , 3], "\n")
-      if ("shape index" %in% names(object))
-         cat("shape index: distance =", object$si.distance, "\n")
-      more <- which(!(names(object) %in% c("vertices", "triangles", "shape index")))
-      if (length(more) > 0)
-         cat("Other information available: ", names(object)[more], "\n")
+      cat("A face3d object with", n.vertices, "and", n.faces, "triangles.", "\n")
+      cat("Co-ordinate ranges:\n")
+      print(t(ranges))
+      nms <- names(object)
+      nms <- nms[!(nms %in% c("vertices", "triangles"))]
+      if (length(nms) > 0) {
+         ind <-        which(sapply(nms, function(x) is.vector(object[[x]]) && (length(object[[x]])  == n.vertices)))
+         ind <- c(ind, which(sapply(nms, function(x) is.array(object[[x]]) && (any(dim(object[[x]]) == n.vertices)))))
+         if (length(ind) > 0) {
+            cat("Information which matches vertices:\n")
+            cat("   ", nms[ind], "\n")
+            nms <- nms[-ind]
+         }
+         if (length(nms) > 0) {
+            cat("Other information:\n")
+            cat("   ", nms, "\n")
+         }
+      }
    }
    result <- list(n.vertices = n.vertices , n.faces = n.faces, ranges = ranges)
+   if (fix) result$object <- object
    
    if (any(is.na(object$triangles)))
       cat("Warning: the triangles contain missing values.")
@@ -39,8 +48,10 @@ summary.face3d <- function(object, checks = FALSE, fix = FALSE, ...) {
    isolated <- (1:n.vertices)[-unique(c(t(object$triangles)))]
    if (length(isolated) > 0) {
       result$isolated <- isolated
-      if (fix)
+      if (fix) {
          result$object <- subset(object, -isolated)
+         if (prnt) cat("Isolated vertices fixed.\n")
+      }
       else {
          if (prnt) {
             cat("Warning: this object contains isolated vertices.\n")
@@ -53,7 +64,7 @@ summary.face3d <- function(object, checks = FALSE, fix = FALSE, ...) {
    # Check for duplicated co-ordinates
    ind <- which(duplicated(object$vertices) | duplicated(object$vertices, fromLast = TRUE))
    if (length(ind) > 0) {
-      ind1      <- duplicated(object$coord[ind, ])
+      ind1      <- duplicated(object$vertices[ind, ])
       retained  <- ind[which(!ind1)]
       discarded <- ind[which(ind1)]
       map <- matrix(nrow = 0, ncol = 2)
@@ -68,11 +79,12 @@ summary.face3d <- function(object, checks = FALSE, fix = FALSE, ...) {
          triples <- c(t(object$triangles))
          for (i in 1:length(result$duplicated))
             triples[triples == result$duplicated[i]] <- result$matched[i]
-         trpls          <- matrix(triples, ncol = 3, byrow = TRUE)
-         ind            <- apply(trpls, 1, function(x) length(unique(x)) < 3)
+         trpls            <- matrix(triples, ncol = 3, byrow = TRUE)
+         ind              <- apply(trpls, 1, function(x) length(unique(x)) < 3)
          object$triangles <- matrix(c(t(trpls[!ind, ])), ncol = 3, byrow = TRUE)
-         object         <- subset(object, -result$duplicated)
-         result$object  <- object
+         object           <- subset(object, -result$duplicated)
+         result$object    <- object
+         if (prnt) cat("Duplicated co-ordinates fixed.\n")
       }
       else {
          if (prnt) {
@@ -106,6 +118,8 @@ summary.face3d <- function(object, checks = FALSE, fix = FALSE, ...) {
       if (fix) {
          object$triangles <- trpls[-ind, ]
          result$object  <- object
+         if (prnt) cat("Collinear triangles fixed.\n")
+            
       }
       else {
          if (prnt) {

@@ -4,7 +4,7 @@ Installation
 ------------
 
 In R
-	install.packages("~/OneDrive - University of Glasgow/research/face3d_0.1-1/face3d", repos = NULL, type = "source")
+	     install.packages("~/research/face3d/face3d", repos = NULL, type = "source")
 
 Alternatively, in a terminal window, go to the level where the rpanel directory is found.  
 

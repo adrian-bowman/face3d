@@ -1,36 +1,38 @@
 #     Computing the curvatures and shape index
 
-setwd("~/ownCloud/Face3D_0.1-1")
+setwd("~/research/face3d")
 
-library(Face3D)
+library(face3d)
 
-load("sbst.dmp")
+load("~/research/face3d/testing/test-data/nose.RData")
+shape <- subset(template_male, c(rdist(t(shape$landmarks["pn", ]), shape$vertices)) < 30)
+plot(shape)
 
-sbst <- normals.face3d(sbst)
-sbst <- index.face3d(sbst, distance = 5, overwrite = TRUE)
-sbst <- index.face3d(sbst, distance = 5)
-cbind(sbst$kappa1, sbst$kappa2)
+shape <- normals.face3d(shape)
+shape <- index.face3d(shape, distance = 5, overwrite = TRUE)
+shape <- index.face3d(shape, distance = 5)
+cbind(shape$kappa1, shape$kappa2)
 
-plot(sbst$kappa1, sbst$kappa2)
+plot(shape$kappa1, shape$kappa2)
 
-display.face3d(sbst, colour = "shape index", new = FALSE)
-display.face3d(sbst, colour = sbst$kappa1 + 2, new = FALSE)
-display.face3d(sbst, colour = sbst$kappa2 + 2, new = FALSE)
+plot(shape, colour = "shape index")
+plot(shape, colour = shape$kappa1)
+plot(shape, colour = shape$kappa2)
 
-ind <- which.max(sbst$kappa1)
-spheres3d(sbst$coords[ind, ])
+ind <- which.max(shape$kappa1)
+spheres3d(shape$vertices[ind, ])
 
-normals.face3d(sbst)$axes[[1]]
+normals.face3d(shape)$axes[[1]]
 
-display.face3d(sbst, "normals")
-
-
-
-
+plot(shape, "normal")
 
 
 
 
+
+
+
+# Old material
 
 setwd("/Volumes/adrian/research/shape/Face3D/Face3D-package/Face3D_0.1-1")
 

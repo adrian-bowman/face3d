@@ -4,8 +4,8 @@ subset.face3d <- function(shape, subset, remove.singles = TRUE, retain.indices =
    nvert <- nrow(shape$vertices)
    
    # Check the contents of subset
-   if (!is.logical(ind) & !is.integer(ind))
-      stop("subset contains inappropriate values.")
+   if (!all(is.logical(ind)) & !all(is.integer(ind)))
+      stop("subset is not logical or integer.")
    if (is.logical(ind)) {
       if (length(ind) != nvert)
          stop("the length of subset does not match the number of vertices.")

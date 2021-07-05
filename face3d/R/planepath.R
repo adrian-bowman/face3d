@@ -176,7 +176,7 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
    
    for (angle in angle.values) {
 
-   rcross     <- rgl::rotate3d(cross, angle, direction[1], direction[2], direction[3])
+   rcross     <- c(rgl::rotate3d(cross, angle, direction[1], direction[2], direction[3]))
    # normal     <- c(crossproduct(cross, direction))
    # rnormal    <- rotate3d(normal,    angle, direction[1], direction[2], direction[3])
    # rdirection <- rotate3d(direction, angle, direction[1], direction[2], direction[3])

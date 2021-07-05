@@ -11,7 +11,7 @@
 \usage{
 index.face3d(shape, extent = 2, distance = 10, type = "euclidean",
              subset = 1:nrow(shape$coords),
-             extension = "NA", overwrite = FALSE, directions = FALSE)
+             extension = "NA", overwrite = FALSE, directions = FALSE, monitor = 0)
 }
 
 \arguments{
@@ -23,6 +23,7 @@ index.face3d(shape, extent = 2, distance = 10, type = "euclidean",
 \item{extension}{a logical value or vector of indices which define a slightly larger area of the object than \code{subset}.  This allows the patches around particular points to extend beyond \code{subset}, hence improving the estimation of curvature at the edges.  When \code{extension} is logical and \code{TRUE}, all points within \code{distance} of any point in \code{shape$coords} will be included in the index calculations.  When \code{extension} is an integer vector, the extension is provided by the vertices of \code{shape} which have these indices.  If this argument is missing, curvature is calculated using only points defined by \code{subset}, except in the case where the number of points in \code{sbst} is less than 10, when \code{extension} is set to \code{TRUE}.}
 \item{overwrite}{a logical value determining whether existing values of shape index and curvatures will be overwritten by new ones.  It will clearly be faster not to repeat the caluclation of indices if the same value of \code{distance} is used.}
 \item{directions}{a logical value which controls whether the principal directions are placed in the \code{face3d} object returned by the function.}
+\item{monitor}{an integer value which controls the level of reporting.  If \code{monitor} is > 0 and some vertices have insufficient (< 8) neighbours to compute the local curvature then a message reporting the number of these vertices is printed.}
 }
 
 \details{

@@ -23,7 +23,7 @@ plot.face3d(shape, display = "surface", plot.isolated = TRUE, colour = "texture"
 
 If a single colour is supplied, this will be replicated across all the points in \code{shape} and the display will use the \pkg{rgl} control \code{lit = TRUE}.  
 	
-If a vector, whose length matches the number of points or number of triangles (\code{shape$triples)/3}) in \code{shape}, is suppled then colours will be created using the \code{cut} function.  If \code{colour.range} is supplied then this defines the range of colours for plotting, otherwise the range of \code{colour} will be used.
+If \code{colour} is a vector whose length matches the number of points or number of triangles (\code{shape$triples)/3}) in \code{shape}, then colours will be created using the \code{cut} function.  If \code{colour.range} is supplied then this defines the range of colours for plotting, otherwise the range of \code{colour} will be used.  If all the values of \code{colour} are identical then the central colour of the colour palette is used and a warning message is printed.
 
 If \code{colour} is set to \code{"shape index"} then the shape indices in the matrix \code{shape$shape.index}, if present, are used to define the colour.
 

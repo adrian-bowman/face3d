@@ -1,6 +1,6 @@
 index.face3d <- function(shape, extent = 2, distance = 10, type = "euclidean",
                          subset = 1:nrow(shape$vertices),
-                         extension = "NA", overwrite = FALSE, directions = FALSE) {
+                         extension = "NA", overwrite = FALSE, directions = FALSE, monitor = 0) {
 
    sbst <- subset
    if (all(is.logical(subset)) & (length(sbst) == nrow(shape$vertices))) sbst <- which(sbst)
@@ -11,7 +11,7 @@ index.face3d <- function(shape, extent = 2, distance = 10, type = "euclidean",
    if (length(sbst) == 0) return(invisible(shape))
 
    extension.missing <- missing(extension)
-  
+   
    clist <- function(list1, list2) {
       nms1         <- sapply(list1, length)
       nms2         <- sapply(list2, length)
@@ -44,7 +44,8 @@ index.face3d <- function(shape, extent = 2, distance = 10, type = "euclidean",
    	  }
    	  else
            nbrs  <- which(edist.face3d(pts.ext, pt.i) < distance)
-   	  if (length(nbrs) < 7) {
+   	  nbrs.na <- as.numeric(length(nbrs) < 8)
+   	  if (nbrs.na > 0) {
    	     shape.index        <- NA
    	     kappa              <- rep(NA, 2)
    	     rss                <- NA
@@ -70,7 +71,8 @@ index.face3d <- function(shape, extent = 2, distance = 10, type = "euclidean",
            # mean.curvature       <- det(W)
            # gaussian.curvature   <- 1/2 * (sum(diag(W)))
    	  }
-      results <- list(shape.index = shape.index, kappa1 = kappa[1], kappa2 = kappa[2], rss = rss)
+      results <- list(shape.index = shape.index, kappa1 = kappa[1], kappa2 = kappa[2], rss = rss,
+                      nbrs.na = nbrs.na)
       if (directions) results$drns <- drns
       invisible(results)
    }
@@ -129,7 +131,12 @@ index.face3d <- function(shape, extent = 2, distance = 10, type = "euclidean",
    shape$kappa1[sbst]      <- index[ , 2]
    shape$kappa2[sbst]      <- index[ , 3]
    shape$rss[sbst]         <- index[ , 4]
+   nbrs.na                 <- index[ , 5]
    shape$si.distance       <- distance
+   
+   if ((monitor > 0) & (sum(nbrs.na) > 0))
+      cat(sum(nbrs.na), " vertices have insufficient neighbours.  Increasing the distance parameter may help.\n")
+   
    if (directions & (overwrite | !("directions" %in% names(shape)))) {
       axes       <- array(unlist(axes), dim = c(3, 3, length(axes)))
       axes       <- axes[ , , sbst]

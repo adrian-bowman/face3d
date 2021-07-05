@@ -131,6 +131,12 @@ plot.face3d <- function (shape, display = c("surface", "lines"), plot.isolated =
     }
 
     if (is.numeric(colour) & length(colour) > 1) {
+       if (range.colour.missing)
+          range.colour <- range(colour, na.rm = TRUE)
+       if (diff(range.colour) < sqrt(.Machine$double.eps)) {
+          warning("the colour values are all identical.")
+          range.colour <- mean(colour) + c(-1, 1)
+       }
        bxp <- boxplot(colour, plot = FALSE)
        lmt <- c(bxp$stats[c(1, 5), 1])
        ex1 <- length(which(colour < lmt[1])) > 0
@@ -138,8 +144,6 @@ plot.face3d <- function (shape, display = c("surface", "lines"), plot.isolated =
        if (scaling.missing) {
           scaling <- if (range.colour.missing & (ex1 | ex2)) "trimmed" else "linear"
        }
-       if (range.colour.missing)
-          range.colour <- range(colour, na.rm = TRUE)
        if (all(is.na(breaks))) {
           if (prod(range.colour) < 0 & all(is.na(col.palette))) {
              range.colour <- c(-1, 1) * max(abs(range.colour))
@@ -237,7 +241,7 @@ plot.face3d <- function (shape, display = c("surface", "lines"), plot.isolated =
 }
 
 sicolour.face3d <- function(x) {
-   outside  <- (abs(x) > 1)
+   outside  <- (!is.na(x) && abs(x) > 1)
    if (any(outside)) stop("some values are outside the range -1 to 1.")
    brks.r   <- c(rep(0, 3), 0.5, rep(1, 5))
    brks.g   <- c(rep(1, 7), 0.5, 0)
