@@ -1,4 +1,4 @@
-"distance.face3d" <- function(x1, x2) {
+"distance.face3d" <- function(x1, x2, minsum = FALSE) {
   
    if (is.vector(x1)) x1 <- t(as.matrix(x1))
    if (is.vector(x2)) x2 <- t(as.matrix(x2))
@@ -8,8 +8,12 @@
       if (is.face3d(x2)) x2 <- x2$vertices
       if (ncol(x1) != 3) stop("the dimension of x1 do not correspond to 3d co-ordinates.")
       if (ncol(x2) != 3) stop("the dimension of x2 do not correspond to 3d co-ordinates.")
-      dst <- fields::rdist(x1, x2)
-      if (any(dim(dst) == 1)) dst <- c(dst)
+      if (minsum)
+         dst <- sum(c(apply(x1, 1, function(x) min(fields::rdist(t(x), x2)))))
+      else {
+         dst <- fields::rdist(x1, x2)
+         if (any(dim(dst) == 1)) dst <- c(dst)
+      }
       return(dst)
    }
    

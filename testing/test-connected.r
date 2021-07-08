@@ -1,19 +1,22 @@
 #     Tests for connected.face3d
 
-install.packages("~/OneDrive - University of Glasgow/research/face3d_0.1-1/face3d",
-                 repos = NULL, type = "source")
+install.packages("~/research/face3d/face3d", repos = NULL, type = "source")
 library(face3d)
 library(rgl)
 
-
-sbst  <- subset(template_male, template_male$shape.index > 0)
+sbst  <- subset(template_male,
+                template_male$vertices[ , 1] > 10 | template_male$vertices[ , 1] < 5)
+plot(sbst)
 parts <- connected.face3d(sbst)
-sbst  <- subset(sbst, parts == 1)
-plot(sbst, col = "kappa2")
+summary(sbst)
+table(parts)
+plot(subset(sbst, parts == 1), col = "grey")
+plot(subset(sbst, parts == 2), col = "green", add = TRUE)
 
 
 
-load("testing/test-data/connected.RData")
+
+load("~/research/face3d/testing/test-data/connected.RData")
 plot(face, display = "points", new = FALSE)
 plot(face, display = "mesh", add = TRUE)
 

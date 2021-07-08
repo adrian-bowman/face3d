@@ -1,10 +1,8 @@
 #     Search for text in all files
 
-target <- "splinefun"
+target <- "distance.face3d"
 diry   <- "."
-diry   <- "~/OneDrive - University of Glasgow/research/face3d/"
-diry   <- "~/OneDrive - University of Glasgow/research/face3d/face3d/R"
-diry   <- "~/OneDrive - University of Glasgow/research/face3d/face3d/man"
+diry   <- "~/research/face3d/face3d"
 recursive <- FALSE
 recursive <- TRUE
 

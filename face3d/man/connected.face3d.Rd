@@ -21,7 +21,7 @@ The information in \code{shape$triples} is examined to identify the connected pa
 }
 
 \value{
-An integer vector of indicators, of length \code{nrow(shape$coords)}, is returned to identify the connected parts of \code{shape}.  Values of \code{0} indicate isolated points.  The connected parts are in decreasing order of the number of vertices they contain.
+An integer vector of indicators, of length \code{nrow(shape$coords)}, is returned to identify the connected parts of \code{shape}.  Values of \code{0} indicate isolated points.  The connected parts are in decreasing order of surface area.
 }
 
 \examples{

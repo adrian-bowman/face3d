@@ -9,7 +9,8 @@ Euclidean distances between 3d co-ordinates, or more complex distances between \
 }
 
 \usage{
-distance.face3d(x1, x2)}
+distance.face3d(x1, x2, minsum = FALSE)
+}
 
 \arguments{
 \item{x1, x2}{each of \code{x1} and {x2} may be either a vector of 3d co-ordinates, a three-column matrix whose rows are 3d co-ordinates, or a \code{face3d} object.}
@@ -18,7 +19,9 @@ distance.face3d(x1, x2)}
 \details{
 When either \code{x1} or \code{x2} is a vector or matrix of 3d co-ordinates, the Euclidean distances are calculated.  When one of \code{x1} or \code{x2} is a \code{face3d} object then the distances are calculated to the \code{vertices} of this object. In either case, these distances are computed by calling the \code{rdist} function from \pkg{fields} package.
 
-When \code{x1} and {x2} are both \code{face3d} objects whose \code{vertices} have geometrical correspondence, several types of distance are calculated from the \code{vertices} of \code{x1} to the \code{vertices} of \code{x2}. These are documented below in the Values section.
+When \code{x1} and {x2} are both \code{face3d} objects whose \code{vertices} have geometrical correspondence, several types of distance are calculated from the \code{vertices} of \code{x1} to the \code{vertices} of \code{x2}. These are documented below in the Values section.  A particular use of these distances is in quantifying and plotting the differences between the model or template representations of two objects.
+
+When \code{minsum = TRUE}, the minimum distance from each set of co-ordinates in \code{x1} to those in \code{x2} is computed and these are summed to provide a single overall distance measure,
 }
 
 \value{

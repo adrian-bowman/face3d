@@ -1,7 +1,5 @@
 #     Create prior information for landmarks
 
-setwd("~/ownCloud/Face3D_0.1-1")
-
 library(Face3D)
 library(fields)
 library(rgl)
