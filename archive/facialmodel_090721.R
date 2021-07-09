@@ -98,15 +98,9 @@ facialmodel.face3d <- function(face, pca, npc, pn.id,
    sbst.high <- subset(sbst.high, p1 %in% ind)
    p1        <- p1[p1 %in% ind]
    
-   if (monitor > 1) {
-      pop3d()
-      plot(sbst.high, col = sbst.high$gc, display = "spheres", add = TRUE)
-      if (monitor > 2) {
-         invisible(readline(prompt = "      Press [enter] to continue"))
-         cat("      ")
-      }
-   }
-   
+   # pop3d()
+   # plot(sbst.high, col = sbst1$gc, display = "spheres", add = TRUE)
+
    fn.rt <- function(pars) {
       crvs <- pca$mean
       for (i in 1:(length(pars) - 6))
@@ -117,33 +111,18 @@ facialmodel.face3d <- function(face, pca, npc, pn.id,
       crvs <- sweep(crvs, 2, pars[4:6], "+")
       invisible(crvs)
    }
-   
-   fn <- function(pars, graphics = FALSE) {
+      
+   fn <- function(pars) {
       if (any(abs(pars[7:9]) > 3)) return(Inf)
       crvs1 <- fn.rt(pars)
       dst   <- distance.face3d(crvs1, face$vertices[selected, ], minsum = TRUE) / nrow(crvs1)
-      if (graphics) {
+      if (monitor > 1) {
          pop3d()
          spheres3d(crvs1, col = "yellow", radius = 2)
       }
       invisible(dst)
    }
       
-   fn.pn <- function(pars, pn, graphics = FALSE) {
-      crvs <- pca$mean
-      crvs <- sweep(crvs, 2, crvs[pn.id, ])
-      crvs <- rotate3d(crvs, pars[1], 1, 0, 0)
-      crvs <- rotate3d(crvs, pars[2], 0, 1, 0)
-      crvs <- rotate3d(crvs, pars[3], 0, 0, 1)
-      crvs <- sweep(crvs, 2, pn, "+")
-      dst  <- distance.face3d(crvs, face$vertices[selected, ], minsum = TRUE) / nrow(crvs)
-      if (graphics) {
-         pop3d()
-         spheres3d(crvs, col = "yellow", radius = 2)
-      }
-      invisible(dst)
-   }
-   
    curvefit.fn <- function(sbs) {
       pn <- mode.face3d(sbs, sbs$gc, 10)$mode
 
@@ -154,39 +133,44 @@ facialmodel.face3d <- function(face, pca, npc, pn.id,
          spheres3d(pn, col = "red", radius = 1.5)
       }
       
-      # ngrid  <- 8
-      # pgrid  <- seq(-pi, pi, length = ngrid + 1)[-1]
-      # pgrid  <- as.matrix(expand.grid(pgrid, pgrid, pgrid))
-      # values <- apply(pgrid, 1, fn.pn, graphics = TRUE)
-      # pars   <- pgrid[which.min(values), ]
-      # fn.pn(pars, graphics = TRUE)
+      # Simple grid search to locate the curves approximately
+      # ngrid <- 4
+      # angle.grid <- seq(-pi, pi, length = ngrid + 1)[-1]
+      # angle.grid <- as.matrix(expand.grid(angle.grid, angle.grid, angle.grid))
+      # values     <- apply(angle.grid, 1, fn, pn = pn)
+      # pars       <- angle.grid[which.min(values), ]
+      # fn(pars, graphics = TRUE, pn = pn)
       
-      pars   <- c(rep(0, 3))
-      opt    <- optim(pars, fn.pn, graphics = monitor > 1, pn = pn,
-                      control = list(reltol = reltol))
-      
-      # pgrid  <- cbind(pgrid, parmn[1], parmn[2], parmn[3], 0, 0, 0)
-      # values <- apply(pgrid, 1, fn, graphics = FALSE)
-      # pars   <- pgrid[which.min(values), ]
-      # fn(pars, graphics = TRUE)
-      
-      crvs1 <- rotate3d(pca$mean, opt$par[1], 1, 0, 0)
-      crvs1 <- rotate3d(crvs1,    opt$par[2], 0, 1, 0)
-      crvs1 <- rotate3d(crvs1,    opt$par[3], 0, 0, 1)
-      pars   <- c(opt$par, pn - crvs1[pn.id, ], rep(0, 3))
-      opt    <- optim(pars, fn, graphics = monitor > 1, control = list(reltol = reltol))
+      crvs  <- pca$mean
+      crvs1 <- sweep(crvs, 2, crvs[pn.id, ] - pn)
+      pars  <- c(rep(0, 3), apply(crvs1, 2, mean), rep(0, npc))
+      opt   <- optim(pars, fn,
+                     # lower = c(-pi, -pi, -pi, -Inf, -Inf, -Inf, -3, -3, -3),
+                     # upper = c( pi,  pi,  pi,  Inf,  Inf,  Inf,  3,  3,  3),
+                     control = list(reltol = reltol))
 
       invisible(c(opt$value, opt$par))
    }
-   
-   # sbs <- subset(sbst.high, p1 == unique(p1)[1])
       
    # Fit the curves to each candidate location and choose the best
+   crvs   <- pca$mean
    values <- sapply(unique(p1), function(x) curvefit.fn(subset(sbst.high, p1 == x)))
    ind    <- which.min(values[1, ])
    curves <- fn.rt(values[-1, ind])
    
-   if (monitor > 0) cat("completed.\npc parameters:", values[-(1:7), ind], "\n")
+   # curvefit.fn(subset(sbst.high, p1 == 1))
+   # 
+   # plot(subset(sbst.high, p1 == 1))
+   # summary(subset(sbst.high, p1 == 1))
+   # summary(subset(sbst.high, p1 == 2))
+   # area.face3d(subset(sbst.high, p1 == 1))$area
+   # area.face3d(subset(sbst.high, p1 == 2))$area
+   # 
+   # plot(sbst.pos, col = sbst.pos$gc)
+   # plot(sbst.high, col = sbst.high$gc, display = "spheres", add = TRUE)
+   # fn(values[-1, ind])
+   
+   if (monitor > 0) cat("completed.\n")
    if (monitor > 1) fn(values[-1, ind])
 
    invisible(curves)

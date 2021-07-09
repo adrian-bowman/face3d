@@ -1,4 +1,4 @@
-connected.face3d <- function(shape) {
+connected.face3d <- function(shape, order.by.area = FALSE) {
    
    if (!is.face3d(shape)) stop("this is not a face3d object.")
    
@@ -48,10 +48,12 @@ connected.face3d <- function(shape) {
    
    part[part == -1] <- 0
    part0            <- part[part > 0]
-   areas            <- sapply(1:max(part0), function(x) area.face3d(subset(shape, part == x))$area)
-   # Old code when ordering was by the number of vertices
-   # ord              <- order(table(part0), decreasing = TRUE)
-   ord              <- order(areas, decreasing = TRUE)
+   if (order.by.area) {
+      areas <- sapply(1:max(part0), function(x) area.face3d(subset(shape, part == x))$area)
+      ord   <- order(areas, decreasing = TRUE)
+   }
+   else
+      ord   <- order(table(part0), decreasing = TRUE)
    code             <- 1:length(ord)
    names(code)      <- ord
    part[part > 0]   <- code[as.character(part0)]

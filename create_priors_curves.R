@@ -1,13 +1,13 @@
 #     Create priors for curves
 
-install.packages("~/research/face3d/face3d", repos = NULL, type = "source")
-library(face3d)
-library(rgl)
-library(fields)
-library(geometry)
-library(shapes)
-library(MASS)
-library(colorspace)
+# install.packages("~/research/face3d/face3d", repos = NULL, type = "source")
+# library(face3d)
+# library(rgl)
+# library(fields)
+# library(geometry)
+# library(shapes)
+# library(MASS)
+# library(colorspace)
 
 # Liberty's controls
 fls <- list.files("../Glasgow-controls/Liberty", full.names = TRUE)
@@ -45,7 +45,7 @@ apply(curves, 3, function(x) spheres3d(x))
 
 pca <- pca.face3d(curves)
 names(pca)
-pca$percent
+head(pca$percent)
 
 pc.high <- pca$mean + 2 * pca$sd[1] * matrix(pca$evecs[ , 1], ncol = 3)
 pc.low  <- pca$mean - 2 * pca$sd[1] * matrix(pca$evecs[ , 1], ncol = 3)

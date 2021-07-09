@@ -1,5 +1,4 @@
 export(
-  approximatelandmarks.face3d,
   arclength.face3d,
   area.face3d,
   as.face3d,
@@ -20,6 +19,7 @@ export(
   editlandmarks.face3d,
   extract.face3d,
   facecurves.face3d,
+  facialmodel.face3d,
   findac,
   findbayes,
   # findlandmarks.face3d,

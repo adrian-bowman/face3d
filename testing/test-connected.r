@@ -8,11 +8,11 @@ sbst  <- subset(template_male,
                 template_male$vertices[ , 1] > 10 | template_male$vertices[ , 1] < 5)
 plot(sbst)
 parts <- connected.face3d(sbst)
-summary(sbst)
 table(parts)
 plot(subset(sbst, parts == 1), col = "grey")
 plot(subset(sbst, parts == 2), col = "green", add = TRUE)
 
+parts <- connected.face3d(sbst, order.by.area = TRUE)
 
 
 
