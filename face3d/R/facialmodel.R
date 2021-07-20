@@ -1,43 +1,32 @@
 facialmodel.face3d <- function(face, pca, npc, pn.id,
                                    reltol = 0.01, sample.spacing, trim = 2 * sample.spacing,
-                                   distance = 10, sample.distance = 5 * distance,
+                                   distance = 10,
                                    monitor = 1, overwrite = FALSE) {
 
-   if (monitor > 0) cat("Sampling ... ")
-
-   ncoord   <- nrow(face$vertices)
-   selected <- as.integer(1)
-   mindist  <- c(rdist(t(face$vertices[selected, ]), face$vertices))
-   while(max(mindist) > sample.spacing & length(selected) < ncoord) {
-      iselected <- which.max(mindist)
-      selected  <- c(selected, iselected)
-      idist     <- rdist(t(face$vertices[iselected, ]), face$vertices)
-      mindist   <- pmin(idist, mindist)
+   if (!("shape.index" %in% names(face))) {
+      if (!missing(sample.spacing)) {
+         if (monitor > 0) cat("Sampling ... ")
+         sampled <- sample.face3d(face, spacing = sample.spacing)
+         if (monitor > 0) cat(length(sampled), "points ... ")
+         if (monitor > 1) {
+            plot(face)
+            spheres3d(face$vertices[sampled, ], radius = sample.spacing / 5)
+         }
+         if (monitor > 0) cat("interpolating curvature ... ")
+         face <- index.face3d(face, distance = distance, subset = sampled, interpolate = TRUE,
+                              monitor = monitor)
+      }
+      else
+         face <- index.face3d(face, distance = distance)
    }
-      
-   # if (monitor > 0) cat(length(selected), "points ... ")
-   if (monitor > 1) {
-      plot(face)
-      spheres3d(face$vertices[selected, ], radius = sample.spacing / 5)
-   }
-   if (monitor > 0) cat("interpolating curvature ... ")
-   
-   face     <- index.face3d(face, subset = selected, distance = sample.distance, overwrite = TRUE)
-   ind      <- !is.na(face$shape.index[selected])
-   selected <- selected[ind]
-   to       <- cbind(face$shape.index, face$kappa1, face$kappa2)[selected, ]
-   wp       <- warp.face3d(face$vertices[selected, ], to, face$vertices)
-   face$shape.index <- pmax(pmin(wp[ , 1], 1), -1)      # Warping may extrapolate beyond [-1,1]
-   face$kappa1      <- wp[ , 2]
-   face$kappa2      <- wp[ , 3]
-   face$gc          <- face$kappa1 * face$kappa2
+   face$gc <- face$kappa1 * face$kappa2
 
    if (monitor > 1) {
       plot(face, col = "shape index")
       # plot(face, col = face$gc, key = TRUE)
       if (monitor > 2) invisible(readline(prompt = "      Press [enter] to continue"))
    }
-   if (monitor > 0) cat("finding main convex area  ... ")
+   if (monitor > 0) cat("Finding main convex area ... ")
    
    sbst.pos  <- subset(face, face$shape.index >  0, retain.indices = TRUE)
    sbst.neg  <- subset(face, face$shape.index <= 0, retain.indices = TRUE)
@@ -121,7 +110,7 @@ facialmodel.face3d <- function(face, pca, npc, pn.id,
    fn <- function(pars, graphics = FALSE) {
       if (any(abs(pars[7:9]) > 3)) return(Inf)
       crvs1 <- fn.rt(pars)
-      dst   <- distance.face3d(crvs1, face$vertices[selected, ], minsum = TRUE) / nrow(crvs1)
+      dst   <- distance.face3d(crvs1, face$vertices[sampled, ], minsum = TRUE) / nrow(crvs1)
       if (graphics) {
          pop3d()
          spheres3d(crvs1, col = "yellow", radius = 2)
@@ -136,7 +125,7 @@ facialmodel.face3d <- function(face, pca, npc, pn.id,
       crvs <- rotate3d(crvs, pars[2], 0, 1, 0)
       crvs <- rotate3d(crvs, pars[3], 0, 0, 1)
       crvs <- sweep(crvs, 2, pn, "+")
-      dst  <- distance.face3d(crvs, face$vertices[selected, ], minsum = TRUE) / nrow(crvs)
+      dst  <- distance.face3d(crvs, face$vertices[sampled, ], minsum = TRUE) / nrow(crvs)
       if (graphics) {
          pop3d()
          spheres3d(crvs, col = "yellow", radius = 2)
@@ -150,7 +139,7 @@ facialmodel.face3d <- function(face, pca, npc, pn.id,
       if (monitor > 1) {
          face.pn <- subset(face, distance.face3d(pn, face) < 120)
          plot(face.pn)
-         spheres3d(face$vertices[selected, ])
+         spheres3d(face$vertices[sampled, ])
          spheres3d(pn, col = "red", radius = 1.5)
       }
       
@@ -180,6 +169,9 @@ facialmodel.face3d <- function(face, pca, npc, pn.id,
    }
    
    # sbs <- subset(sbst.high, p1 == unique(p1)[1])
+   
+   # Use a sample of vertices to make the calculation of distances efficient
+   sampled <- sample.face3d(face, spacing = sample.spacing)
       
    # Fit the curves to each candidate location and choose the best
    values <- sapply(unique(p1), function(x) curvefit.fn(subset(sbst.high, p1 == x)))

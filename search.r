@@ -1,6 +1,6 @@
 #     Search for text in all files
 
-target <- "distance.face3d"
+target <- "extension"
 diry   <- "."
 diry   <- "~/research/face3d/face3d"
 recursive <- FALSE

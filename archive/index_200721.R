@@ -1,23 +1,52 @@
-index.face3d <- function(shape, distance = 10,
-                         subset, interpolate = FALSE,
-                         # extension = TRUE,
-                         overwrite = FALSE, directions = FALSE, monitor = 0) {
+index.face3d <- function(shape, extent = 2, distance = 10,
+                         sample.spacing, sample.distance = 5 * distance,
+                         type = "euclidean", subset = 1:nrow(shape$vertices),
+                         extension = "NA", overwrite = FALSE, directions = FALSE, monitor = 0) {
 
-   # This function contains old code which allows a type argument.  Setting type = "mesh" uses
-   # connections across the triangulation to determine the neighbourhoods, using an extent argument
-   # (default 2).
-   type <- "euclidean"
-   
-   # extension.missing <- missing(extension)
-   
-   subset.missing <- missing(subset)
-   sbst <- if (subset.missing) 1:nrow(shape$vertices) else subset
+   sbst <- subset
    if (all(is.logical(subset)) & (length(sbst) == nrow(shape$vertices))) sbst <- which(sbst)
-   # if (length(sbst) == 1 && sbst <= 1) sbst <- round(nrow(shape$vertices) * sbst)
+   if (length(sbst) == 1 && sbst <= 1) sbst <- round(nrow(shape$vertices) * sbst)
 
    if (!("shape.index" %in% names(shape))) shape$shape.index <- rep(NA, nrow(shape$vertices))
    if (!overwrite) sbst <- sbst[is.na(shape$shape.index[sbst])]
    if (length(sbst) == 0) return(invisible(shape))
+   
+   # Sampling
+   if (!missing(sample.spacing) && is.numeric(sample.distance) && sample.distance > 0) {
+      
+      if (monitor > 0) cat("Sampling ... ")
+      
+      ncoord   <- nrow(shape$vertices)
+      selected <- as.integer(1)
+      mindist  <- c(rdist(t(shape$vertices[selected, ]), shape$vertices))
+      while(max(mindist) > sample.spacing & length(selected) < ncoord) {
+         iselected <- which.max(mindist)
+         selected  <- c(selected, iselected)
+         idist     <- rdist(t(shape$vertices[iselected, ]), shape$vertices)
+         mindist   <- pmin(idist, mindist)
+      }
+   
+      # if (monitor > 0) cat(length(selected), "points ... ")
+      if (monitor > 1) {
+         plot(shape)
+         spheres3d(shape$vertices[selected, ], radius = sample.spacing / 5)
+      }
+      if (monitor > 0) cat("interpolating curvature ... ")
+   
+      shape    <- index.face3d(shape, subset = selected, distance = sample.distance, overwrite = TRUE)
+      ind      <- !is.na(shape$shape.index[selected])
+      selected <- selected[ind]
+      to       <- cbind(shape$shape.index, shape$kappa1, shape$kappa2)[selected, ]
+      wp       <- warp.face3d(shape$vertices[selected, ], to, shape$vertices)
+      shape$shape.index <- pmax(pmin(wp[ , 1], 1), -1)      # Warping may extrapolate beyond [-1,1]
+      shape$kappa1      <- wp[ , 2]
+      shape$kappa2      <- wp[ , 3]
+      
+      cat("cmpkleted.\n")
+      return(invisible(shape))
+   }   
+
+   extension.missing <- missing(extension)
    
    clist <- function(list1, list2) {
       nms1         <- sapply(list1, length)
@@ -104,21 +133,21 @@ index.face3d <- function(shape, distance = 10,
    pts <- shape$vertices[sbst, ]
    
    # Deal with extension
-   # if (extension.missing) {
-   #    if (length(sbst) < 10) extensn <- TRUE
-   #    else {
-   #      ind.ext <- sbst
-   #      extensn <- FALSE
-   #    }
-   # }
-   # else
-   #    extensn <- extension
-   # if (is.logical(extensn) && extensn) {
+   if (extension.missing) {
+      if (length(sbst) < 10) extensn <- TRUE
+      else {
+        ind.ext <- sbst
+        extensn <- FALSE
+      }
+   }
+   else
+      extensn <- extension
+   if (is.logical(extensn) && extensn) {
       dst     <- rdist(shape$vertices[sbst, ], shape$vertices)
       ind.ext <- apply(dst, 1, function(x) which(x <= distance))
       ind.ext <- unique(c(unlist(ind.ext)))
-   # }
-   # else if (is.integer(extensn)) ind.ext <- c(sbst, extensn)
+   }
+   else if (is.integer(extensn)) ind.ext <- c(sbst, extensn)
    pts.ext <- shape$vertices[ind.ext, ]
    
    if (type == "mesh") {
@@ -167,20 +196,6 @@ index.face3d <- function(shape, distance = 10,
       # print(apply(shape$axes[ , 3, ], 2, function(x) sqrt(sum(x^2))))
       # print(apply(shape$directions[, 1, ], 2, function(x) sqrt(sum(x^2))))
    }
-   
-   # Interpolation
-   if (!subset.missing & interpolate) {
-      ind      <- !is.na(shape$shape.index[sbst])
-      sbst     <- sbst[ind]
-      to       <- cbind(shape$shape.index, shape$kappa1, shape$kappa2)[sbst, ]
-      wp       <- warp.face3d(shape$vertices[sbst, ], to, shape$vertices)
-      shape$shape.index <- pmax(pmin(wp[ , 1], 1), -1)   # Warping may extrapolate beyond [-1,1]
-      shape$kappa1      <- wp[ , 2]
-      shape$kappa2      <- wp[ , 3]
-
-      return(invisible(shape))
-   }   
-   
    
    class(shape) <- "face3d"
    invisible(shape)

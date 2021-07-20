@@ -9,16 +9,17 @@
 }
 
 \usage{
-index.face3d(shape, distance = 10, sample.spacing,
-             type = "euclidean", subset = 1:nrow(shape$coords),
+index.face3d(shape, extent = 2, distance = 10, type = "euclidean",
+             subset = 1:nrow(shape$coords),
              extension = "NA", overwrite = FALSE, directions = FALSE, monitor = 0)
 }
 
 \arguments{
 \item{shape}{a face3d object.}
-\item{distance}{the size of the radial neighbourhood which will be used to calculate the shape index at each location.}
+\item{extent}{the order of neighbours used to define the region around each point over which a quadratic patch is fitted.}
+\item{distance}{the size (in mm) of the radial neighbourhood which will be used to calculate the shape index at each location.}
+\item{type}{the type of disstance to be used.}
 \item{subset}{a vector which defines a subset of \code{shape$coords} on which the shape index will be calculated.  This may be in the form of a set of indices, or a logical vector, defining a set of vertices.  It may also be a number between 0 and 1, which will be used to define a random proportion of vertices.  If \code{subset} is missing, all co-ordinates will be used.}
-\item{interpolate}{a logical value which controls whether the curvatures evaluated on a subset are interpolated to all vertices, using the \code{warp.face3d} function.  if the \code{subset} argument is not used then the \code{interpolate} argument is ignored.}
 \item{extension}{a logical value or vector of indices which define a slightly larger area of the object than \code{subset}.  This allows the patches around particular points to extend beyond \code{subset}, hence improving the estimation of curvature at the edges.  When \code{extension} is logical and \code{TRUE}, all points within \code{distance} of any point in \code{shape$coords} will be included in the index calculations.  When \code{extension} is an integer vector, the extension is provided by the vertices of \code{shape} which have these indices.  If this argument is missing, curvature is calculated using only points defined by \code{subset}, except in the case where the number of points in \code{sbst} is less than 10, when \code{extension} is set to \code{TRUE}.}
 \item{overwrite}{a logical value determining whether existing values of shape index and curvatures will be overwritten by new ones.  It will clearly be faster not to repeat the caluclation of indices if the same value of \code{distance} is used.}
 \item{directions}{a logical value which controls whether the principal directions are placed in the \code{face3d} object returned by the function.}

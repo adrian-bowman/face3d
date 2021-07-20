@@ -30,8 +30,11 @@ curves <- template_male$curves
 curves <- curves[curves[ , 3] > 0, ]
 nms    <- rownames(curves)
 nms    <- sub("upper-lip", "upper lip", nms)
+nms    <- nms[-grep("cheek-eye", nms)]
+nms    <- nms[-grep("philtrum lip", nms)]
 pn.id  <- match("mid-line nasal profile 20", rownames(curves))
-curves <- array(0, dim = c(length(nms), 3, length(fls)))
+curves <- array(0, dim = c(length(nms), 3, length(fls)),
+                dimnames = list(nms))
 for (i in 1:length(fls)) {
    face <- loadface(fls[i])
    crvs <- face$curves
@@ -53,3 +56,18 @@ clear3d()
 spheres3d(pca$mean)
 spheres3d(pc.high, col = "red")
 spheres3d(pc.low,  col = "blue")
+
+# Find the indices for differencing.
+# This currently assumes equally-spaced points with consistent rowname ordering in each curve.
+rnms <- rownames(pca$mean)
+cnms <- rnms
+for (i in 0:9) cnms <- gsub(as.character(i), "", cnms)
+cnms <- unique(cnms)
+dff.fn <- function(x) {
+   nms <- grep(x, rnms)
+   lng <- length(nms)
+   cbind(nms[c(2:lng, lng)], nms[c(1, 1:(lng - 1))])
+}
+ind <- matrix(ncol = 2, nrow = 0)
+for (nm in cnms) ind <- rbind(ind, dff.fn(nm))
+cbind(rnms[ind[ , 1]], rnms[ind[ , 2]])
