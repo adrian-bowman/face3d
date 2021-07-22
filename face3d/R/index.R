@@ -1,5 +1,5 @@
 index.face3d <- function(shape, distance = 10,
-                         subset, interpolate = FALSE,
+                         subset = 1:nrow(shape$vertices), interpolate = FALSE,
                          # extension = TRUE,
                          overwrite = FALSE, directions = FALSE, monitor = 0) {
 
@@ -10,8 +10,7 @@ index.face3d <- function(shape, distance = 10,
    
    # extension.missing <- missing(extension)
    
-   subset.missing <- missing(subset)
-   sbst <- if (subset.missing) 1:nrow(shape$vertices) else subset
+    sbst <- subset
    if (all(is.logical(subset)) & (length(sbst) == nrow(shape$vertices))) sbst <- which(sbst)
    # if (length(sbst) == 1 && sbst <= 1) sbst <- round(nrow(shape$vertices) * sbst)
 
@@ -169,7 +168,7 @@ index.face3d <- function(shape, distance = 10,
    }
    
    # Interpolation
-   if (!subset.missing & interpolate) {
+   if (!(all(1:nrow(shape$vertices) %in% sbst)) & interpolate) {
       ind      <- !is.na(shape$shape.index[sbst])
       sbst     <- sbst[ind]
       to       <- cbind(shape$shape.index, shape$kappa1, shape$kappa2)[sbst, ]

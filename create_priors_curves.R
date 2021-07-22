@@ -68,6 +68,6 @@ dff.fn <- function(x) {
    lng <- length(nms)
    cbind(nms[c(2:lng, lng)], nms[c(1, 1:(lng - 1))])
 }
-ind <- matrix(ncol = 2, nrow = 0)
-for (nm in cnms) ind <- rbind(ind, dff.fn(nm))
-cbind(rnms[ind[ , 1]], rnms[ind[ , 2]])
+diffmat <- matrix(ncol = 2, nrow = 0)
+for (nm in cnms) diffmat <- rbind(diffmat, dff.fn(nm))
+cbind(rnms[diffmat[ , 1]], rnms[diffmat[ , 2]])

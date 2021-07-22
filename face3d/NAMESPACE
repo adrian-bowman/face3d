@@ -53,6 +53,7 @@ export(
   ridge2d.face3d,
   rotate.face3d,
   rp.shapeindex,
+  sample.face3d,
   sicolour.face3d,
   sicolor.face3d,
   slidingcurves.face3d,

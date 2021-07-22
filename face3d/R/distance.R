@@ -1,5 +1,6 @@
 "distance.face3d" <- function(x1, x2, minsum = FALSE) {
   
+   if (missing(x2))   x2 <- rep(0, 3)
    if (is.vector(x1)) x1 <- t(as.matrix(x1))
    if (is.vector(x2)) x2 <- t(as.matrix(x2))
    
