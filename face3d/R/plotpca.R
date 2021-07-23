@@ -129,7 +129,7 @@ plotpca.face3d <- function(x, group, high, display, npc, pc, p,
          plot(shape2, col = clr[2], add = TRUE)
       }
       if (any(c("x", "y", "z", "normal", "s-normal") %in% display)) {
-         dst <- distance.face3d(shape1, shape2)
+         dst <- compare(shape1, shape2)
          dst <- if (display == "s-normal") dst$xyz * sign(dst$normal) else dst[[display]]
          if (range.colour.missing) range.colour <- range(dst, na.rm = TRUE)
          plot(shape1, col = dst, new = FALSE, range.colour = range.colour)

@@ -1,4 +1,4 @@
-"distance.face3d" <- function(x1, x2, minsum = FALSE) {
+"edist" <- function(x1, x2, minsum = FALSE) {
   
    if (missing(x2))   x2 <- rep(0, 3)
    if (is.vector(x1)) x1 <- t(as.matrix(x1))
@@ -19,10 +19,10 @@
    }
    
    if (!(is.face3d(x1) & is.face3d(x2)))
-     stop("x1 and x2 must both be face3d objects.")
+     stop("x1 and x2 must both be vectors, matrices or face3d objects.")
    
   if (!(nrow(x1$vertices) == nrow(x2$vertices)))
-     stop("x1 and x2 have different numbers of vertices.")
+     stop("x1 and x2 are face3d objects but have different numbers of vertices.")
 
    if (!all("normals" %in% names(x1)))
      x1 <- normals.face3d(x1)

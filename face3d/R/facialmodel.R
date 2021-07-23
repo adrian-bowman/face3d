@@ -86,10 +86,10 @@ facialmodel.face3d <- function(face, pca, npc, pn.id,
    # vec.fn <- function(x) {
    #    sbs    <- subset(sbst.high, p1 == x)
    #    pn     <- mode.face3d(sbs, sbs$gc, 10)$mode
-   #    # mean(distance.face3d(pn, sbst.pos$vertices[sampled, ]))
+   #    # mean(edist(pn, sbst.pos$vertices[sampled, ]))
    #    # mn.vec <- apply(sweep(sbst.pos$vertices[sampled, ], 2, pn), 2, mean)
-   #    # distance.face3d(mn.vec)
-   #    distance.face3d(mn, pn)
+   #    # edist(mn.vec)
+   #    edist(mn, pn)
    # }
    # sapply(unique(p1), vec.fn)
       
@@ -118,23 +118,23 @@ facialmodel.face3d <- function(face, pca, npc, pn.id,
       crvs1 <- fn.rt(pars)
       
       # Distance computed from closest point to sampled vertices
-      # dst   <- distance.face3d(crvs1, face$vertices[sampled, ], minsum = TRUE) / nrow(crvs1)
+      # dst   <- edist(crvs1, face$vertices[sampled, ], minsum = TRUE) / nrow(crvs1)
       # Distance computed from closest point to all vertices
-      # dst   <- distance.face3d(crvs1, face.pn$vertices, minsum = TRUE) / nrow(crvs1)
+      # dst   <- edist(crvs1, face.pn$vertices, minsum = TRUE) / nrow(crvs1)
       
       # Distance based on projection using the tangent to the curve
       tangents <- crvs1[diffmat[ , 1], ] - crvs1[diffmat[ , 2], ]
-      deltas   <- distance.face3d(tangents)
+      deltas   <- edist(tangents)
       tangents <- tangents / deltas
       deltas   <- deltas / 2
       dist.fn <- function(i) {
-         ind      <- which(distance.face3d(crvs1[i, ], face.pn) < distance)
+         ind      <- which(edist(crvs1[i, ], face.pn) < distance)
          if (length(ind) < 5) return(nrow(crvs1) * 100 * distance)
          vertices <- sweep(face.pn$vertices[ind, ], 2, crvs1[i, ])
          proj     <- c(vertices %*% tangents[i, ])
          ind1     <- which(abs(proj) < deltas[i])
          if (length(ind1) < 5) return(nrow(crvs1) * 100 * distance)
-         min(distance.face3d(crvs1[i, ], face.pn$vertices[ind[ind1], ]))
+         min(edist(crvs1[i, ], face.pn$vertices[ind[ind1], ]))
       }
       dst <- sapply(1:nrow(crvs1), dist.fn)
       dst <- sum(dst) / nrow(crvs1)
@@ -153,7 +153,7 @@ facialmodel.face3d <- function(face, pca, npc, pn.id,
       crvs <- rotate3d(crvs, pars[2], 0, 1, 0)
       crvs <- rotate3d(crvs, pars[3], 0, 0, 1)
       crvs <- sweep(crvs, 2, pn, "+")
-      dst  <- distance.face3d(crvs, face$vertices[sampled, ], minsum = TRUE) / nrow(crvs)
+      dst  <- edist(crvs, face$vertices[sampled, ], minsum = TRUE) / nrow(crvs)
       if (monitor > 1) {
          pop3d()
          spheres3d(crvs, col = "yellow", radius = 2)
@@ -168,13 +168,13 @@ facialmodel.face3d <- function(face, pca, npc, pn.id,
          pop3d()
          spheres3d(crvs1, col = "yellow", radius = 2)
       }
-      distance.face3d(crvs1, face$vertices[sampled, ], minsum = TRUE) / nrow(crvs1)
+      edist(crvs1, face$vertices[sampled, ], minsum = TRUE) / nrow(crvs1)
    }
    
    
    curvefit.fn <- function(sbs) {
       pn      <- mode.face3d(sbs, sbs$gc, distance)$mode
-      face.pn <- subset(face, distance.face3d(pn, face) < 12 * distance)
+      face.pn <- subset(face, edist(pn, face) < 12 * distance)
       
       if (monitor > 1) {
          plot(face.pn)
@@ -204,7 +204,7 @@ facialmodel.face3d <- function(face, pca, npc, pn.id,
       # fn(pars, graphics = TRUE)
       
       # Choose starting parameters carefully
-      nose    <- subset(face, distance.face3d(pn, face) < 50)
+      nose    <- subset(face, edist(pn, face) < 50)
       nose    <- index.face3d(nose, distance = distance, overwrite = TRUE)
       nose$gc <- nose$kappa1 * nose$kappa2
       nose    <- subset(nose, nose$shape.index > 0.25)
