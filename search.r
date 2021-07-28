@@ -1,6 +1,6 @@
 #     Search for text in all files
 
-target <- "distance.face3d"
+target <- "area"
 diry   <- "."
 diry   <- "~/research/face3d/face3d"
 recursive <- FALSE
@@ -12,11 +12,13 @@ if(length(ind) > 0) files <- files[!ind]
 ind   <-        grep(".Rcheck", files)
 ind   <- c(ind, grep(".Rproj",  files))
 ind   <- c(ind, grep(".Rda",    files))
+ind   <- c(ind, grep(".rda",    files))
 ind   <- c(ind, grep("archive", files))
-ind   <- c(ind, grep("R-old", files))
+ind   <- c(ind, grep("R-old",   files))
 if (length(ind) > 0) files <- files[-ind]
 
 for (ifl in files) {
+   # cat(ifl, "\n")
    file <- readLines(ifl)
    grp <- grep(target, file)
    if (length(grp) > 0) {

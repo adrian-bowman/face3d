@@ -66,9 +66,9 @@ findac <- function(face, monitor = 0) {
    dstL <- c(rdist(t(lmks["acL", ]), sbst$vertices))
    dstR <- c(rdist(t(lmks["acR", ]), sbst$vertices))
    ind  <- (dstL < 20) | (dstR < 20)
-   sbst <- index.face3d(sbst, distance = 10, overwrite = TRUE, directions = TRUE,
+   sbst <- curvatures(sbst, distance = 10, overwrite = TRUE, directions = TRUE,
                         subset = ind)
-   sbst <- index.face3d(sbst, distance =  4, overwrite = TRUE, directions = TRUE,
+   sbst <- curvatures(sbst, distance =  4, overwrite = TRUE, directions = TRUE,
                         subset = ind & sbst$kappa2 > 0)
    
    plot(sbst, col = "kappa2")

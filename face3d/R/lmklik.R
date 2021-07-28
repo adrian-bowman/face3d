@@ -6,7 +6,7 @@ lmklik <- function(face, lmk.name, reflmk.name, monitor = 0) {
    
    dst   <- c(rdist(t(face$landmarks[lmk.name, ]), face$vertices))
    if (!("directions" %in% names(face)))
-      face  <- index.face3d(face, subset = dst < 20, directions = TRUE, overwrite = TRUE)
+      face  <- curvatures(face, subset = dst < 20, directions = TRUE, overwrite = TRUE)
    sbst0 <- subset(face, dst < 20)
    sbst  <- subset(face, dst < 10, retain.indices = TRUE)
    drn1  <- sbst0$directions[ , 1, which.min(dst[dst < 20])]

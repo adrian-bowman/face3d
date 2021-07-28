@@ -1,15 +1,15 @@
-\name{area.face3d}
+\name{areas.face3d}
 
-\alias{area.face3d}
+\alias{areas.face3d}
 
 \title{Calculate the areas of the triangles in an object}
 
 \description{
-This function calculates the area of each triangle in the triangulation of a \code{face3d} object.  The total surface area of the object is also returned.
+This function calculates the area of each triangle in the triangulation of a \code{face3d} object.  The total surface area of the object is also returned.  Areas are also associated with each vertex.
 }
 
 \usage{
-area.face3d(shape)
+areas(shape)
 }
 
 \arguments{
@@ -31,5 +31,6 @@ A list with three components:
 
 \examples{
 \dontrun{
-area <- area.face3d(face)
+nose <- subset(template_male, edist(template_male$landmarks["pn", ], template_male$vertices) < 30)
+ars  <- areas(nose)
 }}

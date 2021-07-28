@@ -1,4 +1,4 @@
-index.face3d <- function(shape, distance = 10,
+curvatures <- function(shape, distance = 10,
                          subset = 1:nrow(shape$vertices), interpolate = FALSE,
                          # extension = TRUE,
                          overwrite = FALSE, directions = FALSE, monitor = 0) {
@@ -49,7 +49,7 @@ index.face3d <- function(shape, distance = 10,
            }
    	  }
    	  else
-           nbrs  <- which(edist.face3d(pts.ext, pt.i) < distance)
+           nbrs  <- which(edist(pts.ext, pt.i) < distance)
    	  nbrs.na <- as.numeric(length(nbrs) < 8)
    	  if (nbrs.na > 0) {
    	     shape.index        <- NA
@@ -138,7 +138,7 @@ index.face3d <- function(shape, distance = 10,
    shape$kappa2[sbst]      <- index[ , 3]
    shape$rss[sbst]         <- index[ , 4]
    nbrs.na                 <- index[ , 5]
-   shape$si.distance       <- distance
+   shape$distance          <- distance
    
    if ((monitor > 0) & (sum(nbrs.na) > 0))
       cat(sum(nbrs.na), " vertices have insufficient neighbours.  Increasing the distance parameter may help.\n")

@@ -49,7 +49,7 @@ asymmetry.face3d <- function(X, sides = c("left", "right"), reference.size,
    for (i in 1:n) {
 
       rownames(X) <- rnms
-      if (model.mesh) areas <- area.face3d(as.face3d(X[ , , i], model.mesh = TRUE))$points
+      if (model.mesh) areas <- areas(as.face3d(X[ , , i], model.mesh = TRUE))$points
       rownames(X) <- sub("LLL", "LL left",  rownames(X))
       rownames(X) <- sub("LLR", "LL right", rownames(X))
       rownames(X) <- sub("ULL", "UL left",  rownames(X))

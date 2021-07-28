@@ -15,7 +15,7 @@ editlandmarks.face3d <- function(shape, lmk.names = rownames(shape$landmarks), p
    	  if (panel$lmk.name == "none" | !panel$path.showing) return(panel)
    	  shape <- if (panel$zoom) panel$sbst else panel$shape
    	  # if (panel$drns.showing) {
-   	  	 # if (!("directions" %in% names(shape))) shape <- index.face3d(shape, directions = TRUE)
+   	  	 # if (!("directions" %in% names(shape))) shape <- curvatures(shape, directions = TRUE)
    	     # drns             <- array(NA, dim = c(3, 3, dim(shape$directions)[3]))
          # drns[ , 1:2, ]   <- shape$directions
          # drns[ ,   3, ]   <- t(shape$normals)
@@ -123,7 +123,7 @@ editlandmarks.face3d <- function(shape, lmk.names = rownames(shape$landmarks), p
    
    display.shape <- function(panel) {
    	  shape <- if (panel$zoom) panel$sbst else panel$shape
-   	  if (panel$colour == "shape index") shape <- index.face3d(shape)
+   	  if (panel$colour == "shape index") shape <- curvatures(shape)
       plot(shape, colour = panel$colour, display = panel$type, new = panel$first)
       panel$first <- FALSE
       if (("landmarks" %in% names(panel$shape)) & !panel$zoom)  {

@@ -70,7 +70,7 @@ summary.face3d <- function(object, checks = FALSE, fix = FALSE, ...) {
       map <- matrix(nrow = 0, ncol = 2)
       for (i in retained) {
          ind1 <- which(duplicated(object$vertices[c(i, discarded), ])) - 1
-         # ind1 <- which(edist.face3d(object$vertices[discarded, ], object$vertices[i, ]) < 100 * .Machine$double.eps)
+         # ind1 <- which(edist(object$vertices[discarded, ], object$vertices[i, ]) < 100 * .Machine$double.eps)
          map  <- rbind(map, cbind(discarded[ind1], i))
       }
       result$duplicated <- map[ , 1]

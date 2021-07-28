@@ -25,7 +25,7 @@
    # # quadlocate <- function(face, constraint = NA, si, si.within, pair = FALSE, monitor = FALSE) {
    	# # suppressWarnings(if(is.na(constraint)!= TRUE){
       # # sbst   <- subset.face3d(face, constraint)
-      # # sbst   <- index.face3d(sbst)}  )
+      # # sbst   <- curvatures(sbst)}  )
       # # if(monitor){plot(sbst, colour = 2 + sbst$kappa1 * sbst$kappa2, new=FALSE)
       	            # # print("prior of interest curvature values on face")
       	            # # scan()}
@@ -46,7 +46,7 @@
       # # for (i in 1:(1 + as.numeric(pair))) {
       	# # ind2   <- which(parts==i)
          # # sbst1 <- subset.face3d(sbst, parts == i) 
-         # # # sbst1 <- index.face3d(sbst1, overwrite = TRUE)
+         # # # sbst1 <- curvatures(sbst1, overwrite = TRUE)
          # # # sbst1  <- subset.face3d(sbst1, abs(sbst1$shape.index - si) < si.within)
          # # dst   <- as.matrix(dist(sbst1$vertices))
          # # crv   <- sbst1$kappa1
@@ -105,7 +105,7 @@
          # while (!flag & (i < nrow(nrst))) {
             # i    <- i + 1
             # ind  <- apply(sweep(face$vertices, 2, nrst[i, ]), 1, function(x) sqrt(sum(x^2))) < 20
-            # face <- index.face3d(face, subset = ind)
+            # face <- curvatures(face, subset = ind)
             # crv  <- pmin(-face$kappa1[ind], -face$kappa2[ind])
             # crv[face$shape.index[ind] < 0.8] <- 0
             # if (length(which(crv > 0.1)) > 10) flag <- TRUE
@@ -120,7 +120,7 @@
       
       # if (any(is.na(c(face$landmarks[c("enL", "enR"), ])))) {
          # if (monitor) cat("enL/R ... ")
-         # face <- index.face3d(face, subset = 
+         # face <- curvatures(face, subset = 
            # (edist.face3d(face$vertices, face$landmarks["pn", ]) < 70) & (face$vertices[ , 2] > face$landmarks["pn", 2] + 10))
          # face$landmarks[c("enL", "enR"), ] <- quadlocate(face,
                  # (edist.face3d(face$vertices, face$landmarks["pn", ]) < 70) & (face$vertices[ , 2] > face$landmarks["pn", 2] + 10),
@@ -143,7 +143,7 @@
             # spheres3d(face$landmarks["se", ], radius = 1.5, col = "blue")
             # scan()
          # }
-         # face <- index.face3d(face, subset = 
+         # face <- curvatures(face, subset = 
            # edist.face3d(face$vertices, face$landmarks["se", ]) < 10)
          
          # # se is a saddlepoint but the negative curvature will be stronger so go from -0.25 to ridge (0.5).
@@ -163,7 +163,7 @@
    # #---------------------------------------------------------------------------------
    
          # # ind   <- apply(face$vertices, 1, function(x) sqrt(sum((x - face$landmarks["pn", ])^2))) < 70
-         # # face  <- index.face3d(face, distance = 10, subset = ind)
+         # # face  <- curvatures(face, distance = 10, subset = ind)
          # # ind   <- (face$shape.index < -0.25) & abs(face$vertices[ , 2] - face$landmarks["pn", 2]) < 20 &
                        # # apply(face$vertices, 1, function(x) sqrt(sum((x - face$landmarks["pn", ])^2))) < 50
          # # sbst  <- subset.face3d(face, ind)
@@ -183,7 +183,7 @@
          # # al    <- if (alL[1] > alR[1]) cbind(alL, alR) else cbind(alR, alL)
          
          # # ind   <- apply(face$vertices, 1, function(x) sqrt(sum((x - face$landmarks["pn", ])^2))) < 40
-         # # face  <- index.face3d(face, distance = 10, subset = ind)
+         # # face  <- curvatures(face, distance = 10, subset = ind)
          # # ind   <- ind & (face$shape.index > 0.25)
          # # sbst  <- subset.face3d(face, ind)
          # # sbst  <- subset(sbst, connected.face3d(sbst) == 1)
@@ -279,7 +279,7 @@
       # crds              <- sweep(crds, 2, cond.mean, "+")
       # ind               <- (M.dst <= stddev[i])
       # logprior          <- -M.dst[ind]  
-      # #face              <- index.face3d(face, subset = ind)  
+      # #face              <- curvatures(face, subset = ind)  
       # sbst              <- subset.face3d(face, ind)
      # if(monitor){plot(face, new=FALSE)
       	           # spheres3d(sbst$vertices)
@@ -345,7 +345,7 @@
      # crds               <- sweep(crds, 2, lmk, "+")
      # ind                <- (dst <= stdd[tt])
      # sbst               <- subset.face3d(face, ind)
-     # sbst               <- index.face3d(sbst, distance = 5)
+     # sbst               <- curvatures(sbst, distance = 5)
      # ql                 <- quadlocate(sbst, rep(TRUE, nrow(sbst$vertices)), 
      					  # si= si[tt], si.within= si.within[tt], pair = FALSE, monitor = FALSE)
      # logprior           <- -dst
@@ -398,7 +398,7 @@
      # crds               <- sweep(crds, 2, lmk, "+")
      # ind                <- (dst <= stdd[tt])
      # sbst1              <- subset.face3d(face, ind)
-     # sbst1              <- index.face3d(sbst1, distance = 5)
+     # sbst1              <- curvatures(sbst1, distance = 5)
      # logprior           <- -dst
      # ind1               <- which(abs(sbst1$shape.index - si[tt]) < si.within[tt])
      # sub1               <- subset.face3d(sbst1, ind1, remove.singles=FALSE)
@@ -416,7 +416,7 @@
      # crds               <- sweep(crds, 2, lmk, "+")
      # ind                <- (dst <= stdd[tt])
      # sbst               <- subset.face3d(face, ind)
-     # sbst               <- index.face3d(sbst, distance = 5)
+     # sbst               <- curvatures(sbst, distance = 5)
      # logprior           <- -dst
      # ind1               <- which(abs(sbst$shape.index - si[tt]) < si.within[tt])
      # sub                <- subset.face3d(sbst, ind1, remove.singles=FALSE)
@@ -679,7 +679,7 @@
      # # crds              <- sweep(crds, 2, lmk, "+")
      # # ind               <- (dst <= stdd[tt])
      # # sbst              <- subset.face3d(face, ind)
-     # # sbst              <- index.face3d(sbst)
+     # # sbst              <- curvatures(sbst)
      # # ql                <- quadlocate(sbst, rep(TRUE, nrow(sbst$vertices)), 
      					  # # si= si[tt], si.within= si.within[tt], pair = FALSE, monitor = FALSE)
      # # logprior          <- -dst
@@ -715,7 +715,7 @@
        # # crds              <- sweep(crds, 2, cond.mean, "+")
        # # ind               <- (M.dst <= stddev[tt])
       # # logprior          <- -M.dst[ind]  
-      # # face              <- index.face3d(face, subset = ind)  
+      # # face              <- curvatures(face, subset = ind)  
       # # sbst              <- subset.face3d(face, ind)           	           
       # # ql                <- quadlocate(face=sbst, si = si[tt], si.within = si.within[tt], pair = FALSE,
                            # # constraint=NA, monitor = FALSE)
@@ -769,7 +769,7 @@
         # # # crds              <- sweep(crds, 2, lmk, "+")
         # # # ind               <- (dst <= 20)
         # # # sbst              <- subset.face3d(face, ind)
-        # # # sbst              <- index.face3d(sbst)
+        # # # sbst              <- curvatures(sbst)
         # # # plot(sbst, colour = "shape index", new = FALSE)
         # # # spheres3d(lmk, col = "green")
         # # # scan()
@@ -833,7 +833,7 @@
 
       # # sbst                                <- subset.face3d(face,(edist.face3d(face$vertices, 
                                              # # face$landmarks["pn", ]) < 70) & (face$vertices[ , 2] > face$landmarks["pn", 2] + 10) ) #initial subset on area
-      # # sbst                                <- index.face3d(sbst)    
+      # # sbst                                <- curvatures(sbst)    
       # # ind.final                           <- c( which(ind.L== "TRUE"), which(ind.R==TRUE)) 
       # # ind.good                            <- match( ind.final,rownames(sbst$vertices))
       # # sbst$shape.index[-ind.good]         <- 1
@@ -875,7 +875,7 @@
         # # # crds              <- sweep(crds, 2, lmk, "+")
         # # # ind               <- (dst <= 20)
         # # # sbst              <- subset.face3d(face, ind)
-        # # # sbst              <- index.face3d(sbst)
+        # # # sbst              <- curvatures(sbst)
         # # # plot(sbst, colour = "shape index", new = FALSE)
         # # # spheres3d(lmk, col = "green")
         # # # scan()

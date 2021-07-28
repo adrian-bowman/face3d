@@ -7,7 +7,7 @@ dissect.face3d <- function(shape,  curve, endedge = F){
   distshape <- apply(curve, 1, function(x)closest.face3d(x, shape)$distance)
   if(!all(distshape<0.001)) stop("the curve is not on the shape")
   
-  shape <- index.face3d(shape)
+  shape <- curvatures(shape)
   ##################check in-between edges###########################################
   triangles <-  shape$triangles
   inbetween <- FALSE
@@ -392,7 +392,7 @@ shape.curve <- function(fish, b1, b2, lk1, lk2, dista=15){
   ind2  <- apply((sweep(fish$vertices,  2,  lmk1) - prjn2)^2,  1,  function(x) sqrt(sum(x)) < bndry[2])
   shape <- subset.face3d(fish,  ind1 & ind2,  remove.singles = TRUE)
   
-  shape <- index.face3d(shape,  distance = dista,  overwrite = TRUE)
+  shape <- curvatures(shape,  distance = dista,  overwrite = TRUE)
   path  <- connected.face3d(shape)
   shape <- subset.face3d(shape, path==1)
 }

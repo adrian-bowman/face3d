@@ -6,7 +6,7 @@ opa.face3d <- function(from, to, carry = from, scale = TRUE, weights, triangles,
    
    if (missing(weights)) {
       if (!missing(triangles))
-         weights <- area.face3d(as.face3d(list(vertices = to, triangles = triangles)))$points
+         weights <- areas(as.face3d(list(vertices = to, triangles = triangles)))$points
       else
          weights <- rep(1, nrow(from))
    }

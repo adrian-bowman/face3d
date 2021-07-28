@@ -28,7 +28,7 @@
      x1 <- normals.face3d(x1)
 
   ## area of a triangle
-  # log.area.ratio   <- log(area.face3d(x2)$triangles / area.face3d(x1)$triangles)
+  # log.area.ratio   <- log(areas(x2)$triangles / areas(x1)$triangles)
   
   ## Distance in normal direction
   dist.mat         <- x2$vertices - x1$vertices

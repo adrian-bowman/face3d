@@ -77,7 +77,7 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
    
    if (si.target.present | directions) {
    	  if (!all(c("shape.index", "kappa1", "kappa2", "directions") %in% names(shape)))
-         shape <- index.face3d(shape, distance = distance, directions = directions,
+         shape <- curvatures(shape, distance = distance, directions = directions,
                                overwrite = TRUE)
    }
    if (si.target.present) {
@@ -279,8 +279,8 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
                # but of those is the closest to idx.
                xx    <- if (flag1) x2 else x1
                ed0   <- sqrt(sum((crossings[idx, ] - xx)^2))
-               ed1   <- edist.face3d(crossings[ends, ], xx)
-               ed2   <- edist.face3d(crossings[ends, ], crossings[idx, ])
+               ed1   <- edist(crossings[ends, ], xx)
+               ed2   <- edist(crossings[ends, ], crossings[idx, ])
                ed    <- ends[ed1 <= ed0]
                idx1  <- ed[which.min(ed2[ed1 <= ed0])]
             	# cat("ends", ends, "\n")
@@ -395,16 +395,23 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
    
       # If only x1 is present, restrict the path to the section from x1 in the appropriate direction.   
       if (any(is.na(x2)) & flag < 3) {
-         dst  <- edist.face3d(path, x1)
+         dst  <- edist(path, x1)
          proj <- c(sweep(path, 2, x1) %*% direction)
          ind  <- which(proj > 0)
-         ind1 <- ind[which.min(dst[ind])]
-         ind2 <- if (ind1 > 1 && proj[ind1 - 1] > 0) 1 else nrow(path)
+         if (length(ind) > 0) {
+            # Find the nearest point to x1 in positive direction
+            ind1     <- ind[which.min(dst[ind])]
+            # Identify which way the path is going
+            ind2     <- if (ind1 > 1 && proj[ind1 - 1] > 0) 1 else nrow(path)
+            path.ids <- ind1:ind2
+         }
+         else
+            path.ids <- integer(0)
          if (bothways) {
-            ind          <- ind2:ind1
+            ind          <- rev(path.ids)
          	path1        <- rbind(path[ind, ], x1)
          	x1.arclength <- sum(apply(diff(path1)^2, 1, function(x) sqrt(sum(x))))
-         	ind3         <- if (ind2 ==1) ind1 + 1 else ind1 - 1
+         	ind3         <- if (ind2 == 1) ind1 + 1 else ind1 - 1
          	ind4         <- nrow(path) + 1 - ind2
             path         <- rbind(path1, path[ind3:ind4, ])
             ind5         <- c(ind, NA, ind3:ind4)
@@ -421,22 +428,22 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
          }
          else {
             x1.arclength <- 0
-            path         <- rbind(x1, path[ind1:ind2, ])
-            if (si.target.present) cvals <- c(NA, cvals[ind1:ind2])
+            path         <- rbind(x1, path[path.ids, ])
+            if (si.target.present) cvals <- c(NA, cvals[path.ids])
             if ("directions" %in% names(shape)) {
                dm        <- dim(drns)
-               dm[3]     <- length(ind1:ind2) + 1
+               dm[3]     <- length(path.ids) + 1
                matd      <- array(NA, dim = dm)
-               matd[ , , 2:dm[3]] <- drns[ , , ind1:ind2]
+               matd[ , , 2:dm[3]] <- drns[ , , path.ids]
                drns      <- matd
-               kp1       <- c(NA, kp1[ind1:ind2])
-               kp2       <- c(NA, kp2[ind1:ind2])
+               kp1       <- c(NA, kp1[path.ids])
+               kp2       <- c(NA, kp2[path.ids])
             }
          }
       }
 
       # Compute the criterion
-      if (flag == 3)
+      if (flag == 3 | nrow(path) == 1)
          crit <- Inf
       else {
          lngths <- apply(diff(path)^2, 1, function(x) sqrt(sum(x)))
@@ -480,7 +487,7 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
    
    }  # End of the angles for loop.
    
-   if (nrow(path.min) > 0) {
+   if (nrow(path.min) > 1) {
       arclength <- apply(diff(path.min)^2, 1, function(x) sqrt(sum(x)))
       arclength <- cumsum(c(0, arclength))
    }

@@ -25,24 +25,22 @@
   n <- dim(LNDMS)[3]
   ## affine transformations
   PSC.i.all <- apply(LNDMS,3, function(x){
-             CENTROID       <- apply(x,2,mean)
-             LNDMS.centered <- cbind(outer(x[,1],CENTROID[1],"-"),
-                                     outer(x[,2],CENTROID[2],"-"))
-             CS             <- sqrt(sum(LNDMS.centered^2))
-             if (scaling == TRUE)  LNDMS.centered.rescaled <- LNDMS.centered / CS
-             if (scaling == FALSE) LNDMS.centered.rescaled <- LNDMS.centered
-             LNDMS.centered.rescaled
-  })
+                     CENTROID       <- apply(x,2,mean)
+                     LNDMS.centered <- cbind(outer(x[,1],CENTROID[1],"-"),
+                                             outer(x[,2],CENTROID[2],"-"))
+                     CS             <- sqrt(sum(LNDMS.centered^2))
+                     if (scaling == TRUE)  LNDMS.centered.rescaled <- LNDMS.centered / CS
+                     if (scaling == FALSE) LNDMS.centered.rescaled <- LNDMS.centered
+                     LNDMS.centered.rescaled
+                     })
   PSC.i.all <- array(c(PSC.i.all), c(k, d, n), dimnames = list(dimnames(LNDMS)[[1]], NULL, NULL))
-  CENTROID.all <- apply(LNDMS,3, function(x){
-             apply(x,2,mean)
-  })
-  CS.all <- apply(LNDMS,3, function(x){
-             CENTROID       <- apply(x,2,mean)
-             LNDMS.centered <- cbind(outer(x[,1],CENTROID[1],"-"),
-                                     outer(x[,2],CENTROID[2],"-"))
-             sqrt(sum(LNDMS.centered^2))
-  })
+  CENTROID.all <- apply(LNDMS,3, function(x) apply(x,2,mean))
+  CS.all <- apply(LNDMS,3, function(x) {
+                  CENTROID       <- apply(x,2,mean)
+                  LNDMS.centered <- cbind(outer(x[,1],CENTROID[1],"-"),
+                                          outer(x[,2],CENTROID[2],"-"))
+                  sqrt(sum(LNDMS.centered^2))
+                  })
 ## optimal rotations
   SOURCE <- PSC.i.all[ , , 1]
   PSC.i.all.rot <- apply(PSC.i.all,3,  function(x){

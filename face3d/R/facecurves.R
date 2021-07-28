@@ -105,7 +105,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
  	  if (length(grep("OM upper lip", curves[i])) > 0) {
      	    path.ml                        <- planepath.face3d(shape, lmks[1,], lmks[2,])$path   
    	  	 	cutt                           <- closestcurve.face3d(shape, path.ml)
-   	        shape                          <- index.face3d(shape, distance=distance[i]) 
+   	        shape                          <- curvatures(shape, distance=distance[i]) 
    	        ind1                           <- sign(shape$shape.index)!=sign(si.target[i])
    	        ind11                          <- which(cutt$closest.distance < 0) 
             shape$shape.index[ind11]       <- 0
@@ -121,7 +121,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
      if(length(grep("nasal bridge", curves[i])) > 0) {
      	    path <- planepath.face3d(shape, lmks[1,], lmks[2,])$path
      	    cutt <- closestcurve.face3d(shape, path)
-            shape <- index.face3d(shape, distance=distance[i]) 
+            shape <- curvatures(shape, distance=distance[i]) 
    	        ind1 <- sign(shape$shape.index)!=sign(si.target[i])
    	        ind11 <- which(cutt$closest.distance < 3) 
      	    shape$shape.index[ind11]       <- 0
@@ -139,7 +139,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
      if (length(grep("OM lower lip", curves[i])) > 0) {
      	    path.ml                        <- planepath.face3d(shape, lmks[1,], lmks[2,])$path   
    	  	 	cutt                           <- closestcurve.face3d(shape, path.ml)
-   	        shape                          <- index.face3d(shape, distance=distance[i]) 
+   	        shape                          <- curvatures(shape, distance=distance[i]) 
    	        ind1                           <- sign(shape$shape.index)!=sign(si.target[i])
    	        ind11                          <- which(cutt$closest.distance > 0) 
             shape$shape.index[ind11]       <- 0
@@ -166,7 +166,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
             xy1                             <- closestcurve.face3d(shape, reference.path)
             lambda1                         <- cumsum(c(0, sqrt(apply((diff(reference.path))^2, 1, sum))))
             xcoord1                         <- lambda1[xy1$closest.curvept] # distance along the curve
-            shape                          <- index.face3d(shape, distance=15)
+            shape                          <- curvatures(shape, distance=15)
             ind2                           <- (xcoord1 < (0.2 * rng)) & (xcoord1 > (0.8 * rng))
             shape$shape.index[ind2]         <- 0
             shape$kappa1[ind2]              <- 0
@@ -178,7 +178,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
      	    path.ml                        <- face$curves[grep("mid-line lip",  rownames(face$curves)), ]               
    	  	 	cutt                           <- closestcurve.face3d(shape, path.ml)
    	        ind                            <- which(cutt$closest.distance >= -2) 
-   	        shape                          <- index.face3d(shape, distance=distance[i]) 
+   	        shape                          <- curvatures(shape, distance=distance[i]) 
    	        ind1                           <- sign(shape$shape.index)!=sign(si.target[i])
    	        ind11                          <- which(cutt$closest.distance < -1) 
             shape$shape.index[ind11]       <- 0
@@ -196,7 +196,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
             reference.path <- planepath.face3d(shape.smooth, lmks[1,], lmks[2,], si.target=si.target[i], monitor = monitor)$path   	   }  	  
 
      if (length(grep("mid-line lip", curves[i])) > 0) {    
-     	    shape <- index.face3d(shape)
+     	    shape <- curvatures(shape)
    	        ind1                           <- sign(shape$shape.index)!=sign(si.target[i]) 
             shape$shape.index[ind1]        <- 0
             shape$kappa1[ind1]             <- 0
@@ -209,7 +209,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
      	    path.ml                        <- face$curves[grep("mid-line lip",  rownames(face$curves)), ]               
    	  	 	cutt                           <- closestcurve.face3d(shape, path.ml)
    	        ind                            <- which(cutt$closest.distance <= 1) 
-   	        shape                          <- index.face3d(shape, distance=distance[i]) 
+   	        shape                          <- curvatures(shape, distance=distance[i]) 
    	        ind1                           <- sign(shape$shape.index)!=sign(si.target[i])
    	        ind11                          <- which(cutt$closest.distance > -1) 
             shape$shape.index[ind11]       <- 0
@@ -239,7 +239,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
             ind2                           <- apply((sweep(face$vertices, 2, lmksa[1, ]) - prjn)^2, 1, 
             	                                  function(x) sqrt(sum(x)) < bndry[2])
             shape.eye                      <- subset.face3d(face, ind1 & ind2, remove.singles = FALSE) 
-            shape                          <- index.face3d(shape, distance=distance[i])
+            shape                          <- curvatures(shape, distance=distance[i])
             ind3                           <- sign(shape$shape.index)!=sign(si.target[i])
             shape$shape.index[ind3]        <- 0
             shape$kappa1[ind3]             <- 0
@@ -282,7 +282,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
             ind2                           <- apply((sweep(face$vertices, 2, lmksa[1, ]) - prjn)^2, 1, 
             	                                  function(x) sqrt(sum(x)) < bndry[2])
             shape.eye                      <- subset.face3d(face, ind1 & ind2, remove.singles = FALSE) 
-            shape                          <- index.face3d(shape, distance=distance[i])
+            shape                          <- curvatures(shape, distance=distance[i])
             ind3                           <- sign(shape$shape.index)!=sign(si.target[i])
             shape$shape.index[ind3]        <- 0
             shape$kappa1[ind3]             <- 0
@@ -326,7 +326,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
      	     reference.path                 <- planepath.face3d(shape, lmks[1, ], lmks[2, ])$path
      	    cut1                            <- closestcurve.face3d(shape, reference.path)
      	    ind1                            <- which(cut1$closest.distance >= -4)  
-     	    shape                           <- index.face3d(shape, distance=distance)
+     	    shape                           <- curvatures(shape, distance=distance)
      	    shape$shape.index[ind1]         <- 0
      	    shape$kappa1[ind1]              <- 0
      	    shape$kappa2[ind1]              <- 0
@@ -341,7 +341,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
    	    if (length(grep("les left", curves[i])) > 0) {
      	    path.lid                       <- face$curves[grep("lower eye socket left",  rownames(face$curves)), ]              
    	  	 	cutt                           <- closestcurve.face3d(shape, path.lid)
-   	        shape                          <- index.face3d(shape, distance=distance[i])
+   	        shape                          <- curvatures(shape, distance=distance[i])
    	        ind                            <- sign(shape$shape.index)!=sign(si.target[i])
    	        ind1                           <- which(cutt$closest.distance < 2) 
             shape$shape.index[ind]         <- 0
@@ -365,7 +365,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
    	  if (length(grep("les right", curves[i])) > 0) {
      	    path.lid                       <- face$curves[grep("lower eye socket right",  rownames(face$curves)), ]              
    	  	 	cutt                           <- closestcurve.face3d(shape, path.lid)
-   	        shape                          <- index.face3d(shape, distance=distance[i])
+   	        shape                          <- curvatures(shape, distance=distance[i])
    	        ind                            <- sign(shape$shape.index)!=sign(si.target[i])
    	        ind1                           <- which(cutt$closest.distance < 2) 
             shape$shape.index[ind]         <- 0
@@ -396,7 +396,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
    	        ind                            <- which(cutt$closest.distance > 0) 
   	        # shape                          <- subset.face3d(shape, ind, remove.singles = FALSE)
   	        reference.path                 <- apply(lmks, 2, function(x) seq(x[1], x[2], length = 50))
-            shape                          <- index.face3d(shape, distance = distance)
+            shape                          <- curvatures(shape, distance = distance)
             
             xy                             <- closestcurve.face3d(shape, reference.path)
             lambda                         <- cumsum(c(0, sqrt(apply((diff(reference.path))^2, 1, sum))))

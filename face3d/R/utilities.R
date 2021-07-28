@@ -1,7 +1,14 @@
-edist.face3d  <- function(x, x0)
-   sqrt(rowSums(sweep(x, 2, x0)^2))
+#     Utility functions
 
-arclength.face3d <- function(curve)
+monitor3 <- function() {
+   readline(prompt = "   Press [enter] to continue")
+   invisible()
+}
+
+# edist.face3d  <- function(x, x0)
+#    sqrt(rowSums(sweep(x, 2, x0)^2))
+
+arclength <- function(curve)
    cumsum(c(0, apply(diff(curve)^2, 1, function(x) sqrt(sum(x)))))
 
 projectline.face3d <- function(shape, x1, x2, normal) {
@@ -51,7 +58,7 @@ is.face3d <- function(object, report = FALSE) {
    ind
 }
 
-area.face3d <- function(shape) {
+areas <- function(shape) {
    n              <- nrow(shape$triangles)
    triangles      <- array(t(shape$vertices[c(t(shape$triangles)), ]), c(3, 3, n))
    triangle.areas <- apply(triangles, 3, function(x) {
@@ -81,19 +88,20 @@ area.face3d <- function(shape) {
    invisible(list(area = sum(triangle.areas), triangles = triangle.areas, points = wts))
 }
 
-mode.face3d <- function(shape, values, threshold = 5) {
+areamax <- function(shape, values, threshold) {
    if (nrow(shape$vertices) != length(values))
-      stop("the dimensions of 'shape' and 'values' do not match.")
+      stop(paste("the number of vertices in 'shape' (", nrow(shape$vertices),
+                 ") and the length of 'values' (", length(values), ") do not match.", sep = ""))
    rdst <- rdist(shape$vertices)
-   vals <- values * area.face3d(shape)$points
+   vals <- values * areas(shape)$points
    ints <- apply(rdst, 1, function(x) sum(vals[x < threshold]))
    ind  <- which.max(ints)
-   invisible(list(mode = shape$vertices[ind, ], value = ints[ind]))
+   invisible(list(point = shape$vertices[ind, ], value = ints[ind], id = ind))
 }
 
 centre.face3d <- function(shape) {
    rdst <- rdist(shape$vertices)
-   a    <- area.face3d(shape)$points
+   a    <- areas(shape)$points
    rdst <- sweep(rdst, 2, a, "*")
    imin <- which.min(apply(rdst, 1, sum))
    shape$vertices[imin, ]

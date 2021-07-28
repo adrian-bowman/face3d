@@ -26,7 +26,7 @@ License: \tab GNU\cr
 \code{\link{facecurves.face3d}}: identify facial curves on a face3d object\cr
 \code{\link{plot.face3d}}: display of face3d objects\cr
 \code{\link{procrustes.face3d}}: generalised Procrustes registration\cr
-\code{\link{index.face3d}}: compute shape and other indices\cr
+\code{\link{curvatures}}: compute shape and other indices\cr
 \code{\link{interpolate.face3d}}: interpolation of a scalar quantity across a face3d object\cr
 \code{\link{orient.face3d}}: orient a face into a frontal view\cr
 \code{\link{planepath.face3d}}: identify a planar facial curve on a face3d object\cr

@@ -49,7 +49,7 @@ connected.face3d <- function(shape, order.by.area = FALSE) {
    part[part == -1] <- 0
    part0            <- part[part > 0]
    if (order.by.area) {
-      areas <- sapply(1:max(part0), function(x) area.face3d(subset(shape, part == x))$area)
+      areas <- sapply(1:max(part0), function(x) areas(subset(shape, part == x))$area)
       ord   <- order(areas, decreasing = TRUE)
    }
    else

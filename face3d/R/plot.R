@@ -2,7 +2,7 @@ plot.face3d <- function (shape, display = c("surface", "lines"), plot.isolated =
                               colour = "texture", palette, breaks, scaling,
                               range.colour, key = FALSE, clabel = NULL, cex.axis = 1,
                               new = FALSE, add = FALSE, subset, vector.scale = 1,
-                              windowRect = c(300, 300, 800, 800), theta, phi, zoom,
+                              windowRect = c(300, 300, 800, 800), theta, phi, zoom = 0.7,
                               ...) {
                               	
    if (!requireNamespace("rgl", quietly = TRUE)) stop("the rgl package is required.")
@@ -50,8 +50,7 @@ plot.face3d <- function (shape, display = c("surface", "lines"), plot.isolated =
    if (!add) {
       if (missing(theta)) theta <- 0
       if (missing(phi))   phi   <- 0
-      if (missing(zoom))  zoom  <- 0.7
-      rgl::view3d(theta, phi, zoom  = zoom)
+      rgl::view3d(theta, phi, zoom = zoom)
    }
    
    if (all(colour == "shape.index")) colour <- "shape index"
@@ -71,7 +70,7 @@ plot.face3d <- function (shape, display = c("surface", "lines"), plot.isolated =
   
    if ("principal" %in% substr(display, 1, 9)) {
       if (!("directions" %in% names(shape)))
-         stop("principal directions not present.  These can be computed by index.face3d with the argument 'directions = TRUE'.")
+         stop("principal directions not present.  These can be computed by the 'curvatures' function  with the argument 'directions = TRUE'.")
       clr  <- if (length(colour) == 1 && is.character(colour) &&
                   !(substr(colour, 1, 7) %in% c("texture", "normal-"))) colour else "black"
       display1 <- display[match("principal", substr(display, 1, 9))]

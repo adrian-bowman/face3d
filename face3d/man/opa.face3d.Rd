@@ -32,7 +32,7 @@ When \code{return.parameters} is set to \code{TRUE} the registered point set is 
 
 When \code{return.parameters} is set to \code{FALSE} a list with the following components is returned:
 \item{opa}{the registered point set.}
-\item{mean.from, mean.to}{the mean values of the \code{fram} and \code{to} point sets.}
+\item{mean.from, mean.to}{the mean values of the \code{from} and \code{to} point sets.}
 \item{rotation}{the rotation matrix of the registration.}
 \item{scale}{the scale parameter of the registration.}
 }

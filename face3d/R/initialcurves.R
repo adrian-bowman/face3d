@@ -11,7 +11,7 @@ initialcurves.face3d <- function(face, curve.names,
    face1  <- subset(face, edist.face3d(face$vertices, face$landmarks["pn", ]) < 100)
 
    if (monitor) cat("Computing curvatures ... ")
-   face1  <- index.face3d(face1)
+   face1  <- curvatures(face1)
    if (monitor) cat("complete.\n")
    
    # Identify the nasal region by thresholding kappa2
@@ -23,7 +23,7 @@ initialcurves.face3d <- function(face, curve.names,
    ind2   <- as.numeric(rownames(sbst$vertices))
    ind    <- ind1[ind2]
    # Possible adjustment of distance for curvature computation
-   # sbst  <- index.face3d(sbst, distance = 5, overwrite = TRUE)
+   # sbst  <- curvatures(sbst, distance = 5, overwrite = TRUE)
    
    if (monitor) {
       # Possibly plot face and add the nose
@@ -103,7 +103,7 @@ initialcurves.face3d <- function(face, curve.names,
          # Extend the new curve and find the point of maximum curvature
          ac    <- c(tail(crv, 1))
          sbst3 <- subset(face1, edist.face3d(face1$vertices, ac) < 10)
-         sbst3 <- index.face3d(sbst3, distance = 3, directions = TRUE, overwrite = TRUE)
+         sbst3 <- curvatures(sbst3, distance = 3, directions = TRUE, overwrite = TRUE)
          drn   <- c(diff(tail(crv, 2)))
          pp    <- planepath.face3d(sbst3, ac, direction = drn, rotation = 0)
          gc    <- gcurvature.face3d(pp$path, 4)

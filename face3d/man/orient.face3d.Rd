@@ -33,7 +33,7 @@ This is an old desciption, which needs to be updated.
 
 This function uses some simple information from the normal vectors at each point on the image
 to orient the face into a frontal view.  If the normal vectors are not already available, these
-can be created with the \code{index.face3d} function.  Angular rotations around the y and z axes
+can be created with the \code{curvatures} function.  Angular rotations around the y and z axes
 are considered, in order to maximise the asymmetry of the projection of the absolute value of the
 x component of the normal vectors onto the x-y plane.  This asymmetry is measured by binning these
 absolute values into a regular grid, placing a reference line at the position on the x-axis

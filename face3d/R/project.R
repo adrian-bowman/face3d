@@ -2,8 +2,8 @@ project.face3d <- function(x, normals, shape) {
    trpls <- shape$triangles
    proj  <- 0 * x
    for (i in 1:nrow(x)) {
-      ind <- which(edist.face3d(shape$vertices, x[i, ]) <= 10)
-      # ind <- which(order(edist.face3d(shape$vertices, x[i, ])) <= 100)
+      ind <- which(edist(shape$vertices, x[i, ]) <= 10)
+      # ind <- which(order(edist(shape$vertices, x[i, ])) <= 100)
       ind <- which(apply(trpls, 1, function(x) all(x %in% ind)))
       po  <- sweep(shape$vertices[trpls[ind, 1], ], 2, x[i, ])
       n   <- crossproduct(shape$vertices[trpls[ind, 2], ] - shape$vertices[trpls[ind, 1], ],
