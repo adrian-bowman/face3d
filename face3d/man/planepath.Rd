@@ -1,6 +1,6 @@
-\name{planepath.face3d}
+\name{planepath}
 
-\alias{planepath.face3d}
+\alias{planepath}
 
 \title{Find a planar path through the mesh of a face3d object}
 
@@ -9,7 +9,7 @@ This function finds a planar path through the mesh of a face3d object.  The plan
 }
 
 \usage{
-planepath.face3d(shape, x1, x2, pts1, pts2, direction, normal, bothways = FALSE,
+planepath(shape, x1, x2, pts1, pts2, direction, normal, bothways = FALSE,
                          distance = 5, boundary = c(0.2, 0.5),
                          rotation = "optimise", rotation.range = pi/2,
                          ngrid = 50, bridge.gaps = FALSE, si.target, directions = FALSE,
@@ -32,8 +32,8 @@ planepath.face3d(shape, x1, x2, pts1, pts2, direction, normal, bothways = FALSE,
 \item{bridge.gaps}{a logical argument which controls whether the identified path will cross gaps in the mesh or not.}
 \item{si.target}{a numerical value which, if present, determines whether shape index is used to guide the planepath.  Currently only the sign of \code{si.target} is used.}
 \item{directions}{a logical argument which controls whether the directions of principal curvature are stored, if shape index or curvature information is computed.}
-\item{monitor}{a logical or integer value which determines whether graphics are displayed as the algorithm progresses.  An integer value greater than 0 initiates feedback, with the values \code{1} or \code{2} control the level of feedback supplied.}
-\item{monitor.prompt}{a logical value which determines whether a keyboard prompt is required between between the steps of the algorithm when \code{monitor = TRUE}.}
+\item{monitor}{an integer value which determines whether graphics are displayed as the algorithm progresses.  A value greater than 0 initiates feedback, with the values \code{1} or \code{2} control the level of feedback supplied.}
+
 }
 
 \details{
@@ -57,7 +57,7 @@ A list with the following components:
 \item{arclength}{a vector which gives the cumulative length of the identified path along its successive points.}
 \item{criterion}{the minimum value of the criterion used to identify the path.}
 \item{shape}{the subset of the input shape used to identify the path.}
-\item{pts1, pts2}{the index of the rows in \code{shape$coords} which surround \code{x1} and \code{x2}.  Note that this refers to the returned \code{shape} which is a subset of the \code{shape} which passed as an argument to the \code{planepath.face3d} function.}
+\item{pts1, pts2}{the index of the rows in \code{shape$coords} which surround \code{x1} and \code{x2}.  Note that this refers to the returned \code{shape} which is a subset of the \code{shape} which passed as an argument to the \code{planepath} function.}
 \item{angle}{the angle away from the normal associated with the identified path.}
 \item{normal}{the normal vector which defines the plane which corresponds to \code{rotation = 0}.}
 When the \code{directions} argument is set to \code{TRUE}, the following additional components are added to \code{shape}:
@@ -77,7 +77,7 @@ x1 <- nose$coords[2737, ]
 x2 <- nose$coords[146, ]
 spheres3d(t(matrix(x1)), col = "red", radius = 0.2)
 spheres3d(t(matrix(x2)), col = "red", radius = 0.2)
-p <- planepath.face3d(nose, x1, x2)
+p <- planepath(nose, x1, x2)
 lines3d(p$path, col = "green")
 }
 }

@@ -1,5 +1,4 @@
 export(
-  arclength.face3d,
   areas,
   areamax,
   as.face3d,
@@ -39,7 +38,7 @@ export(
   opa.face3d,
   orient.face3d,
   pca.face3d,
-  planepath.face3d,
+  planepath,
   plot.face3d,
   plotpca.face3d,
   plotpcalmks.face3d,

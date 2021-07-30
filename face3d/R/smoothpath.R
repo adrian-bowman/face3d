@@ -4,7 +4,7 @@ smoothpath.face3d <- function(shape, x1, x2, direction,   penalty = 0.002,
                               rotation.range = pi/2, monitor = 0) {
 
   if (missing(ppath))
-    ppath <- planepath.face3d(shape, x1, x2, boundary = boundary, si.target = si.target,
+    ppath <- planepath(shape, x1, x2, boundary = boundary, si.target = si.target,
                               distance = distance, monitor = monitor)
   sbst  <- ppath$shape
   ppath <- ppath$path

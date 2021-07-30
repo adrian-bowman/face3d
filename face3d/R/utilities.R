@@ -1,7 +1,7 @@
 #     Utility functions
 
 monitor3 <- function() {
-   readline(prompt = "   Press [enter] to continue")
+   readline(prompt = "  Press [enter] to continue")
    invisible()
 }
 

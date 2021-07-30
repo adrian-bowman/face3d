@@ -64,7 +64,7 @@ smoothpath.ridge.face3d <- function(shape, shape.smooth, lmk1, lmk2, df = 5, dis
               } else {
       	         values <- pmax(-shape.smooth$kappa2, 0) #ridge
               }    	          
-               curve        <- planepath.face3d(shape, lmk1, lmk2, distance = distance, si.target = 
+               curve        <- planepath(shape, lmk1, lmk2, distance = distance, si.target = 
                                          si.target, boundary = boundary, monitor = monitor)$path
     	          
                                         
@@ -74,11 +74,11 @@ smoothpath.ridge.face3d <- function(shape, shape.smooth, lmk1, lmk2, df = 5, dis
               } else {
       	         values <- pmax(-shape$kappa2, 0) #ridge
               }
-               curve        <- planepath.face3d(shape, lmk1, lmk2, distance = distance, si.target = 
+               curve        <- planepath(shape, lmk1, lmk2, distance = distance, si.target = 
                                          si.target,  boundary = boundary, monitor = monitor)$path
                shape.smooth <- shape 
     } else {
-               pp           <- planepath.face3d(shape, lmk1, lmk2, distance = distance, rotation.range=rotation.range, si.target =  
+               pp           <- planepath(shape, lmk1, lmk2, distance = distance, rotation.range=rotation.range, si.target =  
                                       si.target, boundary = boundary, monitor = monitor)
                curve        <- pp$path
                values       <- pp$values

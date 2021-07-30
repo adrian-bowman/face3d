@@ -1,9 +1,9 @@
-planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
+planepath <- function(shape, x1, x2, pts1, pts2, direction, normal,
                          bothways = FALSE,
                          distance = 5, ngrid = 50, boundary, 
                          rotation = "optimise", rotation.range = 0.8 * pi/2,
                          bridge.gaps = FALSE, si.target, directions = FALSE,
-								 monitor = FALSE, monitor.prompt = monitor) {
+								 monitor = 1) {
 
    if (missing(x1)) stop("x1 must be specified.")
    if (is.null(x1) | any(is.na(x1))) stop("x1 cannot be null or contain missing values.")
@@ -49,7 +49,7 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
          shape <- subset.face3d(shape, ind1, retain.indices = TRUE)
    }
    
-   if (monitor > 0) plot(shape, display = c("mesh", "lines"))
+   if (monitor > 1) plot(shape, display = c("mesh", "lines"))
 
       # Check whether the boundary setting has split the shape into parts with x1 and x2 in different parts
    if (!any(is.na(x2)) & !bridge.gaps) {
@@ -65,8 +65,10 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
             d2[i]   <- closest.face3d(x2, shape.i)$distances
          }
          if (which.min(d1) != which.min(d2)) {
-            cat("The path cannot be computed with the current setting of the boundary parameter.\n")
-            cat("Try setting boundary = NA.\n")
+            if (monitor > 0) {
+               cat("The path cannot be computed with the current setting of the boundary parameter.\n")
+               cat("Try setting boundary = NA.\n")
+            }
             return()
          }
       }
@@ -101,12 +103,12 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
       shape$directions <- drns
    }
    
-   if (monitor) {
+   if (monitor > 1) {
        if (si.target.present)
      	    plot(shape, display = c("mesh", "lines"), colour = values + 2)
      	 else
      	    plot(shape, display = c("mesh", "lines"))
-     if (monitor.prompt) cat("Press the Return key to see successive images.\n")
+     if (monitor > 2) monitor3()
      rgl::spheres3d(rbind(x1, x2), radius = gspheres, col = "red")
      # Create a dummy object for removal when iterations begin
      rgl::spheres3d(rbind(x1, x2), radius = gspheres, alpha = 0)
@@ -220,7 +222,7 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
          kp2   <- (1 - wts) * shape$kappa2[edges[ , 1]] + wts  * shape$kappa2[edges[ , 2]]
       }
       
-      if (as.numeric(monitor) == 2) rgl::spheres3d(crossings, radius = gspheres/5)
+      if (monitor > 1) rgl::spheres3d(crossings, radius = gspheres/5)
 
       edges <- t(apply(edges, 1, sort))
          e     <- paste(edges[ , 1], edges[ , 2])
@@ -396,6 +398,7 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
       # If only x1 is present, restrict the path to the section from x1 in the appropriate direction.   
       if (any(is.na(x2)) & flag < 3) {
          dst  <- edist(path, x1)
+         if (!is.matrix(path) && length(path) == 3) path <- matrix(path, ncol = 3)
          proj <- c(sweep(path, 2, x1) %*% direction)
          ind  <- which(proj > 0)
          if (length(ind) > 0) {
@@ -476,11 +479,11 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
          }
       }
    
-      if (monitor) {
+      if (monitor > 1) {
       	  rgl::pop3d()
       	  rgl::spheres3d(matrix(c(path), ncol = 3), radius = gspheres)
       	  cat("angle:", angle, "criterion:", criterion[length(criterion)])
-      	  if (monitor.prompt) scan(quiet = TRUE)
+      	  if (monitor > 2) monitor3()
       }
       
    }  # End of if block after test for the presence of crossings
@@ -496,11 +499,11 @@ planepath.face3d <- function(shape, x1, x2, pts1, pts2, direction, normal,
    
    if (criterion.min == Inf) {
       path.min <- NULL
-      cat("A path cannot be identified.\n")
+      if (monitor > 0) cat("A path cannot be identified.\n")
       return(invisible(NULL))
    }
    
-   if (monitor & !is.null(path.min)) {
+   if (monitor > 1 & !is.null(path.min)) {
       rgl::pop3d()
       if (si.target.present) plot(shape, colour = 2 + values)
       else                   plot(shape)

@@ -120,10 +120,10 @@ cutface.face3d <- function(face, monitor = FALSE){
     face$curves     <- rbind(face$curves, X)
 
  #right side cut
-    # a                <- planepath.face3d(face, Cutpt.R.brow, Cutpt.R.eye)$path
-    # b                <- planepath.face3d(face, Cutpt.R.eye, Cutpt.R.nose)$path
-    # c                <- planepath.face3d(face, Cutpt.R.nose, Cutpt.R.lip)$path
-    # d                <- planepath.face3d(face, Cutpt.R.lip, Cutpt.R.mand)$path
+    # a                <- planepath(face, Cutpt.R.brow, Cutpt.R.eye)$path
+    # b                <- planepath(face, Cutpt.R.eye, Cutpt.R.nose)$path
+    # c                <- planepath(face, Cutpt.R.nose, Cutpt.R.lip)$path
+    # d                <- planepath(face, Cutpt.R.lip, Cutpt.R.mand)$path
     # Right.cut        <- rbind(a,b[-1,], c[-1,], d[-1, ])
     # Test.r           <- closestcurve.face3d(face, Right.cut)
     # perp.dist.r      <- Test.r$closest.distance
@@ -131,10 +131,10 @@ cutface.face3d <- function(face, monitor = FALSE){
     # names(ind.right) <- paste(c(1: dim(face$vertices)[1]))
  
  #left side cut
-    # a                <- planepath.face3d(face, Cutpt.L.brow, Cutpt.L.eye)$path
-    # b                <- planepath.face3d(face, Cutpt.L.eye, Cutpt.L.nose)$path
-    # c                <- planepath.face3d(face, Cutpt.L.nose, Cutpt.L.lip)$path
-    # d                <- planepath.face3d(face, Cutpt.L.lip, Cutpt.L.mand)$path
+    # a                <- planepath(face, Cutpt.L.brow, Cutpt.L.eye)$path
+    # b                <- planepath(face, Cutpt.L.eye, Cutpt.L.nose)$path
+    # c                <- planepath(face, Cutpt.L.nose, Cutpt.L.lip)$path
+    # d                <- planepath(face, Cutpt.L.lip, Cutpt.L.mand)$path
     # Left.cut         <- rbind(a,b[-1,], c[-1,], d[-1, ])
     # Test.l           <- closestcurve.face3d(face, Left.cut)
     # perp.dist.l      <- Test.l$closest.distance

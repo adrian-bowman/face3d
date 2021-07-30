@@ -29,7 +29,7 @@ License: \tab GNU\cr
 \code{\link{curvatures}}: compute shape and other indices\cr
 \code{\link{interpolate.face3d}}: interpolation of a scalar quantity across a face3d object\cr
 \code{\link{orient.face3d}}: orient a face into a frontal view\cr
-\code{\link{planepath.face3d}}: identify a planar facial curve on a face3d object\cr
+\code{\link{planepath}}: identify a planar facial curve on a face3d object\cr
 \code{\link{read.face3d}}: create face3d and other objects from a file\cr
 \code{\link{resample.face3d}}: create face3d and other objects from a file\cr
 \code{\link{resizejpg.face3d}}: resize jpg files for colour reading\cr

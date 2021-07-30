@@ -24,7 +24,7 @@ editlandmarks.face3d(shape, lmk.names = rownames(shape$lmks), panel = TRUE,
 \details{
 The function launches an \pkg{rgl} window to display the \code{shape} and a control panel (created using the \pkg{rpanel} package) which allows interactive specification and movement of landmarks.  Landmarks are specified by name through a combo box.  A 'Zoom in/out' button provides the option to zoom in on the area immediately surrounding the specified landmark.
 
-A 'Show path' checkbox allows a path across the shape to be created and displayed, using the \code{planepath.face3d} function.  With large shapes, it can be useful to activate this checkbox only when zoom is activated.  This is because the calculation of a path across a very large object can be a little slow.
+A 'Show path' checkbox allows a path across the shape to be created and displayed, using the \code{planepath} function.  With large shapes, it can be useful to activate this checkbox only when zoom is activated.  This is because the calculation of a path across a very large object can be a little slow.
 
 The direction of the path across the object is controlled by an 'angle' doublebutton while the movement of the specified landmark along this path is controlled by a distance doublebutton.  A 'Perpendicular direction' button provides a convenient mechanism for switching the current direction of travel by 90 degrees.
 

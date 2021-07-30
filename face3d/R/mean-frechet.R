@@ -19,7 +19,7 @@ mean_frechet.face3d <- function(shape, values){
   for(i in 1:length(p[ ,1])) {
      for(j in 1:length(xis[ ,1])) {
      	print(c(i, j))
-        distances_pi[j] <- max(planepath.face3d(shape, p[i, ],xis[j, ], boundary = NA)$arclength)
+        distances_pi[j] <- max(planepath(shape, p[i, ],xis[j, ], boundary = NA)$arclength)
      }
      distances_ps[ ,i] <- distances_pi
   }

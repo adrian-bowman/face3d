@@ -39,13 +39,13 @@ initialcurves.face3d <- function(face, curve.names,
 
    if ("mid-line nasal profile" %in% curve.names) {
       se  <- face$landmarks["se", ]
-      pp  <- planepath.face3d(sbst, face$landmarks["se", ], face$landmarks["pn", ],
+      pp  <- planepath(sbst, face$landmarks["se", ], face$landmarks["pn", ],
                               rotation.range = pi/8, bridge.gaps = TRUE)
       drn <- face$landmarks["se", ] - face$landmarks["pn", ]
-      pp  <- planepath.face3d(sbst, face$landmarks["se", ], direction = drn, rotation = 0)
+      pp  <- planepath(sbst, face$landmarks["se", ], direction = drn, rotation = 0)
       gc  <- gcurvature.face3d(pp$path, 4)
       face$landmarks["se", ] <- gc$resampled.curve[which.max(gc$gcurvature), ]
-      pp  <- planepath.face3d(sbst, face$landmarks["se", ], face$landmarks["pn", ],
+      pp  <- planepath(sbst, face$landmarks["se", ], face$landmarks["pn", ],
                               rotation.range = pi/8, bridge.gaps = TRUE)
       curves$"mid-line nasal profile" <- pp$path
       if (monitor) {
@@ -72,7 +72,7 @@ initialcurves.face3d <- function(face, curve.names,
          drn  <- face$landmarks["se", ] - face$landmarks["pn", ]
          drn  <- if (curve.nm == "nasal bridge right") -drn else drn
          drn  <- c(crossproduct(drn, nrm))
-         pph  <- planepath.face3d(sbst, face$landmarks["pn", ], si.target = 1,
+         pph  <- planepath(sbst, face$landmarks["pn", ], si.target = 1,
                                    direction = drn, normal = nrm, rotation.range = pi/12)
          crv  <- pph$path
          # Now adjust to a smooth path
@@ -105,7 +105,7 @@ initialcurves.face3d <- function(face, curve.names,
          sbst3 <- subset(face1, edist.face3d(face1$vertices, ac) < 10)
          sbst3 <- curvatures(sbst3, distance = 3, directions = TRUE, overwrite = TRUE)
          drn   <- c(diff(tail(crv, 2)))
-         pp    <- planepath.face3d(sbst3, ac, direction = drn, rotation = 0)
+         pp    <- planepath(sbst3, ac, direction = drn, rotation = 0)
          gc    <- gcurvature.face3d(pp$path, 4)
          ac    <- gc$resampled.curve[gc$ind.max, ]
          al    <- arclength.face3d(pp$path)
@@ -137,11 +137,11 @@ initialcurves.face3d <- function(face, curve.names,
    #--------------------------------------------------------------------------
 
    if ("mid-line columella" %in% curve.names) {
-      pp0 <- planepath.face3d(face1, face$landmarks["acL", ], face$landmarks["acR", ], boundary = NA)
+      pp0 <- planepath(face1, face$landmarks["acL", ], face$landmarks["acR", ], boundary = NA)
       gc  <- gcurvature.face3d(pp0$path, 3, monitor = monitor)
       sn  <- gc$pos.max
-      pp1 <- planepath.face3d(face1, face$landmarks["pn", ], sn, rotation = 0)
-      pp2 <- planepath.face3d(face1, sn,
+      pp1 <- planepath(face1, face$landmarks["pn", ], sn, rotation = 0)
+      pp2 <- planepath(face1, sn,
                               direction = c(diff(tail(pp1$path, 2))),
                               normal = pp1$normal, rotation = 0)
       pp2 <- rbind(pp1$path, pp2$path[pp2$arclength < 10, ])
@@ -155,7 +155,7 @@ initialcurves.face3d <- function(face, curve.names,
          face$landmarks <- rbind(face$landmarks, pos.max)
          rownames(face$landmarks)[nrow(face$landmarks)] <- "sn"
       }
-      pp2 <- planepath.face3d(face1, face$landmarks["pn", ], face$landmarks["sn", ],
+      pp2 <- planepath(face1, face$landmarks["pn", ], face$landmarks["sn", ],
                               normal = pp1$normal, rotation = 0)
       curves$"mid-line columella" <- pp2$path
       if (monitor) {
@@ -172,12 +172,12 @@ initialcurves.face3d <- function(face, curve.names,
 
    if ("nasal base left" %in% curve.names) {
       curves$"nasal base left" <-
-         planepath.face3d(face1, face$landmarks["acL", ], face$landmarks["sn",])$path
+         planepath(face1, face$landmarks["acL", ], face$landmarks["sn",])$path
       if (monitor) spheres3d(curves$"nasal base left", col = "red", radius = 0.5)
    }
    if ("nasal base right" %in% curve.names) {
       curves$"nasal base right" <-
-         planepath.face3d(face1, face$landmarks["acR", ], face$landmarks["sn",])$path
+         planepath(face1, face$landmarks["acR", ], face$landmarks["sn",])$path
       if (monitor) spheres3d(curves$"nasal base right", col = "red", radius = 0.5)
    }
 

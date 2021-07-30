@@ -133,7 +133,7 @@
       
       # if (any(is.na(face$landmarks["se", ]))) {
          # if (monitor) cat("se ... ")
-         # curve <- planepath.face3d(face, face$landmarks["enL", ], face$landmarks["enR", ], boundary = c(0.2, 2))$path
+         # curve <- planepath(face, face$landmarks["enL", ], face$landmarks["enR", ], boundary = c(0.2, 2))$path
          # gcrv  <- gcurvature.face3d(curve, 4)
          # ind   <- which.max(gcrv$gcurvature)
          # face$landmarks["se", ] <- gcrv$resampled.curve[ind, ]

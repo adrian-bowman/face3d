@@ -15,7 +15,7 @@ pcurve.face3d <- function (shape, df = rep(5, ncol(shape$vertices)),
     dist.old  <- sum(diag(var(x)))
 
     if (is.null(initial))
-       initial <- planepath.face3d(shape, fixed[start, ], fixed[finish, ])$path
+       initial <- planepath(shape, fixed[start, ], fixed[finish, ])$path
     pcurve <- get.lam(x, initial, stretch = stretch)
     # pcurve <- project_to_curve(x, initial, stretch = stretch)
 

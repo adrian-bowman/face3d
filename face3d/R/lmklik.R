@@ -33,8 +33,8 @@ lmklik <- function(face, lmk.name, reflmk.name, monitor = 0) {
       drn2   <- c(crossproduct(drn1, sbst$normals[j, ]))
       sbst2  <- sbst0
       sbst2$directions <- NULL
-      path1   <- planepath.face3d(sbst2, lmk, direction = drn1, bothways = TRUE, rotation = 0)
-      path2   <- planepath.face3d(sbst2, lmk, direction = drn2, bothways = TRUE, rotation = 0)
+      path1   <- planepath(sbst2, lmk, direction = drn1, bothways = TRUE, rotation = 0)
+      path2   <- planepath(sbst2, lmk, direction = drn2, bothways = TRUE, rotation = 0)
       if (!is.null(path1) & !is.null(path2)) {
          lmkarc  <- path1$arclength[which.min(c(rdist(t(lmk), path1$path)))]
          gcrv    <- gcurvature.face3d(path1$path, 3)

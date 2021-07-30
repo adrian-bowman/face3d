@@ -5,7 +5,7 @@ midline.face3d <- function(shape, x1, x2, reference, d.asym = 20, d.search = 20,
 
    reference.missing <- missing(reference)
    if (reference.missing)
-      reference  <- planepath.face3d(shape, x1, x2, si.target = 1, directions = TRUE)
+      reference  <- planepath(shape, x1, x2, si.target = 1, directions = TRUE)
    kappa1.ref <- reference$kappa1
    kappa2.ref <- reference$kappa2
    si.ref     <- reference$shape.index
@@ -13,14 +13,14 @@ midline.face3d <- function(shape, x1, x2, reference, d.asym = 20, d.search = 20,
    reference  <- reference$path
    if (reference.missing) {
       if (extension[1] > 0) {
-         pp.x1      <- planepath.face3d(shape, x1, direction = x1 - x2, rotation = 0, bothways = FALSE, directions = TRUE)
+         pp.x1      <- planepath(shape, x1, direction = x1 - x2, rotation = 0, bothways = FALSE, directions = TRUE)
          ind        <- which(pp.x1$arclength < extension[1])
          reference  <- rbind(pp.x1$path[rev(ind), ], reference)
          kappa1.ref <- c(pp.x1$kappa1, kappa1.ref)
          kappa2.ref <- c(pp.x1$kappa1, kappa2.ref)
       }
       if (extension[2] > 0) {
-         pp.x1     <- planepath.face3d(shape, x2, direction = x2 - x1, rotation = 0, bothways = FALSE, directions = TRUE)
+         pp.x1     <- planepath(shape, x2, direction = x2 - x1, rotation = 0, bothways = FALSE, directions = TRUE)
          ind       <- which(pp.x1$arclength < extension[2])
          reference <- rbind(reference, pp.x1$path[ind, ])
          kappa1.ref <- c(kappa1.ref, pp.x1$kappa1)
@@ -65,9 +65,9 @@ midline.face3d <- function(shape, x1, x2, reference, d.asym = 20, d.search = 20,
    y.ref  <- switch(y.name, kappa1 = kappa2.ref, kappa2 = kappa2.ref, shape.index = si.ref)
    
    for (i in 1:nv) {
-      path.r <- planepath.face3d(sbst, reference[i, ], direction =  direct, rotation = 0, boundary = d.search * 1.1,
+      path.r <- planepath(sbst, reference[i, ], direction =  direct, rotation = 0, boundary = d.search * 1.1,
                                  bothways = FALSE, directions = TRUE)
-      path.l <- planepath.face3d(sbst, reference[i, ], direction = -direct, rotation = 0, boundary = d.search * 1.1,
+      path.l <- planepath(sbst, reference[i, ], direction = -direct, rotation = 0, boundary = d.search * 1.1,
                                  bothways = FALSE, directions = TRUE)
       y.r    <- path.r[[y.name]]
       y.l    <- path.l[[y.name]]
@@ -107,9 +107,9 @@ midline.face3d <- function(shape, x1, x2, reference, d.asym = 20, d.search = 20,
       else {
          asym.i <- numeric(0)
          for (j in 1:nrow(path)) {
-            path.r <- planepath.face3d(sbst, path[j, ], direction =  drns[ , 2, j], rotation = 0, boundary = d.asym * 1.1,
+            path.r <- planepath(sbst, path[j, ], direction =  drns[ , 2, j], rotation = 0, boundary = d.asym * 1.1,
                                        bothways = FALSE, directions = TRUE)
-            path.l <- planepath.face3d(sbst, path[j, ], direction = -drns[ , 2, j], rotation = 0, boundary = d.asym * 1.1,
+            path.l <- planepath(sbst, path[j, ], direction = -drns[ , 2, j], rotation = 0, boundary = d.asym * 1.1,
                                        bothways = FALSE, directions = TRUE)
             al.r   <- arclength(path.r$path)
             al.l   <- arclength(path.l$path)

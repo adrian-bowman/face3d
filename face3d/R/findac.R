@@ -125,7 +125,7 @@ findac <- function(face, monitor = 0) {
          # nrm   <- sbst1$normals[j, ]
          # if ((acos(sum(drn * pnac) / sqrt(sum(pnac^2))) < pi / 4) &
          #     (abs(acos(sum(nrm * pnac) / sqrt(sum(pnac^2))) - pi / 2) < pi / 4)) {
-            path <- planepath.face3d(sbst2, ac, direction = drn, directions = TRUE, rotation = 0)
+            path <- planepath(sbst2, ac, direction = drn, directions = TRUE, rotation = 0)
             if (is.null(path)) 
                rdg <- NA
             else {

@@ -21,7 +21,7 @@ editlandmarks.face3d <- function(shape, lmk.names = rownames(shape$landmarks), p
          # drns[ ,   3, ]   <- t(shape$normals)
          # shape$directions <- drns
    	  # }
-      path  <- planepath.face3d(shape, panel$shape$landmarks[panel$lmk.name, ],
+      path  <- planepath(shape, panel$shape$landmarks[panel$lmk.name, ],
                                 direction = c(sin(panel$angle), cos(panel$angle), 0),
                                 rotation = 0, monitor = FALSE, boundary = c(Inf, Inf),
                                 directions = panel$drns.showing)

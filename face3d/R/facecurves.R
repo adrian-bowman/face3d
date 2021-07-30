@@ -103,7 +103,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
       ind2  <- apply((sweep(face$vertices, 2, lmks[1, ]) - prjn2)^2, 1, function(x) sqrt(sum(x)) < bndry[2])
       shape <- subset.face3d(face, ind1 & ind2, remove.singles = TRUE)	  
  	  if (length(grep("OM upper lip", curves[i])) > 0) {
-     	    path.ml                        <- planepath.face3d(shape, lmks[1,], lmks[2,])$path   
+     	    path.ml                        <- planepath(shape, lmks[1,], lmks[2,])$path   
    	  	 	cutt                           <- closestcurve.face3d(shape, path.ml)
    	        shape                          <- curvatures(shape, distance=distance[i]) 
    	        ind1                           <- sign(shape$shape.index)!=sign(si.target[i])
@@ -114,12 +114,12 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
             shape$shape.index[ind1]        <- 0
             shape$kappa1[ind1]             <- 0
             shape$kappa2[ind1]             <- 0 
-            reference.path                 <- planepath.face3d(shape, lmks[1,], lmks[2,])$path
+            reference.path                 <- planepath(shape, lmks[1,], lmks[2,])$path
             
 
                    }
      if(length(grep("nasal bridge", curves[i])) > 0) {
-     	    path <- planepath.face3d(shape, lmks[1,], lmks[2,])$path
+     	    path <- planepath(shape, lmks[1,], lmks[2,])$path
      	    cutt <- closestcurve.face3d(shape, path)
             shape <- curvatures(shape, distance=distance[i]) 
    	        ind1 <- sign(shape$shape.index)!=sign(si.target[i])
@@ -130,14 +130,14 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
             shape$shape.index[ind1]        <- 0
             shape$kappa1[ind1]             <- 0
             shape$kappa2[ind1]             <- 0 
-            reference.path                 <- planepath.face3d(shape, lmks[1,], lmks[2,], si.target=si.target[i])$path
+            reference.path                 <- planepath(shape, lmks[1,], lmks[2,], si.target=si.target[i])$path
             values                         <- pmax(-shape$kappa2, 0)
             if (monitor)                  plot(shape, colour=values*100)
        
      	
      	            }              
      if (length(grep("OM lower lip", curves[i])) > 0) {
-     	    path.ml                        <- planepath.face3d(shape, lmks[1,], lmks[2,])$path   
+     	    path.ml                        <- planepath(shape, lmks[1,], lmks[2,])$path   
    	  	 	cutt                           <- closestcurve.face3d(shape, path.ml)
    	        shape                          <- curvatures(shape, distance=distance[i]) 
    	        ind1                           <- sign(shape$shape.index)!=sign(si.target[i])
@@ -148,7 +148,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
             shape$shape.index[ind1]        <- 0
             shape$kappa1[ind1]             <- 0
             shape$kappa2[ind1]             <- 0 
-            reference.path                 <- planepath.face3d(shape, lmks[1,], lmks[2,])$path
+            reference.path                 <- planepath(shape, lmks[1,], lmks[2,])$path
                    }
 
      if (length(grep("Mandible", curves[i])) > 0) {
@@ -193,7 +193,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
             shape.smooth$shape.index[ind2] <- 0
             shape.smooth$kappa1[ind2]      <- 0
             shape.smooth$kappa2[ind2]      <- 0  
-            reference.path <- planepath.face3d(shape.smooth, lmks[1,], lmks[2,], si.target=si.target[i], monitor = monitor)$path   	   }  	  
+            reference.path <- planepath(shape.smooth, lmks[1,], lmks[2,], si.target=si.target[i], monitor = monitor)$path   	   }  	  
 
      if (length(grep("mid-line lip", curves[i])) > 0) {    
      	    shape <- curvatures(shape)
@@ -202,7 +202,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
             shape$kappa1[ind1]             <- 0
             shape$kappa2[ind1]             <- 0   
            # plot(shape.smooth, colour=values*100)
-            reference.path <- planepath.face3d(shape, lmks[1,], lmks[2,])$path
+            reference.path <- planepath(shape, lmks[1,], lmks[2,])$path
   	   }  
   	   
      if (length(grep("lower lip", curves[i])) > 0) {
@@ -224,7 +224,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
             shape.smooth$shape.index[ind2] <- 0
             shape.smooth$kappa1[ind2]      <- 0
             shape.smooth$kappa2[ind2]      <- 0  
-            reference.path <- planepath.face3d(shape.smooth, lmks[1,], lmks[2,], si.target=si.target[i], monitor = monitor)$path 
+            reference.path <- planepath(shape.smooth, lmks[1,], lmks[2,], si.target=si.target[i], monitor = monitor)$path 
        }  	 
 
    	if (length(grep("brow ridge left", curves[i])) > 0) {
@@ -254,7 +254,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
    	        shape$shape.index[ind]         <- 0
             shape$kappa1[ind]              <- 0
             shape$kappa2[ind]              <- 0
-            ref.path                       <- planepath.face3d(shape, lmks[1, ], lmks[2, ], boundary = boundary[i, ], 
+            ref.path                       <- planepath(shape, lmks[1, ], lmks[2, ], boundary = boundary[i, ], 
                                               distance = distance[i], rotation.range=rotation.range[i], si.target =    
                                               si.target[i], monitor = monitor)$path
             cutt1                          <- closestcurve.face3d(shape, ref.path)
@@ -302,7 +302,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
             shape$shape.index[ind3]        <- 0
             shape$kappa1[ind3]             <- 0
             shape$kappa2[ind3]             <- 0 
-            ref.path                       <- planepath.face3d(shape, lmks[1, ], lmks[2, ], boundary = boundary[i, ], 
+            ref.path                       <- planepath(shape, lmks[1, ], lmks[2, ], boundary = boundary[i, ], 
                                               distance = distance[i], rotation.range=rotation.range[i], si.target =    
                                               si.target[i], monitor = monitor)$path
             cutt1                          <- closestcurve.face3d(shape, ref.path)
@@ -323,7 +323,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
    
      if (length(grep("lower eye socket", curves[i])) > 0) {
      	   # reference.path                 <- apply(lmks, 2, function(x) seq(x[1], x[2], length = 50))
-     	     reference.path                 <- planepath.face3d(shape, lmks[1, ], lmks[2, ])$path
+     	     reference.path                 <- planepath(shape, lmks[1, ], lmks[2, ])$path
      	    cut1                            <- closestcurve.face3d(shape, reference.path)
      	    ind1                            <- which(cut1$closest.distance >= -4)  
      	    shape                           <- curvatures(shape, distance=distance)
@@ -390,7 +390,7 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
 
 
      if (length(grep("upper eye socket", curves[i])) > 0) {
-            reference.path                 <- planepath.face3d(shape, lmks[1, ], lmks[2, ], boundary = boundary[i, ], 
+            reference.path                 <- planepath(shape, lmks[1, ], lmks[2, ], boundary = boundary[i, ], 
                                                                distance = distance[i], ngrid=50, monitor = FALSE)$path    
    	  	 	cutt                           <- closestcurve.face3d(shape, reference.path)
    	        ind                            <- which(cutt$closest.distance > 0) 
@@ -411,11 +411,11 @@ facecurves.face3d <- function(face, curves, monitor = FALSE, pcrv.path = FALSE, 
       print("here")
 
       if ((df[i] == 0) && !is.na(si.target[i]))
-         path <- planepath.face3d(shape, lmks[1, ], lmks[2, ], boundary = boundary[i, ], 
+         path <- planepath(shape, lmks[1, ], lmks[2, ], boundary = boundary[i, ], 
                                   distance = distance[i], rotation.range=rotation.range[i], si.target = si.target[i], 
                                   monitor = monitor)$path
       else if ((df[i] == 0) && is.na(si.target[i]))
-         path <- planepath.face3d(shape, lmks[1, ], lmks[2, ], boundary = boundary[i, ],
+         path <- planepath(shape, lmks[1, ], lmks[2, ], boundary = boundary[i, ],
                                   distance = distance[i], rotation.range=rotation.range[i], monitor = monitor)$path
       else
          path <- smoothpath.ridge.face3d(shape, shape.smooth, lmks[1, ], lmks[2, ], df = df[i], reference.path = reference.path, 

@@ -26,7 +26,7 @@ The landmark pn is located by starting with the closest point to the viewer, amo
 
 The enR/L landmarks are sought within the two largest connected sets of points with small shape index.  The landmarks are taken to be the points whose minimum curvature is maximum within these connected sets.
 
-The se landmark is located from a curve between the enL/R landmarks using the \code{planepath.face3d} function based on minimising distance.  The landmark is then taken to be the point of maximum curvature along this path, identified through the \code{gcurvature.face3d} function.
+The se landmark is located from a curve between the enL/R landmarks using the \code{planepath} function based on minimising distance.  The landmark is then taken to be the point of maximum curvature along this path, identified through the \code{gcurvature.face3d} function.
 }
 
 \value{

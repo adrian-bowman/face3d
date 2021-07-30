@@ -247,7 +247,7 @@ if (length(grep("lip", mesh[i])) > 0){
  for (k in startpt[i]:endpt[i]){
 	  x1            <- curve1[k, ]
 	  x2            <- curve2[k, ]	
-	  path          <- planepath.face3d(face, x1, x2, distance = 5, monitor = FALSE, rotation.range= pi/4, boundary = c(1,1))$path
+	  path          <- planepath(face, x1, x2, distance = 5, monitor = FALSE, rotation.range= pi/4, boundary = c(1,1))$path
 	  path          <- resample.face3d(path, n=npts2[i])
       #paths[ , ,k]  <- sliding.face3d(template, path, resample=T, n=npts2[i])
       paths[ , ,k]  <- path
@@ -259,7 +259,7 @@ else {
  for (k in startpt[i]:endpt[i]){
 	  x1            <- curve1[k, ]
 	  x2            <- curve2[k, ]	
-	  path          <- planepath.face3d(face, x1, x2, distance = 10, monitor = FALSE, rotation.range= pi/4)$path
+	  path          <- planepath(face, x1, x2, distance = 10, monitor = FALSE, rotation.range= pi/4)$path
 	  path          <- resample.face3d(path, n=npts2[i])
 	 # paths[ , ,k]  <- sliding.face3d(template, path, resample=T, n=npts2[i])
 	  paths[ , ,k]  <- path

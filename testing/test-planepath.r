@@ -1,14 +1,13 @@
 #     Planepath algorithm
 
-install.packages("~/OneDrive - University of Glasgow/research/face3d_0.1-1/face3d",
-                 repos = NULL, type = "source")
+install.packages("~/research/face3d/face3d", repos = NULL, type = "source")
 library(face3d)
 library(rgl)
 
 # Interpolate the principal directions and normals
 dst   <- rdist(t(template_male$landmarks["pn", ]), template_male$vertices)
 nose  <- subset(template_male, dst < 30)
-ppath <- planepath.face3d(nose, nose$landmarks["pn", ], nose$landmarks["acL", ],
+ppath <- planepath(nose, nose$landmarks["pn", ], nose$landmarks["acL", ],
                           si.target = 1, directions = TRUE)
 plot(nose)
 spheres3d(ppath$path, radius = 0.1)
@@ -27,7 +26,7 @@ j <- 1491
 plot(nose)
 spheres3d(nose$coords[c(i, j), ], radius = 0.5)
 
-AUX <- planepath.face3d(nose,nose$coords[i,], nose$coords[j,])
+AUX <- planepath(nose,nose$coords[i,], nose$coords[j,])
 if (is.null(AUX$path)) {
    edges <- edges.face3d(nose)
    ind   <- which(unlist(lapply(edges, function(x) all(c(i, j) %in% x))))
@@ -50,10 +49,10 @@ load("kathryn004.dmp")
 class(face) <- "face3d"
 
 # Identify the triangles which lie along the planepath between x1 and x2
-ind  <- (edist.face3d(face$coords, face$lmks["pn", ]) < 100)
+ind  <- (edist(face$coords, face$lmks["pn", ]) < 100)
 face <- subset(face, ind)
 plot(face, new = FALSE)
-pp <- planepath.face3d(face, face$lmks["pn", ], face$lmks["se", ], rotation = 0)
+pp <- planepath(face, face$lmks["pn", ], face$lmks["se", ], rotation = 0)
 triangles3d(face$coords[c(t(pp$triangles)), ], front= "line", back = "line")
 spheres3d(face$lmks, col = "red", radius = 2)
 
@@ -70,16 +69,16 @@ x1 <- closest.face3d(face$lndms[11,], face)$point
 x2 <- closest.face3d(face$lndms[ 2,], face)$point
 x1 <- face$lndms[ 9,]
 x2 <- face$lndms[ 5,]
-display.face3d(face, type = "mesh", new = FALSE)
+plot(face, type = "mesh", new = FALSE)
 spheres3d(rbind(x1, x2), radius = 1, col = "blue")
-p <- planepath.face3d(face, x1, x2)
+p <- planepath(face, x1, x2)
 lines3d(p$path, col = "green", lwd = 3)
 
 triangles <- matrix(face$triples, ncol = 3, byrow = TRUE)
 triangles3d(face$coords[triangles[1516, ], ], col = "green")
 
 
-planepath.face3d(face, x1 = face$lndms[9,], x2 = face$lndms[5,])$path
+planepath(face, x1 = face$lndms[9,], x2 = face$lndms[5,])$path
 
 setwd("/Volumes/Face3D/reliability-project/reliability-pts/glasgow-pts/")
 lmks <- read.face3d("SKPLY01.pts")$lmks
@@ -91,7 +90,7 @@ x2 <- closest.face3d(lmks[ 5,], face)$point
 display.face3d(face, type = "mesh")
 spheres3d(rbind(x1, x2), radius = 1, col = "blue")
 source("Face3D/R/planepath.r")
-p <- planepath.face3d(face, x1, x2)
+p <- planepath(face, x1, x2)
 lines3d(p$path, col = "green")
 
 
@@ -112,11 +111,11 @@ for (i in 1:length(files)) {
 }
 
 data(face)
-nose <- subset.face3d(face, face$coords[ , 3] > 85 & 
+nose <- subset(face, face$coords[ , 3] > 85 & 
            face$coords[ , 2] > -60 & face$coords[ , 2] < -15)
-display.face3d(nose, type = "mesh")
+plot(nose, type = "mesh")
 
-display.face3d(nose, type = "mesh", new = FALSE)
+plot(nose, type = "mesh", new = FALSE)
 x1 <- nose$coords[2737, ]
 x1 <- (nose$coords[2736, ] + nose$coords[2737, ]) / 2
 x1 <- (nose$coords[2736, ] + nose$coords[2737, ] +
@@ -126,19 +125,19 @@ spheres3d(t(matrix(x1)), col = "red", radius = 0.2)
 spheres3d(t(matrix(x2)), col = "red", radius = 0.2)
 
 source("Face3D/R/planepath.r")
-p <- planepath.face3d(nose, x1, x2, rotation = "optimise")
+p <- planepath(nose, x1, x2, rotation = "optimise")
 lines3d(p$path, col = "green")
 p$length
 
-nose0 <- subset.face3d(nose, 
+nose0 <- subset(nose, 
               !((abs(nose$coords[ , 1] - 20) < 3) &
                 (abs(nose$coords[ , 2] + 35) < 2)))
-display.face3d(nose0, type = "mesh", new = FALSE)
+plot(nose0, type = "mesh", new = FALSE)
 spheres3d(t(matrix(x1)), col = "red", radius = 0.2)
 spheres3d(t(matrix(x2)), col = "red", radius = 0.2)
 
 source("Face3D/R/planepath.r")
-p <- planepath.face3d(nose0, x1, x2, bridge.gaps = TRUE)
+p <- planepath(nose0, x1, x2, bridge.gaps = TRUE)
 lines3d(p$path, col = "green")
 
 
@@ -148,13 +147,13 @@ for (i in 1:nrow(p$path)) {
    scan()
 }
 
-display.face3d(face, type = "mesh", new = FALSE)
+plot(face, type = "mesh", new = FALSE)
 spheres3d(t(matrix(x1)), col = "red", radius = 0.2)
 spheres3d(t(matrix(x2)), col = "red", radius = 0.2)
 
 pop3d()
 source("Face3D/R/planepath.r")
-p <- planepath.face3d(face, x1, x2, rotation = "optimise")
+p <- planepath(face, x1, x2, rotation = "optimise")
 #             boundary = c(1, 1))
 #             boundary = c(100, 100))
 lines3d(p$path, col = "green")
@@ -174,7 +173,7 @@ sum(x1 * rcross)
 
 pop3d()
 source("Face3D/R/planepath.r")
-p <- planepath.face3d(nose, x1, direction = c(1, 1, 0))
+p <- planepath(nose, x1, direction = c(1, 1, 0))
 lines3d(p$path, col = "green")
 
 surface <- subset.face3d(face, 
@@ -182,7 +181,7 @@ surface <- subset.face3d(face,
 display.face3d(surface, type = "mesh")
 
 source("Face3D/R/planepath.r")
-crossings <- planepath.face3d(surface, x1, x2)
+crossings <- planepath(surface, x1, x2)
 lines3d(crossings, col = "green")
 
 # Try this instead of indexing to find the neighbours and shape index
@@ -202,13 +201,13 @@ load("controls-liberty-041.dmp")
 summary(face)
 x1 <- face$lmks["pn", ]
 shape <- subset(face, edist.face3d(face$coords, x1) < 20)
-shape <- index.face3d(shape, directions = TRUE, overwrite = TRUE)
+shape <- curvatures(shape, directions = TRUE, overwrite = TRUE)
 plot(shape, colour = "shape index")
 spheres3d(x1)
 
 pop3d()
 
-pp      <- planepath.face3d(shape, x1, direction = c(0, 1, 0), boundary = 1, rotation = 0, directions = TRUE)
+pp      <- planepath(shape, x1, direction = c(0, 1, 0), boundary = 1, rotation = 0, directions = TRUE)
 si      <- 2 / pi * (atan((pp$kappa2 + pp$kappa1) / (pp$kappa2 - pp$kappa1)))
 clr.r   <- c(rep(0, 3), 0.5, rep(1, 5))
 clr.g   <- c(rep(1, 7), 0.5, 0)

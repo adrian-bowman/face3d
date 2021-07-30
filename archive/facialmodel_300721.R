@@ -3,7 +3,7 @@ facialmodel.face3d <- function(face, pca, npc, pn.id,
                                reltol = 0.01, gc.quantile = 0.9, gcint.minpropmax = 0.1, area.min = 500,
                                monitor = 1, overwrite = FALSE) {
 
-   if (monitor > 0) cat("Fitting facial model ...\n")
+   if (monitor > 0) cat("Fitting shape model ...\n")
    
    if (!("shape.index" %in% names(face))) {
       if (!missing(sample.spacing)) {
@@ -122,11 +122,7 @@ facialmodel.face3d <- function(face, pca, npc, pn.id,
    }
    
    
-   curvefit.fn <- function(x) {
-      
-      if (monitor > 0) cat(match(x, unique(p1)), "... ")
-      
-      nose    <- subset(sbst.high, p1 == x)
+   curvefit.fn <- function(nose) {
       amax    <- areamax(nose, nose$gc, distance)
       pn      <- amax$point
       nrm     <- nose$normals[amax$id, ]
@@ -143,37 +139,24 @@ facialmodel.face3d <- function(face, pca, npc, pn.id,
          if (monitor > 2) monitor3()
       }
       
-      # Find a good starting point by trying different planepaths from pn
+      # Find the nose ridge by locating the longest planepath from pn
       angle.grid <- seq(0, 2 * pi, length = 32)[-1]
-      ft         <- numeric(0)
-      ftmin      <- Inf
+      lngth      <- numeric(0)
       for (angle in angle.grid) {
          dirn  <- c(rotate3d(pdir1, angle = angle, nrm[1], nrm[2], nrm[3]))
-         path  <- planepath(nose, pn, direction = dirn, rotation = 0, monitor = 0)$path
-         if (!is.null(path)) {
-            # The information on the pca$mean curve needs to be passed as an argument of curvefit.fn
-            path.start   <- pca$mean[pn.id - 1:14, ]
-            ind.start    <- which.min(abs(arclength(path.start) - 20))
-            ind.path     <- which.min(abs(arclength(path) - 20))
-            a            <- path[ind.path, ] - path[1, ]
-            b            <- path.start[ind.start, ] - pca$mean[pn.id, ]
-            angle1.start <- acos(sum(a * b) / (edist(a) * edist(b)))
-            axis1.start  <- crossproduct(a, b)
-            axis2.start  <- a
-            fta          <- numeric(0)
-            for (angle in angle.grid)
-               fta <- c(fta, fn.selected(rep(0, 9), angle1.start, angle, axis1.start, axis2.start, pn, monitor = 0))
-            ind          <- which.min(fta)
-            if (fta[ind] < ftmin) {
-               ftmin      <- fta[ind]
-               angle1.min <- angle1.start
-               angle2.min <- angle.grid[ind]
-               axis1.min  <- axis1.start
-               axis2.min  <- axis2.start
-            }
+         path  <- planepath(nose, pn, direction = dirn, rotation = 0)$path
+         lng   <- if (!is.null(path)) max(arclength(path)) else NA
+         lngth <- c(lngth, lng)
+         if (monitor > 1) {
+            pop3d()
+            spheres3d(path, radius = 2)
          }
       }
-      if (is.infinite(ftmin)) return(invisible(c(Inf, rep(0, 20))))
+      angle1.start <- angle.grid[which.max(lngth)]
+      if (length(angle1.start) == 0) return(invisible(c(Inf, rep(0, 20))))
+      
+      dirn  <- c(rotate3d(pdir1, angle1.start, nrm[1], nrm[2], nrm[3]))
+      path  <- planepath(nose, pn, direction = dirn, rotation = 0)$path
 
       if (monitor > 1) {
          pop3d()
@@ -181,17 +164,34 @@ facialmodel.face3d <- function(face, pca, npc, pn.id,
          if (monitor > 2) monitor3() 
       }
 
-      # if (monitor > 1) {
-      #    plot(face)
-      #    spheres3d(pn + a, radius = 2, col = "red")
-      #    fn.selected(rep(0, 9), angle1.start, angle2.start, axis1.start, axis2.start, pn, monitor = monitor)
-      #    if (monitor > 2) monitor3()
-      # }
+      # Locate a starting point for the curve template
+      # The information on the pca$mean curve needs to be passed as an argument of curvefit.fn
+      path.start   <- pca$mean[pn.id - 1:14, ]
+      ind.start    <- which.min(abs(arclength(path.start) - 20))
+      ind.path     <- which.min(abs(arclength(path) - 20))
+      a            <- path[ind.path, ] - path[1, ]
+      b            <- path.start[ind.start, ] - pca$mean[pn.id, ]
+      angle1.start <- acos(sum(a * b) / (edist(a) * edist(b)))
+      axis1.start  <- crossproduct(a, b)
+      axis2.start  <- a
+      
+      ft <- numeric(0)
+      for (angle in angle.grid) {
+         ft <- c(ft, fn.selected(rep(0, 9), angle1.start, angle, axis1.start, axis2.start, pn, monitor = 0))
+      }
+      angle2.start <- angle.grid[which.min(ft)]
+      
+      if (monitor > 1) {
+         plot(face)
+         spheres3d(pn + a, radius = 2, col = "red")
+         fn.selected(rep(0, 9), angle1.start, angle2.start, axis1.start, axis2.start, pn, monitor = monitor)
+         if (monitor > 2) monitor3()
+      }
 
       # Fast search using selected vertices
       opt  <- optim(rep(0, 9), fn.selected, monitor = monitor,
-                    angle1.start = angle1.min, angle2.start = angle2.min,
-                    axis1.start = axis1.min, axis2.start = axis2.min, pn = pn,
+                    angle1.start = angle1.start, angle2.start = angle2.start,
+                    axis1.start = axis1.start, axis2.start = axis2.start, pn = pn,
                     control = list(reltol = reltol))
       
       # Refine by using all vertices
@@ -206,22 +206,22 @@ facialmodel.face3d <- function(face, pca, npc, pn.id,
          pop3d()
       }
 
-      invisible(c(opt$value, opt$par, angle1.min, angle2.min, axis1.min, axis2.min, pn))
+      invisible(c(opt$value, opt$par, angle1.start, angle2.start, axis1.start, axis2.start, pn))
    }
    
    sampled <- if ("sampled" %in% names(face)) face$sampled
               else sample.face3d(face, spacing = sample.spacing)
 
    if (monitor > 0) {
-      cand <- if (length(unique(p1)) > 1) "areas" else "area"
-      cat("  examining", length(unique(p1)), cand, "for the nose ... ")
+      cand <- if (length(unique(p1)) > 1) "candidates" else "candidate"
+      cat("  examining", length(unique(p1)), cand, "for pn ... \n")
    }
    if (monitor > 1) {
       plot(face)
       spheres3d(face$vertices[sampled, ])
    }
    
-   values <- sapply(unique(p1), curvefit.fn)
+   values <- sapply(unique(p1), function(x) curvefit.fn(subset(sbst.high, p1 == x)))
    ind    <- which.min(values[1, ])
    # curves <- fn.rt(values[-1, ind])
    sbs    <- subset(sbst.high, p1 == unique(p1)[ind])
@@ -229,7 +229,7 @@ facialmodel.face3d <- function(face, pca, npc, pn.id,
    curves <- fn.rt(values[2:10, ind], values[11, ind], values[12, ind],
                    values[13:15, ind], values[16:18, ind], values[19:21, ind])
 
-   if (monitor > 0) cat("\n  npc parameters:", values[8:10, ind], "\n")
+   if (monitor > 0) cat("npc parameters:", values[8:10, ind], "\ncompleted.")
    if (monitor > 1) {
       plot(face)
       spheres3d(curves, col = "yellow", radius = 2)

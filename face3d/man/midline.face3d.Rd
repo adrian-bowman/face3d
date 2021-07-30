@@ -22,7 +22,7 @@ midline.face3d(shape, x1, x2, nv = 51, nh = 51, dh = 50, lambda = 1, monitor = F
 }
 
 \details{
-An initial estimate of the midline is created by applying the \code{planepath.face3d} function, using \code{x1} and \code{x2} as end-points.  At each vertical position on this initial curve, narrow horizontal strips centred at different horizontal locations are used to measure asymmetry and the location with minimum asymmetry is found.  The final curve is produced with the use of a roughness penalty.
+An initial estimate of the midline is created by applying the \code{planepath} function, using \code{x1} and \code{x2} as end-points.  At each vertical position on this initial curve, narrow horizontal strips centred at different horizontal locations are used to measure asymmetry and the location with minimum asymmetry is found.  The final curve is produced with the use of a roughness penalty.
 }
 
 \value{

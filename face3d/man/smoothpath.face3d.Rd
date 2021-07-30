@@ -27,8 +27,8 @@ smoothpath.face3d(shape, shape.smooth, lmk1, lmk2, df = 5, distance = 5,
 \item{distance}{A numerical value determining the distance for the shape index to look over.}
 \item{curve.name}{The curve name from the list given in \code{facecurves.face3d} determined by \code{lmk1} and \code{lmk2}.}
 \item{penalty}{Description required.}
-\item{reference.path}{A different 3 dimensional matrix reference curve path than that created by \code{planepath.face3d} betweeen \code{lmk1} and \code{lmk2}.}
-\item{rotation.range}{A value between 0 and \code{pi/2} for \code{planepath.face3d} to test over.}
+\item{reference.path}{A different 3 dimensional matrix reference curve path than that created by \code{planepath} betweeen \code{lmk1} and \code{lmk2}.}
+\item{rotation.range}{A value between 0 and \code{pi/2} for \code{planepath} to test over.}
 \item{si.target}{A numerical value determining the curvature value of interest chosen to be \code{0.5} or \code{-0.5}.}
 \item{boundary}{a numerical vector that determines the percentage boundary expansion past \code{lmk1} and \code{lmk2} that determines the subsetted shape surface.}
 \item{npts}{ A numerical value determining the amount the curve will be resampled to when necessary}

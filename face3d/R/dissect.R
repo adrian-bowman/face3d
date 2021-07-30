@@ -22,7 +22,7 @@ dissect.face3d <- function(shape,  curve, endedge = F){
     curve2 <- rbind(curve, curve[1,])
     curve <- matrix(nrow=0,ncol=3)
     for(i in 1:(nrow(curve2)-1)){
-      pp <- planepath.face3d(shape, curve2[i,], curve2[i+1,])$path
+      pp <- planepath(shape, curve2[i,], curve2[i+1,])$path
       curve <- rbind(curve,pp[-nrow(pp),])
     }
   }

@@ -1,6 +1,6 @@
 #     Search for text in all files
 
-target <- "area"
+target <- "planepath.face3d"
 diry   <- "."
 diry   <- "~/research/face3d/face3d"
 recursive <- FALSE
