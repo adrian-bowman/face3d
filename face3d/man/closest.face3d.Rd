@@ -28,7 +28,7 @@ The returned list has a component \code{ids} which contains the indices of \code
 \value{
 A list with three components: 
 \item{points}{a matrix with three columns giving the co-ordinates of the closest points. If \code{x} is a vector then this component is also returned as a vector.}
-\item{ids}{a matrix with three columns where each row gives the indices of the rows of \code{shape$coords} which encompass the closest point.  Where the corresponding row of \code{point} is a vertex this is a single index, where it lies on an edge there are two indices to define the end points, and where it is an interior point of a triangle there will be three indices for the triangle vertices.  Each row of \code{ids} is padded with \code{NA} as required, to allow it to be returned as a matrix.  If the input argument \code{x} corresponds to a single point then code{NA} padding is not used.}
+\item{ids}{a matrix with three columns where each row gives the indices of the rows of \code{shape$coords} which encompass the closest point.  Where the corresponding row of \code{point} is a vertex this is a single index, where it lies on an edge there are two indices to define the end points, and where it is an interior point of a triangle there will be three indices for the triangle vertices.  Each row of \code{ids} is padded with \code{NA} as required, to allow it to be returned as a matrix.  If the input argument \code{x} corresponds to a single point then \code{NA} padding is not used.}
 \item{distances}{the distance of each closest \code{point} from the corresponding row of \code{x}.}
 }
 

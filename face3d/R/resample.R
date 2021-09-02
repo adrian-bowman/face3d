@@ -1,6 +1,6 @@
 "resample.face3d" <- function(path, n = 50, method = "spline", threshold = 1e-5){
 
-   chd <- arclength.face3d(path)
+   chd <- arclengths(path)
    
    if (method == "spline") {
       xr    <- spline(chd, path[,1], method = "natural", n = n)$y

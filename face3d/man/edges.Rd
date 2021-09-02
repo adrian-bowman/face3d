@@ -1,6 +1,6 @@
-\name{edges.face3d}
+\name{edges}
 
-\alias{edges.face3d}
+\alias{edges}
 
 \title{Locating the edges of a shape}
 
@@ -9,7 +9,7 @@ This function located the points which lie on the edges of a shape.
 }
 
 \usage{
-edges.face3d(shape)
+edges(shape)
 }
 
 \arguments{
@@ -32,8 +32,8 @@ The elements of the returned list is ordered by the number of points in each edg
 
 \examples{
 \dontrun{
-edges <- edges.face3d(template.male)
-sapply(edges, length)
+edgs <- edges(template.male)
+sapply(edgs, length)
 plot(template.male)
-lapply(edges, function(x) rgl::lines3d(template_male$coords[x, ], lwd = 2, col = "blue"))
+lapply(edgs, function(x) rgl::lines3d(template_male$coords[x, ], lwd = 2, col = "blue"))
 }}

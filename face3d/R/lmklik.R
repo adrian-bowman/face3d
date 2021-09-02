@@ -37,11 +37,11 @@ lmklik <- function(face, lmk.name, reflmk.name, monitor = 0) {
       path2   <- planepath(sbst2, lmk, direction = drn2, bothways = TRUE, rotation = 0)
       if (!is.null(path1) & !is.null(path2)) {
          lmkarc  <- path1$arclength[which.min(c(rdist(t(lmk), path1$path)))]
-         gcrv    <- gcurvature.face3d(path1$path, 3)
+         gcrv    <- gcurvature(path1$path, 3)
          gcrvlmk <- approx(gcrv$arclength, gcrv$gcurvature, lmkarc, ties = median)$y
          crv1    <- gcrvlmk / gcrv$gcurvature[gcrv$ind.max]
          lmkarc  <- path2$arclength[which.min(c(rdist(t(lmk), path2$path)))]
-         gcrv    <- gcurvature.face3d(path2$path, 3)
+         gcrv    <- gcurvature(path2$path, 3)
          gcrvlmk <- approx(gcrv$arclength, gcrv$gcurvature, lmkarc, ties = median)$y
          crv2    <- gcrvlmk / gcrv$gcurvature[gcrv$ind.max]
          # if (!is.null(path)) {

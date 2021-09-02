@@ -1,6 +1,6 @@
-\name{distance.face3d}
+\name{edist}
 
-\alias{distance.face3d}
+\alias{edist}
 
 \title{Euclidean distances between 3D co-ordinates}
 
@@ -9,7 +9,7 @@ Euclidean distances between 3d co-ordinates are computed.  The Details section b
 }
 
 \usage{
-distance.face3d(x1, x2, minsum = FALSE)
+edist(x1, x2, minsum = FALSE)
 }
 
 \arguments{

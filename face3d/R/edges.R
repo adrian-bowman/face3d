@@ -1,4 +1,4 @@
-edges.face3d <- function(shape, plot = FALSE, ...) {
+edges <- function(shape) {
 
    # Find the pairs of points which define the edge pieces
    edges <- shape$triangles
@@ -34,8 +34,9 @@ edges.face3d <- function(shape, plot = FALSE, ...) {
       lst[[length(lst) + 1]] <- edg
    }
    
-   # Reorder the list by size
-   sz  <- sapply(lst, length)
+   # Reorder the list by arclength of each edge (longest first)
+   fn  <- function(ids) max(arclengths(shape$vertices[ids, ]))
+   sz  <- sapply(lst, fn)
    lst <- lst[order(sz, decreasing = TRUE)]
 
    invisible(lst)

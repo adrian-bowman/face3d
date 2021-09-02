@@ -1,6 +1,6 @@
-\name{gcurvature.face3d}
+\name{gcurvature}
 
-\alias{gcurvature.face3d}
+\alias{gcurvature}
 
 \title{The geodesic curvature of a three-dimensional curve.}
 
@@ -9,7 +9,7 @@ The curvature of a geodesic curve, derived from a three-dimensional surface, is 
 }
 
 \usage{
-gcurvature.face3d(curve, df, n = 200, graphics = FALSE)
+gcurvature(curve, df, n = 200, graphics = FALSE)
 }
 
 \arguments{

@@ -1,4 +1,4 @@
-gcurvature.face3d <- function(curve, df, direction, n = 200, monitor = FALSE) {
+gcurvature <- function(curve, df, direction, n = 200, monitor = FALSE) {
 
     if (missing(direction)) direction <- ""
     if (missing(df)) stop("df must be specified.")

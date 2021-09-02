@@ -3,10 +3,10 @@ mean_frechet.face3d <- function(shape, values){
   xis           <- shape$vertices
   p             <- shape$vertices
   weights       <- values
-  edges <- edges.face3d(shape)
-  xis           <-     xis[-unique(c(edges)), ]
-  p             <-       p[-unique(c(edges)), ]
-  weights       <- weights[-unique(c(edges))]
+  edgs          <- edges(shape)
+  xis           <-     xis[-unique(c(edgs)), ]
+  p             <-       p[-unique(c(edgs)), ]
+  weights       <- weights[-unique(c(edgs))]
  #error when i-1, j 381
        #Error in path[nrow(path), ] : incorrect number of dimensions
        

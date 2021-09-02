@@ -1,8 +1,8 @@
 #     Search for text in all files
 
-target <- "planepath.face3d"
-diry   <- "."
-diry   <- "~/research/face3d/face3d"
+target    <- "arclength"
+diry      <- "."
+diry      <- "~/research/face3d/face3d"
 recursive <- FALSE
 recursive <- TRUE
 

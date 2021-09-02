@@ -8,7 +8,7 @@ monitor3 <- function() {
 # edist.face3d  <- function(x, x0)
 #    sqrt(rowSums(sweep(x, 2, x0)^2))
 
-arclength <- function(curve)
+arclengths <- function(curve)
    cumsum(c(0, apply(diff(curve)^2, 1, function(x) sqrt(sum(x)))))
 
 projectline.face3d <- function(shape, x1, x2, normal) {
@@ -88,13 +88,13 @@ areas <- function(shape) {
    invisible(list(area = sum(triangle.areas), triangles = triangle.areas, points = wts))
 }
 
-areamax <- function(shape, values, threshold) {
+areamax <- function(shape, values, radius) {
    if (nrow(shape$vertices) != length(values))
       stop(paste("the number of vertices in 'shape' (", nrow(shape$vertices),
                  ") and the length of 'values' (", length(values), ") do not match.", sep = ""))
    rdst <- rdist(shape$vertices)
    vals <- values * areas(shape)$points
-   ints <- apply(rdst, 1, function(x) sum(vals[x < threshold]))
+   ints <- apply(rdst, 1, function(x) sum(vals[x < radius]))
    ind  <- which.max(ints)
    invisible(list(point = shape$vertices[ind, ], value = ints[ind], id = ind))
 }
@@ -112,7 +112,6 @@ center.face3d <- centre.face3d
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage("Package `face3d', version 0.1-1: type help(face3d) for summary information")
 }
-
 
 if(getRversion() >= "2.15.1")
    utils::globalVariables(c("use.colours", "i", "imageplot", "imagematrix",

@@ -9,19 +9,19 @@ The integral of a variable over a radial area is computed at all vertices within
 }
 
 \usage{
-areamax(shape, values, threshold)
+areamax(shape, values, radius)
 }
 
 \arguments{
 \item{shape}{a \code{face3d} object.}
 \item{values}{a vector of values at the locations in \code{shape$vertices}.}
-\item{threshold}{a numerical value specifying the radius around each vertex over which the integral of \code{values} is computed.}
+\item{radius}{a numerical value specifying the radius around each vertex over which the integral of \code{values} is computed.}
 }
 
 \details{
 The use of integration over a local area helps to ameliorate the problem of individual points of local spikes with very high values dominating.
 
-At each location within \code{shape$vertices} the areal integral is approximated through the sum of \code{values} weighted by the areas associated with each element of \code{shape$vertex}; see \code{\link{areas}} for the calculation of the areas.
+At each location within \code{shape$vertices} the areal integral is approximated by the sum of \code{values} weighted by the areas associated with each element of \code{shape$vertices} within a distance of \code{radius}; see \code{\link{areas}} for the calculation of the areas.
 }
 
 \value{

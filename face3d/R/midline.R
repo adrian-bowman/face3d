@@ -27,8 +27,7 @@ midline.face3d <- function(shape, x1, x2, reference, d.asym = 20, d.search = 20,
          kappa2.ref <- c(kappa2.ref, pp.x1$kappa2)
       }
    } 
-   arclength  <- function(path) c(0, cumsum(apply(diff(path)^2, 1, function(x) sqrt(sum(x)))))
-   al         <- arclength(reference)
+   al         <- arclengths(reference)
    kappa1.ref <- approx(al, kappa1.ref, n = nv)$y
    kappa2.ref <- approx(al, kappa2.ref, n = nv)$y
    si.ref     <- approx(al, si.ref,     n = nv)$y
@@ -71,8 +70,8 @@ midline.face3d <- function(shape, x1, x2, reference, d.asym = 20, d.search = 20,
                                  bothways = FALSE, directions = TRUE)
       y.r    <- path.r[[y.name]]
       y.l    <- path.l[[y.name]]
-      al.r   <- arclength(path.r$path)
-      al.l   <- arclength(path.l$path)
+      al.r   <- arclengths(path.r$path)
+      al.l   <- arclengths(path.l$path)
       drns.r <- path.r$directions
       drns.l <- path.l$directions
 
@@ -84,7 +83,7 @@ midline.face3d <- function(shape, x1, x2, reference, d.asym = 20, d.search = 20,
       drns.l <- drns.l[ , , al.l < d.search]
       # path   <- rbind(resample.face3d(path.l, ndel)[ndel:1, ], resample.face3d(path.r, ndel)[-1, ])
       path   <- rbind(path.l[nrow(path.l):1, ], path.r[-1, ])
-      al     <- arclength(path)
+      al     <- arclengths(path)
       mn     <- min(max(al.r[al.r < d.search]), max(al.l[al.l < d.search]))
       del    <- mn / ndel
       path   <- resample.face3d(path, 2 * ndel + 1)
@@ -111,8 +110,8 @@ midline.face3d <- function(shape, x1, x2, reference, d.asym = 20, d.search = 20,
                                        bothways = FALSE, directions = TRUE)
             path.l <- planepath(sbst, path[j, ], direction = -drns[ , 2, j], rotation = 0, boundary = d.asym * 1.1,
                                        bothways = FALSE, directions = TRUE)
-            al.r   <- arclength(path.r$path)
-            al.l   <- arclength(path.l$path)
+            al.r   <- arclengths(path.r$path)
+            al.l   <- arclengths(path.l$path)
             y.r    <- path.r[[y.name]]
             y.l    <- path.l[[y.name]]
             y.r    <- approx(al.r, y.r, (1:ndel) * d.asym / ndel)$y

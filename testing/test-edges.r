@@ -1,7 +1,6 @@
 #     Test code for the edges.face3d function
 
-install.packages("~/OneDrive - University of Glasgow/research/face3d_0.1-1/face3d",
-                 repos = NULL, type = "source")
+install.packages("~/research/face3d/face3d", repos = NULL, type = "source")
 library(face3d)
 library(fields)
 library(rgl)
@@ -9,9 +8,15 @@ library(geometry)
 
 
 load("testing/test-data/edges.RData")
-plot(newshape)
-edges <- edges.face3d(newshape)
-lapply(edges, function(x) rgl::lines3d(newshape$coords[x, ], lwd = 5, col = "blue"))
+dst <- rdist(lips$vertices)
+ind <- which.min(rowSums(dst))
+lips <- subset(lips, dst[ind, ] > 3)
+
+plot(lips)
+edgs <- edges(lips)
+lapply(edgs, function(x) rgl::lines3d(lips$vertices[x, ], lwd = 5, col = "blue"))
+fn  <- function(ids) max(arclengths(lips$vertices[ids, ]))
+sz  <- sapply(edgs, fn)
 
 
 fls <- list.files("Data-Liberty", full.names = TRUE)

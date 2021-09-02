@@ -43,7 +43,7 @@ initialcurves.face3d <- function(face, curve.names,
                               rotation.range = pi/8, bridge.gaps = TRUE)
       drn <- face$landmarks["se", ] - face$landmarks["pn", ]
       pp  <- planepath(sbst, face$landmarks["se", ], direction = drn, rotation = 0)
-      gc  <- gcurvature.face3d(pp$path, 4)
+      gc  <- gcurvature(pp$path, 4)
       face$landmarks["se", ] <- gc$resampled.curve[which.max(gc$gcurvature), ]
       pp  <- planepath(sbst, face$landmarks["se", ], face$landmarks["pn", ],
                               rotation.range = pi/8, bridge.gaps = TRUE)
@@ -82,7 +82,7 @@ initialcurves.face3d <- function(face, curve.names,
          # hist(proj$y)
          # plot(sbst3, new = FALSE, col = sbst3$kappa2)
          cc    <- closestcurve.face3d(sbst, crv)
-         arcl  <- arclength.face3d(crv)[cc$closest.curvept]
+         arcl  <- arclengths(crv)[cc$closest.curvept]
          dst   <- cc$closest.distance
          ind   <- (abs(dst) < 10) & (arcl > 0.4 * max(arcl)) & (arcl < max(arcl))
          # ind   <- (abs(dst) < 5) & (arcl > 0) & (arcl < max(arcl))
@@ -106,9 +106,9 @@ initialcurves.face3d <- function(face, curve.names,
          sbst3 <- curvatures(sbst3, distance = 3, directions = TRUE, overwrite = TRUE)
          drn   <- c(diff(tail(crv, 2)))
          pp    <- planepath(sbst3, ac, direction = drn, rotation = 0)
-         gc    <- gcurvature.face3d(pp$path, 4)
+         gc    <- gcurvature(pp$path, 4)
          ac    <- gc$resampled.curve[gc$ind.max, ]
-         al    <- arclength.face3d(pp$path)
+         al    <- arclengths(pp$path)
          crv   <- rbind(crv, pp$path[al < gc$arclength[gc$ind.max], ], ac)
          if (monitor) {
             # spheres3d(pph$path, radius = 0.5)
@@ -138,14 +138,14 @@ initialcurves.face3d <- function(face, curve.names,
 
    if ("mid-line columella" %in% curve.names) {
       pp0 <- planepath(face1, face$landmarks["acL", ], face$landmarks["acR", ], boundary = NA)
-      gc  <- gcurvature.face3d(pp0$path, 3, monitor = monitor)
+      gc  <- gcurvature(pp0$path, 3, monitor = monitor)
       sn  <- gc$pos.max
       pp1 <- planepath(face1, face$landmarks["pn", ], sn, rotation = 0)
       pp2 <- planepath(face1, sn,
                               direction = c(diff(tail(pp1$path, 2))),
                               normal = pp1$normal, rotation = 0)
       pp2 <- rbind(pp1$path, pp2$path[pp2$arclength < 10, ])
-      gc  <- gcurvature.face3d(pp2, 3, monitor = monitor)
+      gc  <- gcurvature(pp2, 3, monitor = monitor)
       crv <- gc$gcurvature * gc$d2.z
       ind.max <- which.max(crv)
       pos.max <- gc$resampled.curve[ind.max, ]

@@ -1,4 +1,5 @@
 export(
+  arclengths,
   areas,
   areamax,
   as.face3d,
@@ -15,7 +16,7 @@ export(
   curvatures,
   cutface.face3d,
   dissect.face3d,
-  edges.face3d,
+  edges,
   edist,
   editlandmarks.face3d,
   extract.face3d,
@@ -24,7 +25,7 @@ export(
   findac,
   findbayes,
   # findlandmarks.face3d,
-  gcurvature.face3d,
+  gcurvature,
   ginvtps.face3d,
   gpa.face3d,
   gpca.face3d,
