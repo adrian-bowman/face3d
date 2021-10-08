@@ -1,6 +1,6 @@
 #     Search for text in all files
 
-target    <- "arclength"
+target    <- "model.mesh"
 diry      <- "."
 diry      <- "~/research/face3d/face3d"
 recursive <- FALSE

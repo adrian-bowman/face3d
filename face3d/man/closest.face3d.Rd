@@ -22,7 +22,9 @@ closest.face3d(x, shape, nearest = 30, tol = 1e-8)
 \details{
 A subset of \code{shape} is defined, using the \code{subset.face3d} function, through the  \code{nearest} points within \code{shape$coords} which are closest to \code{x}.  This neighbourhood is then searched to identify the closest point to \code{x}.  This closest point may be a vertex of \code{shape}, it may lie on an edge or it may be an interior point of a triangle within the mesh.
 
-The returned list has a component \code{ids} which contains the indices of \code{shape} which identify the vertices which surround the closest point.s
+The returned list has a component \code{ids} which contains the indices of \code{shape} which identify the vertices which surround the closest points.
+
+Rows of \code{x} which contain missing values are removed. In this case the components of the object returned by the function refer to the remaining rows of \code{x}.
 }
 
 \value{

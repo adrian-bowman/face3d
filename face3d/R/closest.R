@@ -100,6 +100,13 @@ closest.face3d    <- function(x, shape, nearest = 30, tol = 1e-8) {
    if (is.vector(x)) x <- matrix(x, nrow = 1)
    if (!is.matrix(x)) stop("x should be a vector or matrix.")
    if (ncol(x) != 3)  stop("x should be a vector of length 3 or a matrix with 3 columns.")
+   ind.na <- which(apply(x, 1, function(x) any(is.na(x))))
+   if (length(ind.na) > 0) {
+      x <- x[-ind, ]
+      cat("rows", ind.na, "of 'x' have missing values and have been removed.\n")
+      if (nrow(x) == 0) stop("'x' is empty.")
+   }
+   
    result <- t(apply(x, 1, closestone, shape = shape, nearest = nearest, tol = tol))
 
    result <- list(points = result[ , 1:3], ids = result[ , 4:6], distances = result[ , 7])

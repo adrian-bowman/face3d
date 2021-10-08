@@ -3,9 +3,9 @@ as.face3d <- function(object, model.mesh = FALSE) {
 if (!model.mesh) {
    class(object) <- "face3d"
    if (is.face3d(object, report = TRUE))
-      object
+      return(invisible(object))
    else
-      NULL
+      return(NULL)
 }
 else {
    if (!is.matrix(object)) stop("'object' is a not a matrix.")

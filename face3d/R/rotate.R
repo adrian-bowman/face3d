@@ -23,7 +23,8 @@ translate.face3d <- function(shape, shift, exclude = NULL) {
 }
 
 rotate.face3d <- function(shape, angle, raxis, centre = rep(0, 3), center,
-                              landmarks = c("sn", "n", "exR", "exL"), rotation = "coronal",
+                              landmark.names = c("sn", "se", "exR", "exL"), landmarks,
+                              rotation = "coronal",
                               exclude = NULL, exclude.centre = NULL, exclude.center) {
         
     if (!any(c("face3d", "matrix") %in% class(shape)))
@@ -64,11 +65,17 @@ rotate.face3d <- function(shape, angle, raxis, centre = rep(0, 3), center,
     }
     
     # Rotation to landmarks
-    id.lndms      <- landmarks
+    if (missing(landmarks)) {
+       if (!("landmarks" %in% names(shape)))
+          stop("there is no 'landmarks' component in the shape object.")
+       else
+          landmarks <- shape$landmarks
+    }
+    id.lndms      <- landmark.names
     lndms.two.mid <- id.lndms[1:2]
     lndms.two.lat <- id.lndms[3:4]
     shape1 <- shape
-    if ("face3d" %in% class(shape1)) shape <- shape$landmarks
+    shape  <- landmarks
 
     if (rotation == "coronal" | rotation == "sagittal sinister" | rotation == "sagittal dexter" | rotation == "transversal"){
        angles <- numeric(3)
@@ -95,9 +102,9 @@ rotate.face3d <- function(shape, angle, raxis, centre = rep(0, 3), center,
        names(angles) <- c("coronal z","coronal x","coronal y")
        ROT <- list(ROT.shape = ROT.shape, angles = angles)
        if ("face3d" %in% class(shape1)) {
-          shape1$vertices <- rgl::rotate3d(shape1$vertices,angles[1],0,0,1)
-          shape1$vertices <- rgl::rotate3d(shape1$vertices,angles[2],1,0,0)
-          shape1$vertices <- rgl::rotate3d(shape1$vertices,angles[3],0,1,0)
+          shape1$vertices  <- rgl::rotate3d(shape1$vertices,angles[1],0,0,1)
+          shape1$vertices  <- rgl::rotate3d(shape1$vertices,angles[2],1,0,0)
+          shape1$vertices  <- rgl::rotate3d(shape1$vertices,angles[3],0,1,0)
           shape1$landmarks <- ROT.shape
           if ("curves" %in% names(shape1)) {
              shape1$curves <- rgl::rotate3d(shape1$curves,angles[1],0,0,1)
@@ -105,9 +112,9 @@ rotate.face3d <- function(shape, angle, raxis, centre = rep(0, 3), center,
              shape1$curves <- rgl::rotate3d(shape1$curves,angles[3],0,1,0)
           }
           if ("mesh" %in% names(shape1)) {
-             shape1$mesh <- rgl::rotate3d(shape1$mesh,angles[1],0,0,1)
-             shape1$mesh <- rgl::rotate3d(shape1$mesh,angles[2],1,0,0)
-             shape1$mesh <- rgl::rotate3d(shape1$mesh,angles[3],0,1,0)
+             shape1$mesh   <- rgl::rotate3d(shape1$mesh,angles[1],0,0,1)
+             shape1$mesh   <- rgl::rotate3d(shape1$mesh,angles[2],1,0,0)
+             shape1$mesh   <- rgl::rotate3d(shape1$mesh,angles[3],0,1,0)
              }
        }
 
