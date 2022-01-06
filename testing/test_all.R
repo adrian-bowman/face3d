@@ -1,10 +1,13 @@
 #     Invoke all the tests
 
+library(face3d)
+devtools::install("face3d")
+
+library(rgl)
+library(crayon)
+
 test.prompt <- FALSE
 reinstall   <- FALSE
-
-library(sm)
-devtools::install("face3d")
 
 test_label <- function(label, test.prompt) {
   cat("\n**", label, "...")

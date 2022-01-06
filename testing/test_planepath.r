@@ -1,8 +1,23 @@
 #     Planepath algorithm
 
-install.packages("~/research/face3d/face3d", repos = NULL, type = "source")
 library(face3d)
-library(rgl)
+if (reinstall) devtools::install("face3d")
+
+test_label("planepath", test.prompt)
+nose <- subset(template_male, edist(x1, template_male) < 30 | edist(x2, template_male) < 30)
+nose <- curvatures(nose)
+x1     <- template_male$landmarks["se", ]
+x2     <- template_male$landmarks["pn", ]
+ppath0 <- planepath(nose, x1, x2, si.target = 1, rotation = 0, monitor = 2)
+ppath  <- planepath(nose, x1, x2, si.target = 1, monitor = 2)
+plot(nose, col = "shape index")
+plot(nose, col = nose$kappa1)
+plot(nose, col = nose$kappa2)
+spheres3d(rbind(x1, x2), col = "yellow")
+spheres3d(ppath0$path, col = "blue", radius = 0.9)
+spheres3d(ppath$path, col = "green", radius = 0.9)
+cat(red("\n*** Why is the optimised version not straight when the template is symmetric? ***\n\n"))
+
 
 # Interpolate the principal directions and normals
 dst   <- rdist(t(template_male$landmarks["pn", ]), template_male$vertices)

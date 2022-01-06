@@ -5,7 +5,7 @@
 \title{Create a smooth path through 2d point space using different methods of choice.}
 
 \description{
-  This function creates a smooth path through 2d point space using different methods of choice.
+This function creates a smooth path through 2d point space using different methods of choice.
 }
 
 \usage{

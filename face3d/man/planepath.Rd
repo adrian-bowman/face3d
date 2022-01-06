@@ -22,7 +22,7 @@ planepath(shape, x1, x2, pts1, pts2, direction, normal, bothways = FALSE,
 \item{x2}{an optional second point which the cutting plane must contain.}
 \item{pts1, pts2}{optional vectors which identifies the rows of \code{shape$coords} which are associated with \code{x1} and, if present, \code{x2}.  See the help file for \code{closest.face3d} for the length and meaning of this.}
 \item{direction}{a vector of length 3 defining a direction from \code{x1} which the plane will contain if \code{x2} is not specified.}
-\item{normal}{a vector of length 3 defining a direction from \code{x1} which the plane will contain, or rotated away from.  If this is not specified then the normal will be computed from the local surface at \code{x1}, and \code{x2} if supplied.}
+\item{normal}{a vector of length 3 defining a direction from \code{x1} which the plane will contain, or be rotated away from.  If this is not specified then the normal will be computed from the local surface at \code{x1}, and \code{x2} if supplied.}
 \item{bothways}{a logical value which determines whether the path is drawn in both directions when only \code{x1} is specified.}
 \item{distance}{the distance used in the call to the function \code{curvatures} if \code{si.target} is not missing, so the shape index is required, but this is not already present.}
 \item{boundary}{this can be set to a vector of length 2 which can be used to restrict the search area within the object.  When \code{x1} and \code{x2} are both present, a numeric vector of length 2, interpreted as multipliers of the distance between \code{x1} and \code{x2}, is expected.  When only \code{x1} is present, a single numeric value is expected.  See the Details section below for how these values are used and for the default behaviour.}

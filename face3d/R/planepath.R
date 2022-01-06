@@ -1,6 +1,6 @@
 planepath <- function(shape, x1, x2, pts1, pts2, direction, normal,
                          bothways = FALSE,
-                         distance = 5, ngrid = 50, boundary, 
+                         distance = 5, ngrid = 51, boundary, 
                          rotation = "optimise", rotation.range = 0.8 * pi/2,
                          bridge.gaps = FALSE, si.target, directions = FALSE,
 								 monitor = 1) {
@@ -169,7 +169,7 @@ planepath <- function(shape, x1, x2, pts1, pts2, direction, normal,
 
    if ((length(rotation) == 1) &&
               (rotation %in% c("optimise", "optimize", "maximise", "maximize")))
-      angle.values <- seq(-rotation.range, rotation.range, length = ngrid)[-1]
+      angle.values <- seq(-rotation.range, rotation.range, length = ngrid)
    else if (is.numeric(rotation))
       angle.values <- rotation
    else
