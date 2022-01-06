@@ -1,6 +1,6 @@
 #     Search for text in all files
 
-target    <- "model.mesh"
+target    <- "rdist"
 diry      <- "."
 diry      <- "~/research/face3d/face3d"
 recursive <- FALSE

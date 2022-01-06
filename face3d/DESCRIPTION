@@ -5,7 +5,7 @@ Version: 0.1
 Date: 2018-05-12
 Author: Adrian Bowman, Stanislav Katina
 Maintainer: Adrian Bowman <adrian.bowman@glasgow.ac.uk>
-Depends: R (>= 2.14)
+Depends: R (>= 3.5.0)
 Suggests: rgl, jpeg, rpanel, tkrplot, shapes, MASS, Matrix, geometry, fields
 Description: Tools to analyse data in the form of three-dimensional facial
              surfaces, such as those arising from laser scanning or  

@@ -1,6 +1,6 @@
-\name{smoothpath.face3d}
+\name{ridgepath.face3d}
 
-\alias{smoothpath.face3d}
+\alias{ridgepath.face3d}
 
 \title{Create a smooth path through 2d point space using different methods of choice.}
 
@@ -9,7 +9,7 @@
 }
 
 \usage{
-smoothpath.face3d(shape, shape.smooth, lmk1, lmk2, df = 5, distance = 5,
+ridgepath.face3d(shape, shape.smooth, lmk1, lmk2, df = 5, distance = 5,
                          curve.name = NA, penalty = 1,
                          reference.path = NA, rotation.range = rotation.range,
                          si.target,
