@@ -113,7 +113,7 @@ curvatures <- function(shape, distance = 10,
    # else
    #    extensn <- extension
    # if (is.logical(extensn) && extensn) {
-      dst     <- rdist(shape$vertices[sbst, ], shape$vertices)
+      dst     <- fields::rdist(shape$vertices[sbst, ], shape$vertices)
       ind.ext <- apply(dst, 1, function(x) which(x <= distance))
       ind.ext <- unique(c(unlist(ind.ext)))
    # }

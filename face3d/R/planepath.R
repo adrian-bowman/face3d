@@ -482,7 +482,7 @@ planepath <- function(shape, x1, x2, pts1, pts2, direction, normal,
       if (monitor > 1) {
       	  rgl::pop3d()
       	  rgl::spheres3d(matrix(c(path), ncol = 3), radius = gspheres)
-      	  cat("angle:", angle, "criterion:", criterion[length(criterion)])
+      	  cat("angle:", angle, "criterion:", criterion[length(criterion)], "\n")
       	  if (monitor > 2) monitor3()
       }
       
@@ -509,6 +509,7 @@ planepath <- function(shape, x1, x2, pts1, pts2, direction, normal,
       else                   plot(shape)
       rgl::spheres3d(path.min, col = "green", radius = gspheres)
       rgl::spheres3d(rbind(x1, x2), col = "red", radius = 1.2 * gspheres)
+      cat("The minimising angle is:", angle.min, "\n")
    }
    
    result <- list(path = path.min, arclength = arclength, criterion = criterion.min,

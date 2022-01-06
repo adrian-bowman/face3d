@@ -1,11 +1,11 @@
 interp.barycentric <- function(X, f, Xnew) {
    # 2D barycentric interpolation at points Xnew of values f measured at locations X.
-   # For each point in Xnew, tsearch identifies the surrounding triangle.
+   # For each point in Xnew, geometry::tsearch identifies the surrounding triangle.
    # The interpolation is constructed as a sparse matrix operation for speed.
    if (!requireNamespace("geometry", quietly = TRUE)) stop("the geometry package is required.")
    if (!requireNamespace("Matrix", quietly = TRUE)) stop("the Matrix package is required.")
    dn     <- geometry::delaunayn(X)
-   tri    <- tsearch(X[ , 1], X[ , 2], dn, Xnew[ , 1], Xnew[ , 2], bary = TRUE)
+   tri    <- geometry::tsearch(X[ , 1], X[ , 2], dn, Xnew[ , 1], Xnew[ , 2], bary = TRUE)
    active <- dn[tri$idx, ]
    ind    <- !is.na(rowSums(active))
    active <- active[ind, ]

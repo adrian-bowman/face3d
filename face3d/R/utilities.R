@@ -92,7 +92,7 @@ areamax <- function(shape, values, radius) {
    if (nrow(shape$vertices) != length(values))
       stop(paste("the number of vertices in 'shape' (", nrow(shape$vertices),
                  ") and the length of 'values' (", length(values), ") do not match.", sep = ""))
-   rdst <- rdist(shape$vertices)
+   rdst <- fields::rdist(shape$vertices)
    vals <- values * areas(shape)$points
    ints <- apply(rdst, 1, function(x) sum(vals[x < radius]))
    ind  <- which.max(ints)
@@ -100,7 +100,7 @@ areamax <- function(shape, values, radius) {
 }
 
 centre.face3d <- function(shape) {
-   rdst <- rdist(shape$vertices)
+   rdst <- fields::rdist(shape$vertices)
    a    <- areas(shape)$points
    rdst <- sweep(rdst, 2, a, "*")
    imin <- which.min(apply(rdst, 1, sum))

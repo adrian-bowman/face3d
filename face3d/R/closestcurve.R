@@ -1,6 +1,6 @@
 closestcurve.face3d <- function(shape, curve) {
    if (!("normals" %in% names(shape))) shape <- normals.face3d(shape)
-   Distance         <- rdist(curve, shape$vertices)
+   Distance         <- fields::rdist(curve, shape$vertices)
    closest.distance <- apply(Distance, 2, min)
    closest.curvept  <- apply(Distance, 2, which.min)
    closest.meshpt   <- apply(Distance, 1, which.min)

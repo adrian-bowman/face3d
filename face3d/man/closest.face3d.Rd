@@ -50,7 +50,7 @@ segments3d(matrix(c(t(cbind(pts, closest))), ncol = 3, byrow = TRUE))
 
 # Projection onto the nose of template_male
 x    <- template_male$lmks["pn", ] + c(0.2, 0.1, 1)
-sbst <- subset(template_male, rdist(t(x), template_male$coords) < 10)
+sbst <- subset(template_male, fields::rdist(t(x), template_male$coords) < 10)
 cx   <- closest.face3d(x, sbst)
 plot(sbst, display = "mesh")
 spheres3d(x, col = "red", radius = 0.1)
