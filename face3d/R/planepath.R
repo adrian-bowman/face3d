@@ -1,8 +1,10 @@
-planepath <- function(shape, x1, x2, pts1, pts2, direction, normal,
-                         bothways = FALSE,
+planepath <- function(shape, x1, x2, pts1, pts2,
+                         si.target,
+                         # integrated = FALSE, integrated.distance = 5,
+                         direction, normal, bothways = FALSE,
                          distance = 5, ngrid = 51, boundary, 
                          rotation = "optimise", rotation.range = 0.8 * pi/2,
-                         bridge.gaps = FALSE, si.target, directions = FALSE,
+                         bridge.gaps = FALSE, directions = FALSE,
 								 monitor = 1) {
 
    if (missing(x1)) stop("x1 must be specified.")
@@ -450,11 +452,25 @@ planepath <- function(shape, x1, x2, pts1, pts2, direction, normal,
          crit <- Inf
       else {
          lngths <- apply(diff(path)^2, 1, function(x) sqrt(sum(x)))
-         if (si.target.present)
-            crit <- -sum(cvals[-1] * lngths, na.rm = TRUE) / sum(lngths)
-            # Old version
-            # crit <- -sum(cvals[-1] * lngths[-length(lngths)], na.rm = TRUE) / 
-            #                            sum(lngths[-length(lngths)]))
+         if (si.target.present) {
+            # The code below integrates the signal over a strip around the path
+            # if (integrated) {
+            #    dst      <- fields::rdist(path, shape$vertices)
+            #    min.dst  <- apply(dst, 2, min)
+            #    ind.path <- apply(dst, 2, which.min)
+            #    # Ignoring the end-points removes the surface behind x1 and x2.
+            #    sbst           <- subset(shape, ind.path > 1 & ind.path < nrow(path) &
+            #                                    min.dst < integrated.distance,
+            #                             retain.indices = TRUE)
+            #    ind  <- sbst$subset
+            #    crit <- -mean(tapply(min.dst[ind], ind.path[ind], mean))
+            # }
+            # else
+               crit <- -sum(cvals[-1] * lngths, na.rm = TRUE) / sum(lngths)
+               # Old version
+               # crit <- -sum(cvals[-1] * lngths[-length(lngths)], na.rm = TRUE) / 
+               #                            sum(lngths[-length(lngths)]))
+         }
          else if (rotation[1] %in% c("maximise", "maxmize"))
             crit <- -sum(lngths)
          else
