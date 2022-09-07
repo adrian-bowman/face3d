@@ -10,12 +10,12 @@ sample.face3d <- function(x, spacing) {
    
    nvert   <- nrow(x)
    sampled <- as.integer(1)
-   mindist  <- edist(x[sampled, ], x)
+   mindist <- edist(x[sampled, ], x)
    while(max(mindist) > spacing & length(sampled) < nvert) {
       isampled <- which.max(mindist)
       sampled  <- c(sampled, isampled)
-      idist     <- edist(x[isampled, ], x)
-      mindist   <- pmin(idist, mindist)
+      idist    <- edist(x[isampled, ], x)
+      mindist  <- pmin(idist, mindist)
    }
    
    invisible(sampled)

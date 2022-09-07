@@ -1,13 +1,13 @@
 #     Search for text in all files
 
-target    <- "distances"
+target    <- "!is.na(x) && abs(x) > 1"
 diry      <- "."
-diry      <- "~/research/face3d/face3d"
+diry      <- "../../face3d/face3d"
 recursive <- FALSE
 recursive <- TRUE
 
 files <- list.files(diry, full.names = TRUE, recursive = recursive)
-ind   <- (!grepl(".R", files) & !grep(".r", files))
+ind   <- (!grepl(".R", files) & !grepl(".r", files))
 if(length(ind) > 0) files <- files[!ind]
 ind   <-        grep(".Rcheck", files)
 ind   <- c(ind, grep(".Rproj",  files))
