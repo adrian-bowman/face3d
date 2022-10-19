@@ -10,7 +10,7 @@ curvatures <- function(shape, distance = 10,
    
    # extension.missing <- missing(extension)
    
-    sbst <- subset
+   sbst <- subset
    if (all(is.logical(subset)) & (length(sbst) == nrow(shape$vertices))) sbst <- which(sbst)
    # if (length(sbst) == 1 && sbst <= 1) sbst <- round(nrow(shape$vertices) * sbst)
 

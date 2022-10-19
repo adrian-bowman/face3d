@@ -1,6 +1,6 @@
 #     Search for text in all files
 
-target    <- "!is.na(x) && abs(x) > 1"
+target    <- "minsum"
 diry      <- "."
 diry      <- "../../face3d/face3d"
 recursive <- FALSE

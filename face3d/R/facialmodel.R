@@ -63,7 +63,7 @@ facialmodel <- function(face, pca, npc, pn.id,
       edge      <- edges(face)[[1]]
       edge      <- face$vertices[edge, ]
       edge.dst  <- sapply(unique(p1), function(x)
-                          edist(subset(sbst.high, p1 == x), edge, minsum = TRUE) / length(p1[p1 == x]))
+                          edist(subset(sbst.high, p1 == x), edge, "minsum") / length(p1[p1 == x]))
       ind       <- unique(p1)[edge.dst > trim]
       if (length(ind) > 0) sbst.high <- subset(sbst.high, p1 %in% ind)
       p1        <- p1[p1 %in% ind]
@@ -95,9 +95,9 @@ facialmodel <- function(face, pca, npc, pn.id,
       crvs1 <- fn.rt(pars, reference)
       
       if (distance.type == "sampled")
-         dst   <- edist(crvs1, face$vertices[sampled, ], minsum = TRUE) / nrow(crvs1)
+         dst   <- edist(crvs1, face$vertices[sampled, ], "minsum") / nrow(crvs1)
       else if (distance.type == "all")
-         dst   <- edist(crvs1, reference$face.pn$vertices, minsum = TRUE) / nrow(crvs1)
+         dst   <- edist(crvs1, reference$face.pn$vertices, "minsum") / nrow(crvs1)
       else if (distance.type == "projection") {
          # Distance based on projection using the tangent to the curve.
          # This needs diffmat from create_priors_curves.
@@ -189,7 +189,9 @@ facialmodel <- function(face, pca, npc, pn.id,
    if (monitor > 0) cat("  refining by using all vertices ....\n")
    # reference$centre  <- apply(curves - pca$mean, 2, mean)
    reference$centre  <- reference$pn - pca$mean[pn.id, ]
-   reference$face.pn <- subset(face, edist(face, reference$pn) < 120)
+   # reference$face.pn <- subset(face, edist(face, reference$pn) < 120)
+   nearcurves        <- apply(edist(face, curves), 1, function(x) min(x) < 10)
+   reference$face.pn <- subset(face, nearcurves)
    opt    <- optim(c(first[2:7], rep(0, npc)), distance.fn, distance.type = "all",
                     reference = reference, monitor = monitor, control = list(reltol = reltol))
    curves <- fn.rt(opt$par, reference)
