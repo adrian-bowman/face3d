@@ -14,7 +14,7 @@ edist(x1, x2, type = "pairwise", index = FALSE, x2curve = FALSE)
 
 \arguments{
 \item{x1, x2}{each of \code{x1} and {x2} may be either a vector of 3d co-ordinates or a three-column matrix whose rows are 3d co-ordinates.  One or both of \code{x1} or \code{x2} may be a \code{face3d} object.  \code{x2} may be omitted.}
-\item{type}{a character string which determines which type of distance is computed.  The available options are \code{"pairwise}, \code{"min"} and \code{"minsum"}.  The distances computed in each case are described in the Values section below.}
+\item{type}{a character string which determines which type of distance is computed. The available options are \code{"pairwise"}, \code{"min"} and \code{"minsum"}. The distances computed in each case are described in the Values section below.}
 \item{index}{a logical argument which, in the case of \code{type = "min"}, determines whether an index is returned to identify which point in \code{x2} is closest to each point of \code{x1}.}
 \item{x2curve}{a logical value which identifies \code{x2} as a curve or set of curves.  In this case distances will be signed when \code{type = "min"}.}
 }
