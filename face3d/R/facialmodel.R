@@ -190,8 +190,7 @@ facialmodel <- function(face, pca, npc, pn.id,
    # reference$centre  <- apply(curves - pca$mean, 2, mean)
    reference$centre  <- reference$pn - pca$mean[pn.id, ]
    # reference$face.pn <- subset(face, edist(face, reference$pn) < 120)
-   nearcurves        <- apply(edist(face, curves), 1, function(x) min(x) < 10)
-   reference$face.pn <- subset(face, nearcurves)
+   reference$face.pn <- subset(face, edist(face, curves, "min") < 10)
    opt    <- optim(c(first[2:7], rep(0, npc)), distance.fn, distance.type = "all",
                     reference = reference, monitor = monitor, control = list(reltol = reltol))
    curves <- fn.rt(opt$par, reference)
