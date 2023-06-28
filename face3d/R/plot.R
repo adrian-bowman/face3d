@@ -240,17 +240,18 @@ plot.face3d <- function (shape, display = c("surface", "lines"), plot.isolated =
 }
 
 sicolour.face3d <- function(x) {
-   outside  <- (!is.na(x) && abs(x) > 1)
+   outside  <- (abs(x) > 1)
    if (any(outside)) stop("some values are outside the range -1 to 1.")
    brks.r   <- c(rep(0, 3), 0.5, rep(1, 5))
    brks.g   <- c(rep(1, 7), 0.5, 0)
    brks.b   <- c(0, 0.5, rep(1, 3), 0.5, rep(0, 3))
    brks     <- seq(-1, 1, by = 0.25)
    clr      <- rep("white", length(x))
-   ind      <- which(!is.na(x) & !outside)
-   clr[ind] <- rgb(approx(brks, brks.r, xout = x[ind])$y,
-                   approx(brks, brks.g, xout = x[ind])$y,
-                   approx(brks, brks.b, xout = x[ind])$y)
+   ind      <- which(!outside)
+   if (length(ind) > 0)
+     clr[ind] <- rgb(approx(brks, brks.r, xout = x[ind])$y,
+                     approx(brks, brks.g, xout = x[ind])$y,
+                     approx(brks, brks.b, xout = x[ind])$y)
    clr
 }
 

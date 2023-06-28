@@ -4,7 +4,7 @@ Installation
 ------------
 
 In R
-	     install.packages("~/research/face3d/face3d", repos = NULL, type = "source")
+	     install.packages("face3d", repos = NULL, type = "source")
 
 Alternatively, in a terminal window, go to the level where the face3d directory is found.  
 
