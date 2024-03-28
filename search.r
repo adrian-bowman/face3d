@@ -1,8 +1,8 @@
 #     Search for text in all files
 
-target    <- "minsum"
-diry      <- "."
+target    <- "3d"
 diry      <- "../../face3d/face3d"
+diry      <- "face3d/R"
 recursive <- FALSE
 recursive <- TRUE
 

@@ -3,24 +3,18 @@
 Installation
 ------------
 
-In R
-	     install.packages("face3d", repos = NULL, type = "source")
+To install using devtools to unload the current version:
+      devtools::install("face3d")
+      
 
-Alternatively, in a terminal window, go to the level where the face3d directory is found.  
-
-      cd ~/OneDrive\ -\ University\ of\ Glasgow/research/face3d_0.1-1
-
-Type
-
+Alternatively, in a terminal window, go to the level where the face3d directory is found and type
       R CMD INSTALL face3d
-
-to install the library.
-
-On Windows 10
-      install.packages("C:/Users/Adrian Bowman/OneDrive - University of Glasgow/research/face3d_0.1-1/face3d", repos = NULL, type = "source")
 
 To install from GitHub:
 	   devtools::install_github("adrian-bowman/face3d/face3d")
+
+On Windows 10
+      install.packages("face3d", repos = NULL, type = "source")
 
 Checking
 --------
@@ -50,4 +44,4 @@ Github PAT regeneration
 Logon to Github and regenerate the PAT.  Copy this immediately.
 In RStudio:
       gitcreds::gitcreds_set()
-This will give a prompt for teh new PAT.
+This will give a prompt for the new PAT.
